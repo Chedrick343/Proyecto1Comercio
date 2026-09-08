@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-
+import Header from './components/header/Header';
 import SearchBar from './components/search-bar/searchBar';
 import Filters from './components/filters/filters';
 import ProductsGrid from './components/Products/Products';
+
 
 import {
     DEFAULT_FILTERS,
@@ -15,14 +16,10 @@ import { searchProducts } from './utils/algolia';
 
 export default function App() {
 
-    /* BORRADOR: lo que el usuario está escribiendo / marcando ahora */
 
     const [draftSearch, setDraftSearch] = useState('');
     const [draftFilters, setDraftFilters] = useState<ProductFilters>(DEFAULT_FILTERS);
 
-
-    /* APLICADO: la consulta que realmente se ejecutó
-       Se actualiza solo cuando se presiona Search */
 
     const [appliedFilters, setAppliedFilters] = useState<ProductFilters>(DEFAULT_FILTERS);
     const [products, setProducts] = useState<Product[]>([]);
@@ -68,7 +65,7 @@ export default function App() {
 
         <main className="app">
 
-            {/* Acá van tus componentes <Header /> y <Logo /> */}
+            <Header />
 
             <SearchBar
                 value={draftSearch}
