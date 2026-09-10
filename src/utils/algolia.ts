@@ -45,3 +45,31 @@ export async function searchProducts(
     const data: { hits: Product[] } = await response.json();
     return data.hits;
 }
+
+export async function getProductById(productId: string): Promise<Product> {
+    if (!applicationId || !searchApiKey || !indexName) {
+        throw new Error(
+            'Faltan VITE_ALGOLIA_APPLICATION_ID, VITE_ALGOLIA_SEARCH_API_KEY o VITE_ALGOLIA_INDEX_NAME.'
+        );
+    }
+
+    const response = await fetch(
+        `https://${applicationId}-dsn.algolia.net/1/indexes/${encodeURIComponent(indexName)}/${encodeURIComponent(productId)}`,
+        {
+            headers: {
+                'X-Algolia-Application-Id': applicationId,
+                'X-Algolia-API-Key': searchApiKey
+            }
+        }
+    );
+
+    if (response.status === 404) {
+        throw new Error('No encontramos el producto solicitado.');
+    }
+
+    if (!response.ok) {
+        throw new Error(`Algolia respondió con HTTP ${response.status}.`);
+    }
+
+    return response.json() as Promise<Product>;
+}

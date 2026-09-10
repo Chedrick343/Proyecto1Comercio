@@ -91,6 +91,17 @@
     border-radius: 10px;
 
     overflow: hidden;
+    color: inherit;
+    text-decoration: none;
+}
+
+.card:hover {
+    border-color: #ffffff;
+}
+
+.card:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
 }
 
 .imageWrapper {

@@ -1,25 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ProductsGrid.module.css';
-
-
-/* =====================
-   TIPOS
-===================== */
-
-export interface Product {
-    objectID: string;
-    title: string;
-    description: string;
-    brand: string;
-    price: number;
-    currency: string;
-    categories: string[];
-    in_stock: boolean;
-    stock_quantity: number;
-    rating: number;
-    image_url: string;
-    facets: Record<string, string | number | boolean>;
-}
+import type { Product } from '../../utils/Products';
 
 
 interface ProductsGridProps {
@@ -33,7 +15,6 @@ const PRODUCTS_PER_PAGE = 10;
 /* =====================
    UTILIDADES
 ===================== */
-
 const formatPrice = (price: number, currency: string) =>
     new Intl.NumberFormat('es-CR', {
         style: 'currency',
@@ -93,12 +74,11 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     };
 
 
-    /* =====================
-       ESTADO VACÍO
-    ===================== */
+     /* =====================
+         ESTADO VACÍO
+     ===================== */
 
-    if (allProducts.length === 0) {
-
+     if (allProducts.length === 0) {
         return (
             <section className={styles.products}>
                 <p className={styles.emptyState}>
@@ -140,8 +120,9 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
                     {visibleProducts.map((product) => (
 
-                        <article
+                        <Link
                             key={product.objectID}
+                            to={`/producto/${encodeURIComponent(product.objectID)}`}
                             className={styles.card}
                         >
 
@@ -183,7 +164,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
                             </div>
 
-                        </article>
+                        </Link>
 
                     ))}
 

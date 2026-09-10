@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Header from './components/header/Header';
 import SearchBar from './components/search-bar/searchBar';
 import Filters from './components/filters/filters';
 import ProductsGrid from './components/Products/Products';
 import NavBar from './components/navBar/NavBar';
+import ProductDetailPage from './components/product-detail/ProductDetailPage';
 
 
 import {
@@ -64,28 +66,36 @@ export default function App() {
 
     return (
 
-        <main className="app">
+        <Routes>
+            <Route path="/producto/:productId" element={<ProductDetailPage />} />
+            <Route
+                path="*"
+                element={
+                    <main className="app">
 
-            <Header />
+                        <Header />
 
-            <SearchBar
-                value={draftSearch}
-                onChange={setDraftSearch}
-                onSearch={handleSearch}
+                        <SearchBar
+                            value={draftSearch}
+                            onChange={setDraftSearch}
+                            onSearch={handleSearch}
+                        />
+
+                        <Filters
+                            filters={draftFilters}
+                            onFiltersChange={setDraftFilters}
+                        />
+
+                        {isLoading && <p>Cargando productos...</p>}
+                        {error && <p role="alert">{error}</p>}
+                        {!isLoading && !error && <ProductsGrid products={products} />}
+
+                        <NavBar />
+
+                    </main>
+                }
             />
-
-            <Filters
-                filters={draftFilters}
-                onFiltersChange={setDraftFilters}
-            />
-
-            {isLoading && <p>Cargando productos...</p>}
-            {error && <p role="alert">{error}</p>}
-            {!isLoading && !error && <ProductsGrid products={products} />}
-
-            <NavBar />
-
-        </main>
+        </Routes>
 
     );
 }
