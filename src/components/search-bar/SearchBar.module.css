@@ -5,6 +5,14 @@
     box-sizing: border-box;
 }
 
+@media (min-width: 861px) {
+    .searchBar {
+        flex: 1;
+        padding: 0;
+        background-color: transparent;
+    }
+}
+
 
 .searchGroup {
     display: flex;

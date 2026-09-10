@@ -9,6 +9,16 @@
     background-color: #666;
 }
 
+@media (min-width: 861px) {
+    .logoContainer {
+        height: auto;
+
+        justify-content: flex-start;
+
+        background-color: transparent;
+    }
+}
+
 .logo {
     margin: 0;
 
@@ -18,4 +28,10 @@
     font-size: 2.4rem;
     font-weight: 700;
     letter-spacing: 1px;
+}
+
+@media (min-width: 861px) {
+    .logo {
+        font-size: 1.8rem;
+    }
 }

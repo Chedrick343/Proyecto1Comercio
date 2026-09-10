@@ -73,22 +73,34 @@ export default function App() {
                 element={
                     <main className="app">
 
-                        <Header />
+                        <div className="top-bar">
 
-                        <SearchBar
-                            value={draftSearch}
-                            onChange={setDraftSearch}
-                            onSearch={handleSearch}
-                        />
+                            <Header />
 
-                        <Filters
-                            filters={draftFilters}
-                            onFiltersChange={setDraftFilters}
-                        />
+                            <SearchBar
+                                value={draftSearch}
+                                onChange={setDraftSearch}
+                                onSearch={handleSearch}
+                            />
 
-                        {isLoading && <p>Cargando productos...</p>}
-                        {error && <p role="alert">{error}</p>}
-                        {!isLoading && !error && <ProductsGrid products={products} />}
+                        </div>
+
+                        <div className="catalog-layout">
+
+                            <Filters
+                                filters={draftFilters}
+                                onFiltersChange={setDraftFilters}
+                            />
+
+                            <div className="catalog-results">
+
+                                {isLoading && <p>Cargando productos...</p>}
+                                {error && <p role="alert">{error}</p>}
+                                {!isLoading && !error && <ProductsGrid products={products} />}
+
+                            </div>
+
+                        </div>
 
                         <NavBar />
 
