@@ -7,7 +7,6 @@ import { getProductById } from '../../utils/algolia';
 import { getJewelryThemeVariables } from '../../theme/jewelryTheme';
 import styles from './ProductDetailPage.module.css';
 
-// CSS variables for the jewelry accent palette, scoped to this page only.
 const jewelryThemeStyle = getJewelryThemeVariables();
 
 const formatPrice = (price: number, currency: string) =>
@@ -82,7 +81,9 @@ export default function ProductDetailPage() {
     if (isLoading) {
         return (
             <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-                <Header />
+                <div className="top-bar">
+                    <Header />
+                </div>
                 <p className={styles.stateMessage}>Cargando información del producto...</p>
                 <NavBar />
             </main>
@@ -92,7 +93,9 @@ export default function ProductDetailPage() {
     if (errorMessage || !product) {
         return (
             <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-                <Header />
+                <div className="top-bar">
+                    <Header />
+                </div>
                 <p className={styles.stateMessage} role="alert">
                     {errorMessage ?? 'Producto no encontrado.'}
                 </p>
@@ -106,7 +109,9 @@ export default function ProductDetailPage() {
 
     return (
         <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-            <Header />
+            <div className="top-bar">
+                <Header />
+            </div>
 
             <div className={styles.content}>
                 <Link className={styles.backLink} to="/">
