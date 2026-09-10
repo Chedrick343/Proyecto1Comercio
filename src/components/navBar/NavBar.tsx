@@ -1,71 +1,43 @@
 import styles from './NavBar.module.css';
 
-import search from '../../assets/searchhimg1.png';
-import house from '../../assets/houseimg1.png';
-import cart from '../../assets/shoppingkartimg1.png';
-import profile from '../../assets/profileimg1.png';
+import { FaSearch } from 'react-icons/fa';
+import { FaHome } from 'react-icons/fa';
+import { FaShoppingCart } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
+import type { IconType } from 'react-icons';
 import { useState } from 'react';
+
 type NavOption = 'home' | 'search' | 'account' | 'cart';
+
+const navOptions: { id: NavOption; Icon: IconType; label: string }[] = [
+    { id: 'search', Icon: FaSearch, label: 'Buscar' },
+    { id: 'home', Icon: FaHome, label: 'Inicio' },
+    { id: 'cart', Icon: FaShoppingCart, label: 'Carrito' },
+    { id: 'account', Icon: FaUser, label: 'Cuenta' }
+];
 
 export default function NavBar() {
 
     const [selected, setSelected] = useState<NavOption>('home');
 
     return (
-        <nav className={styles.navBar}>
+        <nav className={styles.navBar} aria-label="Navegación principal">
 
-            {/* Círculo que se mueve */}
-            <div
-                className={`${styles.indicator} ${styles[selected]}`}
-            ></div>
+            {navOptions.map(({ id, Icon, label }) => (
+                <button
+                    key={id}
+                    type="button"
+                    className={`${styles.navItem} ${
+                        selected === id ? styles.active : ''
+                    }`}
+                    onClick={() => setSelected(id)}
+                    aria-current={selected === id ? 'page' : undefined}
+                >
+                    <Icon className={styles.navIcon} size={28} aria-hidden="true" />
+                    <span className={styles.srOnly}>{label}</span>
+                </button>
+            ))}
 
-
-            {/* SEARCH */}
-            <button
-                className={`${styles.navItem} ${
-                    selected === 'search' ? styles.active : ''
-                }`}
-                onClick={() => setSelected('search')}
-            >
-                <img src={search} alt="Search" />
-                {selected === 'search' && <span>Search</span>}
-            </button>
-
-
-            {/* HOME */}
-            <button
-                className={`${styles.navItem} ${
-                    selected === 'home' ? styles.active : ''
-                }`}
-                onClick={() => setSelected('home')}
-            >
-                <img src={house} alt="Home" />
-                {selected === 'home' && <span>Home</span>}
-            </button>
-
-
-            {/* SHOPPING CART */}
-            <button
-                className={`${styles.navItem} ${
-                    selected === 'cart' ? styles.active : ''
-                }`}
-                onClick={() => setSelected('cart')}
-            >
-                <img src={cart} alt="Shopping Cart" />
-                {selected === 'cart' && <span>Cart</span>}
-            </button>
-
-
-            {/* ACCOUNT */}
-            <button
-                className={`${styles.navItem} ${
-                    selected === 'account' ? styles.active : ''
-                }`}
-                onClick={() => setSelected('account')}
-            >
-                <img src={profile} alt="Account" />
-                {selected === 'account' && <span>Account</span>}
-            </button>
 
         </nav>
     );
