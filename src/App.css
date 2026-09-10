@@ -48,7 +48,11 @@
         align-items: center;
         gap: 24px;
 
+        /* Alto fijo para que la barra mida lo mismo con o sin buscador
+           (en el catálogo el buscador la ensancha; en el detalle no) */
+        min-height: 130px;
         padding: 16px 32px;
+        box-sizing: border-box;
 
         background-color: #2b2b2b;
         border-radius: 0 0 20px 20px;
