@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaThLarge, FaList } from 'react-icons/fa';
 import styles from './ProductsGrid.module.css';
 import type { Product } from '../../utils/Products';
 
@@ -9,7 +10,10 @@ interface ProductsGridProps {
 }
 
 
-const PRODUCTS_PER_PAGE = 10;
+type ViewMode = 'grid' | 'list';
+
+
+const PRODUCTS_PER_PAGE = 12;
 
 
 /* =====================
@@ -35,8 +39,9 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     const allProducts = useMemo(() => products, [products]);
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const sectionRef = useRef<HTMLElement>(null);
 
 
     const totalPages = Math.max(
@@ -69,8 +74,8 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
         setCurrentPage(page);
 
-        // Devuelve el scroll al inicio al cambiar de página
-        scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        // Vuelve al inicio de la sección de productos al cambiar de página
+        sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
 
@@ -91,7 +96,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
     return (
 
-        <section className={styles.products}>
+        <section className={styles.products} ref={sectionRef}>
 
             {/* =====================
                 ENCABEZADO
@@ -103,32 +108,68 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                     Productos
                 </h2>
 
-                <span className={styles.productsCount}>
-                    {allProducts.length} resultados
-                </span>
+                <div className={styles.headerRight}>
+
+                    <span className={styles.productsCount}>
+                        {allProducts.length} resultados
+                    </span>
+
+                    <div className={styles.viewToggle} role="group" aria-label="Tipo de vista">
+
+                        <button
+                            type="button"
+                            className={`${styles.viewButton} ${
+                                viewMode === 'grid' ? styles.viewButtonActive : ''
+                            }`}
+                            onClick={() => setViewMode('grid')}
+                            aria-pressed={viewMode === 'grid'}
+                        >
+                            <FaThLarge aria-hidden="true" />
+                            <span className={styles.srOnly}>Ver en cuadrícula</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className={`${styles.viewButton} ${
+                                viewMode === 'list' ? styles.viewButtonActive : ''
+                            }`}
+                            onClick={() => setViewMode('list')}
+                            aria-pressed={viewMode === 'list'}
+                        >
+                            <FaList aria-hidden="true" />
+                            <span className={styles.srOnly}>Ver en lista</span>
+                        </button>
+
+                    </div>
+
+                </div>
 
             </header>
 
 
             {/* =====================
-                CUADRÍCULA CON SCROLL
+                CUADRÍCULA
             ===================== */}
 
-            <div className={styles.scrollArea} ref={scrollRef}>
+            <div className={styles.scrollArea}>
 
-                <div className={styles.grid}>
+                <div className={viewMode === 'grid' ? styles.grid : styles.list}>
 
                     {visibleProducts.map((product) => (
 
                         <Link
                             key={product.objectID}
                             to={`/producto/${encodeURIComponent(product.objectID)}`}
-                            className={styles.card}
+                            className={
+                                viewMode === 'list'
+                                    ? `${styles.card} ${styles.listCard}`
+                                    : styles.card
+                            }
                         >
 
                             {/* IMAGEN */}
 
-                            <div className={styles.imageWrapper}>
+                            <div className={viewMode === 'list' ? styles.listImageWrapper : styles.imageWrapper}>
 
                                 <img
                                     src={product.image_url}

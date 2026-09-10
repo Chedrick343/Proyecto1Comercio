@@ -130,12 +130,14 @@ export default function Filters({ filters, onFiltersChange }: FiltersProps) {
 
 
             {/* PANEL DE FILTROS */}
+            {/* Siempre está en el DOM: en móvil el CSS lo oculta hasta que
+                se abre, y en escritorio el CSS lo muestra siempre (barra lateral) */}
 
-            {filtersOpen && (
-
-                <div className={styles.filtersPanel}>
-
-
+            <div
+                className={`${styles.filtersPanel} ${
+                    filtersOpen ? styles.filtersPanelOpen : ''
+                }`}
+            >
 
                     <div className={styles.filterSection}>
 
@@ -277,7 +279,6 @@ export default function Filters({ filters, onFiltersChange }: FiltersProps) {
 
                 </div>
 
-            )}
 
         </section>
 
