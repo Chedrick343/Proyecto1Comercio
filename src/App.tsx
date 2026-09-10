@@ -4,6 +4,7 @@ import Header from './components/header/Header';
 import SearchBar from './components/search-bar/searchBar';
 import Filters from './components/filters/filters';
 import ProductsGrid from './components/Products/Products';
+import NavBar from './components/navBar/NavBar';
 
 
 import {
@@ -81,6 +82,8 @@ export default function App() {
             {isLoading && <p>Cargando productos...</p>}
             {error && <p role="alert">{error}</p>}
             {!isLoading && !error && <ProductsGrid products={products} />}
+
+            <NavBar />
 
         </main>
 

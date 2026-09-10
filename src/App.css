@@ -16,7 +16,10 @@
     outline-offset: 2px;
   }
 }
-
+.app {
+    padding-bottom: 100px;
+    box-sizing: border-box;
+}
 .hero {
   position: relative;
 
