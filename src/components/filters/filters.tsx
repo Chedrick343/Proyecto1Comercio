@@ -1,73 +1,72 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
 import styles from './Filters.module.css';
+
 import {
     MIN_PRICE,
     MAX_PRICE,
     PRICE_STEP,
+    type Product,
     type ProductFilters
 } from '../../utils/Products';
 
 
-const categories = [
-    'Tecnología',
-    'Computadoras',
-    'Laptops',
-    'Periféricos',
-    'Mouse',
-    'Teclados',
-    'Monitores',
-    'Audio',
-    'Audífonos',
-    'Telefonía',
-    'Smartphones',
-    'Tablets',
-    'Dispositivos móviles',
-    'Componentes',
-    'Almacenamiento',
-    'Videojuegos',
-    'Consolas',
-    'Gaming',
-    'Tarjetas gráficas',
-    'Memoria RAM',
-    'Redes',
-    'Routers',
-    'Wearables',
-    'Smartwatches',
-    'Hogar inteligente',
-    'Asistentes de voz',
-    'Entretenimiento',
-    'Streaming',
-    'Accesorios',
-    'Cargadores',
-    'Controles',
-    'Oficina',
-    'Impresoras',
-    'Memorias'
-];
-
-
 interface FiltersProps {
+    products: Product[];
     filters: ProductFilters;
     onFiltersChange: (filters: ProductFilters) => void;
 }
 
 
-export default function Filters({ filters, onFiltersChange }: FiltersProps) {
+export default function Filters({
+    products,
+    filters,
+    onFiltersChange
+}: FiltersProps) {
 
-    // Lo único que sigue siendo estado propio del componente:
-    // si el panel está abierto o cerrado
     const [filtersOpen, setFiltersOpen] = useState(false);
 
-
-    const { selectedCategories, minPrice, maxPrice } = {
-        selectedCategories: filters.categories,
-        minPrice: filters.minPrice,
-        maxPrice: filters.maxPrice
+    const { selectedCategories } = {
+        selectedCategories: filters.categories
     };
 
+    /* =====================
+       PRECIO EN BORRADOR
+       (solo se aplica al presionar el botón)
+    ===================== */
+
+    const [draftMinPrice, setDraftMinPrice] = useState(filters.minPrice);
+    const [draftMaxPrice, setDraftMaxPrice] = useState(filters.maxPrice);
+
+    // Si los filtros aplicados cambian desde fuera (ej. "Clear filters"),
+    // sincronizamos el borrador para que no quede desfasado.
+    useEffect(() => {
+        setDraftMinPrice(filters.minPrice);
+        setDraftMaxPrice(filters.maxPrice);
+    }, [filters.minPrice, filters.maxPrice]);
+
+    const priceIsDirty =
+        draftMinPrice !== filters.minPrice ||
+        draftMaxPrice !== filters.maxPrice;
+
+
+    /* =====================
+       CATEGORÍAS
+    ===================== */
+
+    const categories = useMemo(() => {
+        const uniqueCategories = new Set<string>();
+
+        products.forEach((product) => {
+            product.categories.forEach((category) => {
+                uniqueCategories.add(category);
+            });
+        });
+
+        return Array.from(uniqueCategories).sort();
+    }, [products]);
 
     const handleCategoryChange = (category: string) => {
-
         const nextCategories = selectedCategories.includes(category)
             ? selectedCategories.filter((item) => item !== category)
             : [...selectedCategories, category];
@@ -79,28 +78,36 @@ export default function Filters({ filters, onFiltersChange }: FiltersProps) {
     };
 
 
-    const handleMinPriceChange = (value: number) => {
+    /* =====================
+       PRECIO (borrador local)
+    ===================== */
 
-        // Evita que el mínimo sea mayor que el máximo
-        if (value <= maxPrice) {
-            onFiltersChange({ ...filters, minPrice: value });
+    const handleDraftMinPriceChange = (value: number) => {
+        if (value <= draftMaxPrice) {
+            setDraftMinPrice(value);
         }
+    };
 
+    const handleDraftMaxPriceChange = (value: number) => {
+        if (value >= draftMinPrice) {
+            setDraftMaxPrice(value);
+        }
+    };
+
+    const handleApplyPrice = () => {
+        onFiltersChange({
+            ...filters,
+            minPrice: draftMinPrice,
+            maxPrice: draftMaxPrice
+        });
     };
 
 
-    const handleMaxPriceChange = (value: number) => {
-
-        // Evita que el máximo sea menor que el mínimo
-        if (value >= minPrice) {
-            onFiltersChange({ ...filters, maxPrice: value });
-        }
-
-    };
-
+    /* =====================
+       LIMPIAR FILTROS
+    ===================== */
 
     const handleClearFilters = () => {
-
         onFiltersChange({
             ...filters,
             categories: [],
@@ -108,6 +115,8 @@ export default function Filters({ filters, onFiltersChange }: FiltersProps) {
             maxPrice: MAX_PRICE
         });
 
+        setDraftMinPrice(MIN_PRICE);
+        setDraftMaxPrice(MAX_PRICE);
     };
 
 
@@ -115,169 +124,112 @@ export default function Filters({ filters, onFiltersChange }: FiltersProps) {
 
         <section className={styles.filters}>
 
-            {/* BOTÓN PRINCIPAL */}
-
             <button
+                type="button"
                 className={styles.filtersButton}
                 onClick={() => setFiltersOpen(!filtersOpen)}
             >
                 Filters
                 {selectedCategories.length > 0 && ` (${selectedCategories.length})`}
-                <span>
-                    {filtersOpen ? '▲' : '▼'}
-                </span>
+                <span>{filtersOpen ? '▲' : '▼'}</span>
             </button>
 
+            <div
+                className={`${styles.filtersPanel} ${
+                    filtersOpen ? styles.filtersPanelOpen : ''
+                }`}
+            >
 
-            {/* PANEL DE FILTROS */}
+                {/* CATEGORÍAS (sin cambios, aplican al instante) */}
 
-            {filtersOpen && (
+                <div className={styles.filterSection}>
+                    <h2 className={styles.filterTitle}>Categories</h2>
 
-                <div className={styles.filtersPanel}>
+                    <div className={styles.categoriesList}>
+                        {categories.map((category) => (
+                            <label key={category} className={styles.categoryOption}>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedCategories.includes(category)}
+                                    onChange={() => handleCategoryChange(category)}
+                                />
+                                <span>{category}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
 
+                {/* RANGO DE PRECIO (borrador + botón Apply) */}
 
+                <div className={styles.filterSection}>
+                    <h2 className={styles.filterTitle}>Price Range</h2>
 
-                    <div className={styles.filterSection}>
-
-                        <h2 className={styles.filterTitle}>
-                            Categories
-                        </h2>
-
-
-                        <div className={styles.categoriesList}>
-
-                            {categories.map((category) => (
-
-                                <label
-                                    key={category}
-                                    className={styles.categoryOption}
-                                >
-
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCategories.includes(category)}
-                                        onChange={() =>
-                                            handleCategoryChange(category)
-                                        }
-                                    />
-
-                                    <span>
-                                        {category}
-                                    </span>
-
-                                </label>
-
-                            ))}
-
+                    <div className={styles.priceValues}>
+                        <div className={styles.priceBox}>
+                            <span>Minimum</span>
+                            <strong>₡{draftMinPrice.toLocaleString('es-CR')}</strong>
                         </div>
 
+                        <div className={styles.priceBox}>
+                            <span>Maximum</span>
+                            <strong>₡{draftMaxPrice.toLocaleString('es-CR')}</strong>
+                        </div>
                     </div>
 
+                    <div className={styles.sliderContainer}>
+                        <label className={styles.sliderLabel}>Minimum Price</label>
+                        <input
+                            type="range"
+                            min={MIN_PRICE}
+                            max={MAX_PRICE}
+                            step={PRICE_STEP}
+                            value={draftMinPrice}
+                            onChange={(event) =>
+                                handleDraftMinPriceChange(Number(event.target.value))
+                            }
+                            className={styles.priceSlider}
+                        />
+                    </div>
 
+                    <div className={styles.sliderContainer}>
+                        <label className={styles.sliderLabel}>Maximum Price</label>
+                        <input
+                            type="range"
+                            min={MIN_PRICE}
+                            max={MAX_PRICE}
+                            step={PRICE_STEP}
+                            value={draftMaxPrice}
+                            onChange={(event) =>
+                                handleDraftMaxPriceChange(Number(event.target.value))
+                            }
+                            className={styles.priceSlider}
+                        />
+                    </div>
 
-                    <div className={styles.filterSection}>
-
-                        <h2 className={styles.filterTitle}>
-                            Price Range
-                        </h2>
-
-
-                        {/* PRECIOS ACTUALES */}
-
-                        <div className={styles.priceValues}>
-
-                            <div className={styles.priceBox}>
-
-                                <span>Minimum</span>
-
-                                <strong>
-                                    ₡{minPrice.toLocaleString('es-CR')}
-                                </strong>
-
-                            </div>
-
-
-                            <div className={styles.priceBox}>
-
-                                <span>Maximum</span>
-
-                                <strong>
-                                    ₡{maxPrice.toLocaleString('es-CR')}
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                        <div className={styles.sliderContainer}>
-
-                            <label className={styles.sliderLabel}>
-                                Minimum Price
-                            </label>
-
-                            <input
-                                type="range"
-                                min={MIN_PRICE}
-                                max={MAX_PRICE}
-                                step={PRICE_STEP}
-                                value={minPrice}
-                                onChange={(event) =>
-                                    handleMinPriceChange(
-                                        Number(event.target.value)
-                                    )
-                                }
-                                className={styles.priceSlider}
-                            />
-
-                        </div>
-
-                        <div className={styles.sliderContainer}>
-
-                            <label className={styles.sliderLabel}>
-                                Maximum Price
-                            </label>
-
-                            <input
-                                type="range"
-                                min={MIN_PRICE}
-                                max={MAX_PRICE}
-                                step={PRICE_STEP}
-                                value={maxPrice}
-                                onChange={(event) =>
-                                    handleMaxPriceChange(
-                                        Number(event.target.value)
-                                    )
-                                }
-                                className={styles.priceSlider}
-                            />
-
-                        </div>
-
-                        <div className={styles.priceLimits}>
-
-                            <span>
-                                ₡0
-                            </span>
-
-                            <span>
-                                ₡1,000,000
-                            </span>
-
-                        </div>
-
+                    <div className={styles.priceLimits}>
+                        <span>₡0</span>
+                        <span>₡3,000,000</span>
                     </div>
 
                     <button
                         type="button"
-                        className={styles.clearButton}
-                        onClick={handleClearFilters}
+                        className={styles.applyPriceButton}
+                        onClick={handleApplyPrice}
+                        disabled={!priceIsDirty}
                     >
-                        Clear filters
+                        Apply price
                     </button>
-
                 </div>
 
-            )}
+                <button
+                    type="button"
+                    className={styles.clearButton}
+                    onClick={handleClearFilters}
+                >
+                    Clear filters
+                </button>
+
+            </div>
 
         </section>
 

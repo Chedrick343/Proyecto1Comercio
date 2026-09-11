@@ -1,5 +1,6 @@
 .filters {
     width: 100%;
+    height: 100%;
     padding: 20px 16px;
 
     box-sizing: border-box;
@@ -27,12 +28,10 @@
 
     gap: 12px;
 
-    /* Botón más grande */
     padding: 16px 24px;
 
     border: none;
 
-    /* Más redondeado */
     border-radius: 30px;
 
     background-color: #f2f2f2;
@@ -60,8 +59,10 @@
 ========================= */
 
 .filtersPanel {
-    width: 100%;
+    display: none;
 
+    width: 100%;
+    height: 100%;
     margin-top: 14px;
 
     padding: 20px;
@@ -74,6 +75,10 @@
     border-radius: 16px;
 
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.filtersPanelOpen {
+    display: block;
 }
 
 
@@ -280,14 +285,43 @@
         padding: 20px 40px;
     }
 
-
-    .filtersPanel {
-        max-width: 600px;
-    }
-
-
     .filterTitle {
         font-size: 20px;
+    }
+
+}
+
+
+/* =========================
+   ESCRITORIO: barra lateral fija, siempre visible
+========================= */
+
+@media (min-width: 861px) {
+
+    .filters {
+        width: 260px;
+        flex: 0 0 260px;
+
+        height: auto;
+        padding: 0;
+        /* Alinea el tope de la tarjeta con el título "Productos"
+           (que tiene ese mismo padding superior) */
+        margin-top: 20px;
+
+        background-color: transparent;
+        border-radius: 0;
+    }
+
+    .filtersButton {
+        display: none;
+    }
+
+    .filtersPanel {
+        display: block;
+
+        width: 100%;
+        height: auto;
+        margin-top: 0;
     }
 
 }

@@ -1,25 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FaThLarge, FaList } from 'react-icons/fa';
 import styles from './ProductsGrid.module.css';
-
-
-/* =====================
-   TIPOS
-===================== */
-
-export interface Product {
-    objectID: string;
-    title: string;
-    description: string;
-    brand: string;
-    price: number;
-    currency: string;
-    categories: string[];
-    in_stock: boolean;
-    stock_quantity: number;
-    rating: number;
-    image_url: string;
-    facets: Record<string, string | number | boolean>;
-}
+import type { Product } from '../../utils/Products';
 
 
 interface ProductsGridProps {
@@ -27,13 +10,15 @@ interface ProductsGridProps {
 }
 
 
-const PRODUCTS_PER_PAGE = 10;
+type ViewMode = 'grid' | 'list';
+
+
+const PRODUCTS_PER_PAGE = 12;
 
 
 /* =====================
    UTILIDADES
 ===================== */
-
 const formatPrice = (price: number, currency: string) =>
     new Intl.NumberFormat('es-CR', {
         style: 'currency',
@@ -43,8 +28,7 @@ const formatPrice = (price: number, currency: string) =>
     }).format(price);
 
 
-// La última categoría del arreglo es la más específica
-// ("Tecnología" > "Computadoras" > "Laptops")
+
 const getMainCategory = (categories: string[]) =>
     categories.length > 0 ? categories[categories.length - 1] : 'Sin categoría';
 
@@ -54,8 +38,9 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     const allProducts = useMemo(() => products, [products]);
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const sectionRef = useRef<HTMLElement>(null);
 
 
     const totalPages = Math.max(
@@ -64,7 +49,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     );
 
 
-    // Si cambian los productos (por ejemplo al filtrar), volvemos a la página 1
+    // Si cambian los productos volvemos a la página 1
     useEffect(() => {
         setCurrentPage(1);
     }, [allProducts]);
@@ -88,17 +73,16 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
         setCurrentPage(page);
 
-        // Devuelve el scroll al inicio al cambiar de página
-        scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        // Vuelve al inicio de la sección de productos al cambiar de página
+        sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
 
-    /* =====================
-       ESTADO VACÍO
-    ===================== */
+     /* =====================
+         ESTADO VACÍO
+     ===================== */
 
-    if (allProducts.length === 0) {
-
+     if (allProducts.length === 0) {
         return (
             <section className={styles.products}>
                 <p className={styles.emptyState}>
@@ -111,7 +95,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
     return (
 
-        <section className={styles.products}>
+        <section className={styles.products} ref={sectionRef}>
 
             {/* =====================
                 ENCABEZADO
@@ -123,31 +107,68 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                     Productos
                 </h2>
 
-                <span className={styles.productsCount}>
-                    {allProducts.length} resultados
-                </span>
+                <div className={styles.headerRight}>
+
+                    <span className={styles.productsCount}>
+                        {allProducts.length} resultados
+                    </span>
+
+                    <div className={styles.viewToggle} role="group" aria-label="Tipo de vista">
+
+                        <button
+                            type="button"
+                            className={`${styles.viewButton} ${
+                                viewMode === 'grid' ? styles.viewButtonActive : ''
+                            }`}
+                            onClick={() => setViewMode('grid')}
+                            aria-pressed={viewMode === 'grid'}
+                        >
+                            <FaThLarge aria-hidden="true" />
+                            <span className={styles.srOnly}>Ver en cuadrícula</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className={`${styles.viewButton} ${
+                                viewMode === 'list' ? styles.viewButtonActive : ''
+                            }`}
+                            onClick={() => setViewMode('list')}
+                            aria-pressed={viewMode === 'list'}
+                        >
+                            <FaList aria-hidden="true" />
+                            <span className={styles.srOnly}>Ver en lista</span>
+                        </button>
+
+                    </div>
+
+                </div>
 
             </header>
 
 
             {/* =====================
-                CUADRÍCULA CON SCROLL
+                CUADRÍCULA
             ===================== */}
 
-            <div className={styles.scrollArea} ref={scrollRef}>
+            <div className={styles.scrollArea}>
 
-                <div className={styles.grid}>
+                <div className={viewMode === 'grid' ? styles.grid : styles.list}>
 
                     {visibleProducts.map((product) => (
 
-                        <article
+                        <Link
                             key={product.objectID}
-                            className={styles.card}
+                            to={`/producto/${encodeURIComponent(product.objectID)}`}
+                            className={
+                                viewMode === 'list'
+                                    ? `${styles.card} ${styles.listCard}`
+                                    : styles.card
+                            }
                         >
 
                             {/* IMAGEN */}
 
-                            <div className={styles.imageWrapper}>
+                            <div className={viewMode === 'list' ? styles.listImageWrapper : styles.imageWrapper}>
 
                                 <img
                                     src={product.image_url}
@@ -178,12 +199,12 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                                 </h3>
 
                                 <p className={styles.price}>
-                                    {formatPrice(product.price, product.currency)}
+                                    {formatPrice(product.b2c.price, product.b2c.currency)}
                                 </p>
 
                             </div>
 
-                        </article>
+                        </Link>
 
                     ))}
 
