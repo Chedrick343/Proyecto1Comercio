@@ -136,7 +136,7 @@ export default function ProductDetailPage() {
                         <p className={styles.brand}>{product.brand}</p>
                         <h1 className={styles.title}>{product.title}</h1>
                         <p className={styles.price}>
-                            {formatPrice(product.price, product.currency)}
+                            {formatPrice(product.b2c.price, product.b2c.currency)}
                         </p>
 
                         <div className={styles.purchaseRow}>
@@ -205,7 +205,7 @@ export default function ProductDetailPage() {
                                 </div>
                                 <div>
                                     <dt>Moneda</dt>
-                                    <dd>{product.currency}</dd>
+                                    <dd>{product.b2c.currency}</dd>
                                 </div>
                                 {Object.entries(product.facets).map(([facetName, facetValue]) => (
                                     <div key={facetName}>

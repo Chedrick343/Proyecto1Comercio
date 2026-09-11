@@ -28,8 +28,7 @@ const formatPrice = (price: number, currency: string) =>
     }).format(price);
 
 
-// La última categoría del arreglo es la más específica
-// ("Tecnología" > "Computadoras" > "Laptops")
+
 const getMainCategory = (categories: string[]) =>
     categories.length > 0 ? categories[categories.length - 1] : 'Sin categoría';
 
@@ -50,7 +49,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     );
 
 
-    // Si cambian los productos (por ejemplo al filtrar), volvemos a la página 1
+    // Si cambian los productos volvemos a la página 1
     useEffect(() => {
         setCurrentPage(1);
     }, [allProducts]);
@@ -200,7 +199,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                                 </h3>
 
                                 <p className={styles.price}>
-                                    {formatPrice(product.price, product.currency)}
+                                    {formatPrice(product.b2c.price, product.b2c.currency)}
                                 </p>
 
                             </div>
