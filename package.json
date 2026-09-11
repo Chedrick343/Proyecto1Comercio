@@ -9,9 +9,11 @@
     "deploy": "gh-pages -d dist",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed-algolia": "node --env-file=.env.local scripts/seed-algolia.mjs"
   },
   "dependencies": {
+    "algoliasearch": "^5.59.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
