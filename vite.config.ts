@@ -3,6 +3,6 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Laboratorio-2-Comercio-electronico',
+  base: '/Proyecto1Comercio',
   plugins: [react()],
 })
