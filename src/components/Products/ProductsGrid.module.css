@@ -298,16 +298,21 @@
 /* =====================
    PAGINACIÓN
 ===================== */
-
 .pagination {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
     gap: 8px;
+
+    /* Evita que la fila entera se desborde en pantallas angostas */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .pageButton {
+    flex-shrink: 0;
+
     padding: 8px 14px;
 
     font-size: 13px;
@@ -332,9 +337,21 @@
 .pageNumbers {
     display: flex;
     gap: 6px;
+
+    /* En vez de romper línea o desbordar, permite scroll horizontal */
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    max-width: 100%;
+}
+
+.pageNumbers::-webkit-scrollbar {
+    display: none;
 }
 
 .pageNumber {
+    flex-shrink: 0;
+
     min-width: 34px;
     padding: 8px 0;
 
@@ -354,12 +371,25 @@
     font-weight: 700;
 }
 
+.pageEllipsis {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 24px;
+    padding: 8px 0;
+
+    font-size: 13px;
+    color: #a8a8a8;
+}
+
 .pageButton:focus-visible,
 .pageNumber:focus-visible {
     outline: 2px solid #ffffff;
     outline-offset: 2px;
 }
-
 
 /* =====================
    RESPONSIVE
@@ -374,5 +404,20 @@
 
     .listImageWrapper {
         width: 96px;
+    }
+
+    /* En móvil mostramos menos números para dejar mas espacio */
+    .pagination {
+        gap: 6px;
+    }
+
+    .pageButton {
+        padding: 8px 10px;
+    }
+
+    .pageNumber {
+        min-width: 30px;
+        padding: 7px 0;
+        font-size: 12px;
     }
 }

@@ -12,8 +12,14 @@ interface ProductsGridProps {
 
 type ViewMode = 'grid' | 'list';
 
-
 const PRODUCTS_PER_PAGE = 12;
+
+// Cuántas páginas mostrar a cada lado de la página actual
+const SIBLING_COUNT = 1;
+
+const ELLIPSIS = 'ellipsis' as const;
+
+type PageItem = number | typeof ELLIPSIS;
 
 
 /* =====================
@@ -28,9 +34,63 @@ const formatPrice = (price: number, currency: string) =>
     }).format(price);
 
 
-
 const getMainCategory = (categories: string[]) =>
     categories.length > 0 ? categories[categories.length - 1] : 'Sin categoría';
+
+
+/*
+ * Genera algo como:
+ *
+ * [1, 'ellipsis', 5, 6, 7, 'ellipsis', 164]
+ *
+ * en vez de listar las 164 páginas completas.
+ */
+const getPageNumbers = (
+    currentPage: number,
+    totalPages: number
+): PageItem[] => {
+
+    // Si son pocas páginas, las mostramos todas sin puntos suspensivos
+    const totalVisibleSlots = SIBLING_COUNT * 2 + 5;
+
+    if (totalPages <= totalVisibleSlots) {
+        return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    const leftSibling = Math.max(currentPage - SIBLING_COUNT, 1);
+    const rightSibling = Math.min(currentPage + SIBLING_COUNT, totalPages);
+
+    const showLeftEllipsis = leftSibling > 2;
+    const showRightEllipsis = rightSibling < totalPages - 1;
+
+    const pages: PageItem[] = [1];
+
+    if (showLeftEllipsis) {
+        pages.push(ELLIPSIS);
+    } else {
+        for (let page = 2; page < leftSibling; page += 1) {
+            pages.push(page);
+        }
+    }
+
+    for (let page = leftSibling; page <= rightSibling; page += 1) {
+        if (page !== 1 && page !== totalPages) {
+            pages.push(page);
+        }
+    }
+
+    if (showRightEllipsis) {
+        pages.push(ELLIPSIS);
+    } else {
+        for (let page = rightSibling + 1; page < totalPages; page += 1) {
+            pages.push(page);
+        }
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+};
 
 
 export default function ProductsGrid({ products }: ProductsGridProps) {
@@ -49,20 +109,21 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     );
 
 
-    // Si cambian los productos volvemos a la página 1
     useEffect(() => {
         setCurrentPage(1);
     }, [allProducts]);
 
 
-    // Productos visibles en la página actual
     const visibleProducts = useMemo(() => {
-
         const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
-
         return allProducts.slice(start, start + PRODUCTS_PER_PAGE);
-
     }, [allProducts, currentPage]);
+
+
+    const pageItems = useMemo(
+        () => getPageNumbers(currentPage, totalPages),
+        [currentPage, totalPages]
+    );
 
 
     const goToPage = (page: number) => {
@@ -73,16 +134,11 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
         setCurrentPage(page);
 
-        // Vuelve al inicio de la sección de productos al cambiar de página
         sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
 
-     /* =====================
-         ESTADO VACÍO
-     ===================== */
-
-     if (allProducts.length === 0) {
+    if (allProducts.length === 0) {
         return (
             <section className={styles.products}>
                 <p className={styles.emptyState}>
@@ -97,24 +153,15 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
 
         <section className={styles.products} ref={sectionRef}>
 
-            {/* =====================
-                ENCABEZADO
-            ===================== */}
-
             <header className={styles.productsHeader}>
-
-                <h2 className={styles.productsTitle}>
-                    Productos
-                </h2>
+                <h2 className={styles.productsTitle}>Productos</h2>
 
                 <div className={styles.headerRight}>
-
                     <span className={styles.productsCount}>
                         {allProducts.length} resultados
                     </span>
 
                     <div className={styles.viewToggle} role="group" aria-label="Tipo de vista">
-
                         <button
                             type="button"
                             className={`${styles.viewButton} ${
@@ -138,24 +185,14 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                             <FaList aria-hidden="true" />
                             <span className={styles.srOnly}>Ver en lista</span>
                         </button>
-
                     </div>
-
                 </div>
-
             </header>
 
 
-            {/* =====================
-                CUADRÍCULA
-            ===================== */}
-
             <div className={styles.scrollArea}>
-
                 <div className={viewMode === 'grid' ? styles.grid : styles.list}>
-
                     {visibleProducts.map((product) => (
-
                         <Link
                             key={product.objectID}
                             to={`/producto/${encodeURIComponent(product.objectID)}`}
@@ -165,11 +202,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                                     : styles.card
                             }
                         >
-
-                            {/* IMAGEN */}
-
                             <div className={viewMode === 'list' ? styles.listImageWrapper : styles.imageWrapper}>
-
                                 <img
                                     src={product.image_url}
                                     alt={product.title}
@@ -178,38 +211,24 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                                 />
 
                                 {!product.in_stock && (
-                                    <span className={styles.outOfStock}>
-                                        Agotado
-                                    </span>
+                                    <span className={styles.outOfStock}>Agotado</span>
                                 )}
-
                             </div>
 
-
-                            {/* INFORMACIÓN */}
-
                             <div className={styles.cardBody}>
-
                                 <span className={styles.category}>
                                     {getMainCategory(product.categories)}
                                 </span>
 
-                                <h3 className={styles.cardTitle}>
-                                    {product.title}
-                                </h3>
+                                <h3 className={styles.cardTitle}>{product.title}</h3>
 
                                 <p className={styles.price}>
                                     {formatPrice(product.b2c.price, product.b2c.currency)}
                                 </p>
-
                             </div>
-
                         </Link>
-
                     ))}
-
                 </div>
-
             </div>
 
 
@@ -224,40 +243,42 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
                 >
-                    ◀ Anterior
+                    ◀
                 </button>
 
-
                 <div className={styles.pageNumbers}>
-
-                    {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                        (page) => (
-
+                    {pageItems.map((item, index) =>
+                        item === ELLIPSIS ? (
+                            <span
+                                key={`ellipsis-${index}`}
+                                className={styles.pageEllipsis}
+                                aria-hidden="true"
+                            >
+                                …
+                            </span>
+                        ) : (
                             <button
-                                key={page}
+                                key={item}
                                 className={
-                                    page === currentPage
+                                    item === currentPage
                                         ? `${styles.pageNumber} ${styles.pageNumberActive}`
                                         : styles.pageNumber
                                 }
-                                onClick={() => goToPage(page)}
-                                aria-current={page === currentPage ? 'page' : undefined}
+                                onClick={() => goToPage(item)}
+                                aria-current={item === currentPage ? 'page' : undefined}
                             >
-                                {page}
+                                {item}
                             </button>
-
                         )
                     )}
-
                 </div>
-
 
                 <button
                     className={styles.pageButton}
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
                 >
-                    Siguiente ▶
+                    ▶
                 </button>
 
             </nav>
