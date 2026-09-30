@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FaTimes } from 'react-icons/fa';
 import { useSearchBox } from 'react-instantsearch';
 import styles from './SearchBar.module.css';
 
@@ -33,6 +34,20 @@ export default function SearchBar() {
                     value={inputValue}
                     onChange={(event) => setInputValue(event.target.value)}
                 />
+                {inputValue && (
+                    <button
+                        type="button"
+                        className={styles.clearButton}
+                        aria-label="Limpiar búsqueda"
+                        title="Limpiar búsqueda"
+                        onClick={() => {
+                            setInputValue('');
+                            refine('');
+                        }}
+                    >
+                        <FaTimes aria-hidden="true" />
+                    </button>
+                )}
             </div>
         </div>
     );

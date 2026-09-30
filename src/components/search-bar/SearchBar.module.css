@@ -15,8 +15,8 @@
 
 
 .searchGroup {
+    position: relative;
     display: flex;
-    gap: 10px;
     align-items: center;
 }
 
@@ -25,7 +25,7 @@
     min-width: 0;
     height: 46px;
 
-    padding: 0 18px;
+    padding: 0 46px 0 18px;
 
     border: none;
     border-radius: 16px;
@@ -47,6 +47,35 @@
 
 .searchInput:focus {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+.searchInput::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.clearButton {
+    position: absolute;
+    right: 12px;
+    display: grid;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #2f2f2f;
+    cursor: pointer;
+}
+
+.clearButton:hover {
+    background-color: rgba(47, 47, 47, 0.1);
+}
+
+.clearButton:focus-visible {
+    outline: 2px solid #2f2f2f;
+    outline-offset: 1px;
 }
 
 
