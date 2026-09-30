@@ -21,7 +21,7 @@ const products = JSON.parse(
 const appId = process.env.ALGOLIA_APP_ID;
 const adminApiKey = process.env.ALGOLIA_ADMIN_API_KEY;
 
-const indexName = "grupo-03_products";
+const indexName = "products";
 
 if (!appId || !adminApiKey) {
   throw new Error(
@@ -38,9 +38,14 @@ const client = algoliasearch(
 console.log(`Indexando ${products.length} productos...`);
 console.log(`Índice: ${indexName}`);
 
-await client.saveObjects({
-  indexName,
-  objects: products,
-});
+try {
+  await client.saveObjects({
+    indexName,
+    objects: products,
+  });
+} catch (error) {
+  const message = error instanceof Error ? error.message : "Error desconocido";
+  throw new Error(`Algolia rechazó la carga: ${message}`);
+}
 
 console.log("Productos indexados correctamente.");
