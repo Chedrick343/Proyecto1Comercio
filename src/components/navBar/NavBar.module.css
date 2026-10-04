@@ -90,9 +90,3 @@
     border: 0;
 }
 
-
-@media (min-width: 861px) {
-    .navBar {
-        display: none;
-    }
-}
