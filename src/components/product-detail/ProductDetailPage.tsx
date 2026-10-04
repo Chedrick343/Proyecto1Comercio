@@ -6,6 +6,7 @@ import type { Product } from '../../utils/Products';
 import { getProductById } from '../../utils/algolia';
 import { getJewelryThemeVariables } from '../../theme/jewelryTheme';
 import styles from './ProductDetailPage.module.css';
+import {useCart} from '../../context/CartContext.tsx';
 
 const jewelryThemeStyle = getJewelryThemeVariables();
 
@@ -31,12 +32,12 @@ const formatFacetValue = (facetValue: string | number | boolean) => {
 };
 
 export default function ProductDetailPage() {
+    const { addProduct } = useCart();
     const { productId } = useParams<{ productId: string }>();
     const [product, setProduct] = useState<Product | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    // No real cart exists yet: this only gives the user visual confirmation.
     const [addedToCart, setAddedToCart] = useState(false);
     const [quantity, setQuantity] = useState(1);
 
@@ -65,6 +66,7 @@ export default function ProductDetailPage() {
     }, [productId]);
 
     const handleAddToCart = () => {
+        addProduct(product, quantity);
         setAddedToCart(true);
     };
 
