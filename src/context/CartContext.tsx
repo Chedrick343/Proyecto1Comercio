@@ -54,7 +54,6 @@ type CartAction =
           type: 'CLEAR_CART';
       };
 
-const initialState: CartState = [];
 
 function cartReducer(
     state: CartState,
