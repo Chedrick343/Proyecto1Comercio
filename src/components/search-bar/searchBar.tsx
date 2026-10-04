@@ -1,52 +1,54 @@
+import { useEffect, useState } from 'react';
+import { FaTimes } from 'react-icons/fa';
+import { useSearchBox } from 'react-instantsearch';
 import styles from './SearchBar.module.css';
 
+const SEARCH_DEBOUNCE_MS = 250;
 
-interface SearchBarProps {
-    value: string;
-    onChange: (value: string) => void;
-    onSearch: () => void;
-}
+export default function SearchBar() {
+    const { query, refine } = useSearchBox();
+    const [inputValue, setInputValue] = useState(query);
 
-
-export default function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
-
-    // Permite buscar también con la tecla Enter
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-
-        if (event.key === 'Enter') {
-            onSearch();
+    useEffect(() => {
+        if (inputValue === query) {
+            return;
         }
 
-    };
+        const timeoutId = window.setTimeout(
+            () => refine(inputValue),
+            SEARCH_DEBOUNCE_MS
+        );
 
+        return () => window.clearTimeout(timeoutId);
+    }, [inputValue, query, refine]);
 
     return (
-
         <div className={styles.searchBar}>
-
             <div className={styles.searchGroup}>
-
                 <input
-                    type="text"
+                    type="search"
                     placeholder="Are you looking for something specific?"
                     className={styles.searchInput}
                     aria-label="Buscar productos"
-                    value={value}
-                    onChange={(event) => onChange(event.target.value)}
-                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                    value={inputValue}
+                    onChange={(event) => setInputValue(event.target.value)}
                 />
-
-                <button
-                    type="button"
-                    className={styles.searchButton}
-                    onClick={onSearch}
-                >
-                    Search
-                </button>
-
+                {inputValue && (
+                    <button
+                        type="button"
+                        className={styles.clearButton}
+                        aria-label="Limpiar búsqueda"
+                        title="Limpiar búsqueda"
+                        onClick={() => {
+                            setInputValue('');
+                            refine('');
+                        }}
+                    >
+                        <FaTimes aria-hidden="true" />
+                    </button>
+                )}
             </div>
-
         </div>
-
     );
 }

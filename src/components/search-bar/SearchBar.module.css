@@ -15,8 +15,8 @@
 
 
 .searchGroup {
+    position: relative;
     display: flex;
-    gap: 10px;
     align-items: center;
 }
 
@@ -25,7 +25,7 @@
     min-width: 0;
     height: 46px;
 
-    padding: 0 18px;
+    padding: 0 46px 0 18px;
 
     border: none;
     border-radius: 16px;
@@ -49,38 +49,33 @@
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
 }
 
+.searchInput::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
 
-.searchButton {
-    height: 46px;
-
-    padding: 0 22px;
-
-    border: none;
-    border-radius: 16px;
-
-    background-color: #f3f3f3;
-
+.clearButton {
+    position: absolute;
+    right: 12px;
+    display: grid;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
     color: #2f2f2f;
-    font-size: 14px;
-    font-weight: 600;
-
     cursor: pointer;
-    white-space: nowrap;
-
-    transition: background-color 0.2s ease;
 }
 
-.searchButton:hover {
-    background-color: #ffffff;
+.clearButton:hover {
+    background-color: rgba(47, 47, 47, 0.1);
 }
 
-.searchButton:active {
-    transform: scale(0.98);
-}
-
-.searchButton:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
+.clearButton:focus-visible {
+    outline: 2px solid #2f2f2f;
+    outline-offset: 1px;
 }
 
 
@@ -89,8 +84,7 @@
         padding: 16px 40px;
     }
 
-    .searchInput,
-    .searchButton {
+    .searchInput {
         height: 50px;
         font-size: 15px;
     }
@@ -100,7 +94,7 @@
 
 @media (min-width: 1024px) {
     .searchBar {
-        padding: 18px 10%;
+        padding: 0;
     }
 
     .searchGroup {
@@ -108,8 +102,7 @@
         margin: 0 auto;
     }
 
-    .searchInput,
-    .searchButton {
+    .searchInput {
         height: 54px;
         font-size: 16px;
     }
@@ -117,8 +110,3 @@
 
 
 
-@media (max-width: 380px) {
-    .searchButton {
-        padding: 0 14px;
-    }
-}
