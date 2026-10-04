@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
@@ -40,6 +40,7 @@ export default function ProductDetailPage() {
 
     const [addedToCart, setAddedToCart] = useState(false);
     const [quantity, setQuantity] = useState(1);
+    const cartDialogRef = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
         if (!productId) {
@@ -66,8 +67,13 @@ export default function ProductDetailPage() {
     }, [productId]);
 
     const handleAddToCart = () => {
+        if (!product || addedToCart) {
+            return;
+        }
+
         addProduct(product, quantity);
         setAddedToCart(true);
+        cartDialogRef.current?.showModal();
     };
 
     const handleDecreaseQuantity = () => {
@@ -164,9 +170,9 @@ export default function ProductDetailPage() {
                                 type="button"
                                 className={styles.addToCartButton}
                                 onClick={handleAddToCart}
-                                disabled={!product.in_stock}
+                                disabled={!product.in_stock || addedToCart}
                             >
-                                {addedToCart ? 'Agregado ✓' : 'Agregar al carrito'}
+                                {addedToCart ? 'Agregado' : 'Agregar al carrito'}
                             </button>
                         </div>
 
@@ -220,6 +226,47 @@ export default function ProductDetailPage() {
                     </section>
                 </article>
             </div>
+
+            <dialog
+                ref={cartDialogRef}
+                className={styles.addedDialog}
+                aria-labelledby="cart-added-title"
+                onClick={(event) => {
+                    if (event.target === event.currentTarget) {
+                        event.currentTarget.close();
+                    }
+                }}
+            >
+                <div className={styles.modalContent}>
+                    <span className={styles.modalCheck} aria-hidden="true">✓</span>
+                    <p className={styles.modalEyebrow}>LISTO PARA DISFRUTAR</p>
+                    <h2 id="cart-added-title" className={styles.modalTitle}>
+                        Producto agregado
+                    </h2>
+                    <p className={styles.modalProduct}>
+                        {quantity} × {product.title}
+                    </p>
+                    <p className={styles.modalDescription}>
+                        Ya está en tu carrito de compras.
+                    </p>
+                    <div className={styles.modalActions}>
+                        <button
+                            type="button"
+                            className={styles.modalSecondary}
+                            onClick={() => cartDialogRef.current?.close()}
+                        >
+                            Seguir comprando
+                        </button>
+                        <Link
+                            to="/carrito"
+                            className={styles.modalPrimary}
+                            onClick={() => cartDialogRef.current?.close()}
+                        >
+                            Ir al carrito
+                        </Link>
+                    </div>
+                </div>
+            </dialog>
 
             <NavBar />
         </main>
