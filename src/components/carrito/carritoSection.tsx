@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 
 import { useCart } from '../../context/CartContext';
 
-import styles from './CarritoSection.module.css';
+import styles from './carritoSection.module.css';
 
 const formatPrice = (
     price: number,

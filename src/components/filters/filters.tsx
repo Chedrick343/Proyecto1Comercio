@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import styles from './Filters.module.css';
+import styles from './filters.module.css';
 
 import {
     MIN_PRICE,
