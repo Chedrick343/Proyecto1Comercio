@@ -32,6 +32,13 @@
     flex-direction: column;
 }
 
+.search-tools {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  background-color: #2f2f2f;
+}
+
 .catalog-layout {
     display: flex;
     flex-direction: column;
@@ -57,6 +64,12 @@
         background-color: #2b2b2b;
         border-radius: 0 0 20px 20px;
     }
+
+      .search-tools {
+        flex: 1;
+        gap: 8px;
+        background-color: transparent;
+      }
 
     .catalog-layout {
         flex-direction: row;

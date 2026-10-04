@@ -94,7 +94,7 @@
 
 @media (min-width: 1024px) {
     .searchBar {
-        padding: 18px 10%;
+        padding: 0;
     }
 
     .searchGroup {
