@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build && node scripts/prepare-pages.mjs",
     "deploy": "gh-pages -d dist",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
