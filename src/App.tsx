@@ -16,6 +16,7 @@ import ProductsGrid from './components/Products/Products';
 import NavBar from './components/navBar/NavBar';
 import ProductDetailPage from './components/product-detail/ProductDetailPage';
 import CarritoSection from './components/carrito/carritoSection';
+import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 
 import {
     DEFAULT_FILTERS,
@@ -167,6 +168,11 @@ export default function App() {
                         <NavBar />
                     </main>
                 }
+            />
+
+            <Route
+                path="/checkout"
+                element={<CheckoutEntryPage />}
             />
 
 

@@ -444,7 +444,9 @@
    ================================= */
 
 .checkoutButton {
+    display: block;
     width: 100%;
+    box-sizing: border-box;
 
     padding: 14px 18px;
 
@@ -454,6 +456,8 @@
     background-color: #c9a246;
 
     color: #252525;
+    text-align: center;
+    text-decoration: none;
 
     font-size: 1rem;
     font-weight: 700;
