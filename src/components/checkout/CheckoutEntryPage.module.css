@@ -1,0 +1,270 @@
+.checkoutPage {
+    min-height: 100vh;
+    padding: 110px 7rem 140px;
+    background-color: #16171c;
+    color: #f7f2e9;
+}
+
+.pageHeader,
+.checkoutSteps,
+.checkoutLayout {
+    width: 100%;
+    max-width: 1250px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.pageHeader {
+    margin-bottom: 28px;
+}
+
+.backLink,
+.editCartLink {
+    color: #d8bd76;
+    text-decoration: none;
+}
+
+.backLink {
+    display: inline-block;
+    margin-bottom: 26px;
+    font-size: 0.9rem;
+}
+
+.backLink:hover,
+.editCartLink:hover {
+    color: #f0d68e;
+    text-decoration: underline;
+}
+
+.backLink:focus-visible,
+.editCartLink:focus-visible {
+    outline: 2px solid #f0d68e;
+    outline-offset: 4px;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: #c9a246;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+}
+
+.pageHeader h1 {
+    margin: 0;
+    color: #f8f4ed;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.description {
+    margin: 10px 0 0;
+    color: #aaa9ad;
+    font-size: 1rem;
+}
+
+.checkoutSteps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 0;
+    margin-bottom: 28px;
+    padding: 0;
+    list-style: none;
+}
+
+.checkoutSteps li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 12px 16px;
+    border-bottom: 2px solid #474747;
+    color: #96969a;
+    font-size: 0.9rem;
+}
+
+.checkoutSteps .currentStep {
+    border-color: #c9a246;
+    color: #f7f2e9;
+}
+
+.stepNumber {
+    display: grid;
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.8rem;
+}
+
+.checkoutLayout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
+    gap: 28px;
+}
+
+.orderPanel,
+.summaryPanel {
+    min-width: 0;
+    padding: 24px;
+    background-color: #292929;
+    border: 1px solid #474747;
+    border-radius: 12px;
+}
+
+.panelHeader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #474747;
+}
+
+.panelHeader h2,
+.summaryPanel h2 {
+    margin: 0;
+    color: #f7f3eb;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.35rem;
+}
+
+.panelHeader span {
+    color: #aaa9ad;
+    font-size: 0.9rem;
+}
+
+.productList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.productRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid #414141;
+}
+
+.productInfo {
+    min-width: 0;
+}
+
+.productInfo h3 {
+    margin: 0;
+    color: #f7f3eb;
+    font-size: 0.98rem;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.productInfo p {
+    margin: 6px 0 0;
+    color: #aaa9ad;
+    font-size: 0.88rem;
+}
+
+.productRow > strong {
+    flex: 0 0 auto;
+    color: #f0d68e;
+    font-size: 0.95rem;
+}
+
+.editCartLink {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.summaryPanel h2 {
+    padding-bottom: 18px;
+    border-bottom: 1px solid #474747;
+}
+
+.summaryRows {
+    display: grid;
+    gap: 14px;
+    margin: 20px 0;
+}
+
+.summaryRows div,
+.totalRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.summaryRows dt {
+    color: #c5c2bc;
+    font-size: 0.9rem;
+}
+
+.summaryRows dd {
+    margin: 0;
+    color: #f7f2e9;
+    font-size: 0.9rem;
+}
+
+.totalRow {
+    padding-top: 18px;
+    border-top: 1px solid #474747;
+}
+
+.totalRow span {
+    color: #f5f0e7;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.totalRow strong {
+    color: #c9a246;
+    font-size: 1.4rem;
+}
+
+@media (max-width: 1000px) {
+    .checkoutPage {
+        padding-right: 3rem;
+        padding-left: 3rem;
+    }
+
+    .checkoutLayout {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 760px) {
+    .checkoutPage {
+        padding: 100px 20px 120px;
+    }
+
+    .checkoutLayout {
+        grid-template-columns: 1fr;
+    }
+
+    .checkoutSteps li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 7px;
+        padding: 10px 8px;
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .orderPanel,
+    .summaryPanel {
+        padding: 18px;
+    }
+
+    .productRow {
+        gap: 12px;
+    }
+}

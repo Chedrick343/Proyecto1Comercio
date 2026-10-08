@@ -8,20 +8,9 @@ import {
 import { Link } from 'react-router-dom';
 
 import { useCart } from '../../context/CartContext';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 import styles from './carritoSection.module.css';
-
-const formatPrice = (
-    price: number,
-    currency: string = 'CRC'
-) => {
-    return new Intl.NumberFormat('es-CR', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
-};
 
 export default function CarritoSection() {
     const {
@@ -117,7 +106,7 @@ export default function CarritoSection() {
                                     </h2>
 
                                     <p className={styles.unitPrice}>
-                                        {formatPrice(
+                                        {formatCurrency(
                                             item.price,
                                             item.currency
                                         )}{' '}
@@ -189,7 +178,7 @@ export default function CarritoSection() {
                                     </span>
 
                                     <strong>
-                                        {formatPrice(
+                                        {formatCurrency(
                                             itemSubtotal,
                                             item.currency
                                         )}
@@ -227,7 +216,7 @@ export default function CarritoSection() {
                             </span>
 
                             <strong>
-                                {formatPrice(subtotal)}
+                                {formatCurrency(subtotal)}
                             </strong>
                         </div>
 
@@ -237,7 +226,7 @@ export default function CarritoSection() {
                             </span>
 
                             <strong>
-                                {formatPrice(iva)}
+                                {formatCurrency(iva)}
                             </strong>
                         </div>
 
@@ -247,7 +236,7 @@ export default function CarritoSection() {
                             </span>
 
                             <strong>
-                                {formatPrice(shipping)}
+                                {formatCurrency(shipping)}
                             </strong>
                         </div>
 
@@ -261,16 +250,16 @@ export default function CarritoSection() {
                         </span>
 
                         <strong>
-                            {formatPrice(total)}
+                            {formatCurrency(total)}
                         </strong>
                     </div>
 
-                    <button
-                        type="button"
+                    <Link
+                        to="/checkout"
                         className={styles.checkoutButton}
                     >
                         Continuar con la compra
-                    </button>
+                    </Link>
 
                     <p className={styles.shippingNote}>
                         El costo de envío se calcula
