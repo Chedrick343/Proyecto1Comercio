@@ -9,8 +9,10 @@ import {
 
 import './App.css';
 
-import Header, { CartButton } from './components/header/Header';
-import SearchBar from './components/search-bar/searchBar';
+import Header, {
+    CartButton,
+    AccountButton
+} from './components/header/Header';import SearchBar from './components/search-bar/searchBar';
 import Filters from './components/filters/filters';
 import ProductsGrid from './components/Products/Products';
 import NavBar from './components/navBar/NavBar';
@@ -64,7 +66,6 @@ function ProductCatalog() {
                 <Header showCart={false} />
                 <div className="search-tools">
                     <SearchBar />
-                    <CartButton inSearchTools />
                 </div>
             </div>
 
@@ -162,12 +163,11 @@ export default function App() {
                 element={
                     <main className="app">
                         <div className="top-bar">
+                            
                             <Header />
                         </div>
-
                         <CarritoSection />
-
-                        <NavBar />
+                        
                     </main>
                 }
             />
@@ -175,7 +175,9 @@ export default function App() {
                 path="/cuenta"
                 element={
                     <main className="app">
-
+                        <div className="top-bar">
+                            <Header />
+                        </div>
 
                         <UserSection />
 

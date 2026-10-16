@@ -3,20 +3,21 @@
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    background-color: #303030;
 }
 
-@media (min-width: 861px) {
-    .header {
-        width: 240px;
-        flex: 0 0 240px;
-        justify-content: space-between;
-    }
+.headerActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-left: auto;
+    padding-right: 16px;
 }
 
-.cartButton {
-    position: absolute;
-    right: 16px;
-    top: 50%;
+.headerButton {
+    position: relative;
     width: 68px;
     min-height: 76px;
     display: flex;
@@ -24,33 +25,26 @@
     justify-content: center;
     flex-direction: column;
     gap: 5px;
+    flex-shrink: 0;
     color: #fff;
     text-decoration: none;
-    transform: translateY(-50%);
 }
 
-.searchCartButton {
-    position: relative;
-    top: auto;
-    right: auto;
-    flex: 0 0 68px;
-    transform: none;
-}
-
-.cartIcon {
+.headerIcon {
     width: 28px;
     height: 28px;
 }
 
-.cartLabel {
+.headerLabel {
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
 }
 
-.cartButton:focus-visible {
+.headerButton:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
+    border-radius: 8px;
 }
 
 .cartBadge {
@@ -72,13 +66,64 @@
     line-height: 1;
 }
 
+/* Botón de carrito dentro de las herramientas de búsqueda */
+
+.searchCartButton {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    flex: 0 0 68px;
+    padding: 0;
+}
+
+/* Escritorio */
+
 @media (min-width: 861px) {
-    .cartButton {
-        position: relative;
-        top: auto;
-        right: auto;
-        flex: 0 0 68px;
+    .header {
+        width: 240px;
+        flex: 0 0 240px;
+        justify-content: space-between;
+    }
+
+    .headerActions {
+        gap: 4px;
+        padding-right: 0;
+    }
+
+    .headerButton {
         color: #fff;
-        transform: none;
+    }
+}
+
+/* Pantallas pequeñas */
+
+@media (max-width: 380px) {
+    .headerActions {
+        gap: 0;
+        padding-right: 4px;
+    }
+
+    .headerButton {
+        width: 58px;
+    }
+
+    .headerIcon {
+        width: 25px;
+        height: 25px;
+    }
+
+    .headerLabel {
+        font-size: 11px;
+    }
+}
+/* Ocultar Cuenta en móvil */
+.accountButton {
+    display: none;
+}
+
+@media (min-width: 861px) {
+    .accountButton {
+        display: flex;
     }
 }

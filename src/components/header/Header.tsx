@@ -1,6 +1,6 @@
 import Logo from '../logo/logo';
 import { Link } from 'react-router-dom';
-import { FaShoppingCart } from 'react-icons/fa';
+import { FaShoppingCart, FaUser } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 
 import styles from './Header.module.css';
@@ -19,11 +19,20 @@ export function CartButton({ inSearchTools = false }: CartButtonProps) {
     return (
         <Link
             to="/carrito"
-            className={`${styles.cartButton} ${inSearchTools ? styles.searchCartButton : ''}`}
+            className={`${styles.headerButton} ${styles.cartButton} ${
+                inSearchTools ? styles.searchCartButton : ''
+            }`}
             aria-label={`Carrito${totalItems > 0 ? `, ${totalItems} productos` : ''}`}
         >
-            <FaShoppingCart className={styles.cartIcon} aria-hidden="true" />
-            <span className={styles.cartLabel}>Carrito</span>
+            <FaShoppingCart
+                className={styles.headerIcon}
+                aria-hidden="true"
+            />
+
+            <span className={styles.headerLabel}>
+                Carrito
+            </span>
+
             {totalItems > 0 && (
                 <span className={styles.cartBadge} aria-hidden="true">
                     {totalItems}
@@ -33,11 +42,34 @@ export function CartButton({ inSearchTools = false }: CartButtonProps) {
     );
 }
 
+export function AccountButton() {
+    return (
+        <Link
+            to="/cuenta"
+            className={`${styles.headerButton} ${styles.accountButton}`}
+            aria-label="Cuenta"
+        >
+            <FaUser
+                className={styles.headerIcon}
+                aria-hidden="true"
+            />
+
+            <span className={styles.headerLabel}>
+                Cuenta
+            </span>
+        </Link>
+    );
+}
+
 export default function Header({ showCart = true }: HeaderProps) {
     return (
         <header className={styles.header}>
             <Logo />
-            {showCart && <CartButton />}
+
+            <div className={styles.headerActions}>
+                <AccountButton />
+                <CartButton />
+            </div>
         </header>
     );
 }
