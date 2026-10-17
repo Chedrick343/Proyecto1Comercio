@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import AddToCartControl from '../add-to-cart/AddToCartControl';
 import type { Product } from '../../utils/Products';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { getCatalogReturnState } from '../../catalog/catalogReturn';
 
 import styles from './ProductsGrid.module.css';
 
@@ -19,6 +20,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, layout }: ProductCardProps) {
     const { t } = useTranslation('catalog');
+    const location = useLocation();
     const isList = layout === 'list';
 
     return (
@@ -45,6 +47,7 @@ export default function ProductCard({ product, layout }: ProductCardProps) {
                     {/* The link stretches over the whole card (see .cardLink::after). */}
                     <Link
                         to={`/producto/${encodeURIComponent(product.objectID)}`}
+                        state={getCatalogReturnState(location)}
                         className={styles.cardLink}
                     >
                         {product.title}
