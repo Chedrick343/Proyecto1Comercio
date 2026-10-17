@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import {
     Configure,
@@ -19,6 +19,9 @@ import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 import OrderConfirmationPage from './components/order/OrderConfirmationPage';
 import AccountPage from './components/user/AccountPage';
+import ErrorState from './components/error/ErrorState';
+import NotFoundPage from './components/error/NotFoundPage';
+import errorStateStyles from './components/error/ErrorState.module.css';
 
 import {
     DEFAULT_FILTERS,
@@ -35,7 +38,13 @@ import {
 
 function ProductCatalog() {
     const { items } = useHits();
-    const { status, error } = useInstantSearch();
+    const { status, error, refresh } = useInstantSearch();
+
+    useEffect(() => {
+        if (error) {
+            console.error('Error al cargar el catálogo:', error);
+        }
+    }, [error]);
 
     const [filters, setFilters] =
         useState<ProductFilters>(DEFAULT_FILTERS);
@@ -87,11 +96,19 @@ function ProductCatalog() {
                     )}
 
                     {status === 'error' && (
-                        <p role="alert">
-                            {error instanceof Error
-                                ? error.message
-                                : 'No se pudieron cargar los productos.'}
-                        </p>
+                        <ErrorState
+                            title="No pudimos cargar los productos"
+                            description="Revisa tu conexión a internet e inténtalo de nuevo."
+                            actions={
+                                <button
+                                    type="button"
+                                    className={errorStateStyles.primaryAction}
+                                    onClick={refresh}
+                                >
+                                    Reintentar
+                                </button>
+                            }
+                        />
                     )}
 
                     {status !== 'error' &&
@@ -114,13 +131,16 @@ function ProductCatalog() {
 export default function App() {
 
     if (!searchClient || !indexName) {
+        console.error(
+            'Faltan VITE_ALGOLIA_APPLICATION_ID, VITE_ALGOLIA_SEARCH_API_KEY o VITE_ALGOLIA_INDEX_NAME.'
+        );
+
         return (
-            <main className="app">
-                <p role="alert">
-                    Faltan VITE_ALGOLIA_APPLICATION_ID,
-                    VITE_ALGOLIA_SEARCH_API_KEY o
-                    VITE_ALGOLIA_INDEX_NAME.
-                </p>
+            <main className={errorStateStyles.fullPage}>
+                <ErrorState
+                    title="La tienda no está disponible"
+                    description="Estamos teniendo problemas para mostrar el catálogo. Inténtalo de nuevo más tarde."
+                />
             </main>
         );
     }
@@ -199,16 +219,7 @@ export default function App() {
 
             <Route
                 path="*"
-                element={
-                    <InstantSearch
-                        searchClient={searchClient}
-                        indexName={indexName}
-                    >
-                        <Configure hitsPerPage={1000} />
-
-                        <ProductCatalog />
-                    </InstantSearch>
-                }
+                element={<NotFoundPage />}
             />
 
         </Routes>

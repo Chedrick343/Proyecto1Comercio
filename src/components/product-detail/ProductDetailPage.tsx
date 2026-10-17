@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
+import ErrorState from '../error/ErrorState';
+import errorStateStyles from '../error/ErrorState.module.css';
 import type { Product } from '../../utils/Products';
 import { getProductById } from '../../utils/algolia';
 import { getJewelryThemeVariables } from '../../theme/jewelryTheme';
@@ -104,12 +106,15 @@ export default function ProductDetailPage() {
                 <div className="top-bar">
                     <Header />
                 </div>
-                <p className={styles.stateMessage} role="alert">
-                    {errorMessage ?? 'Producto no encontrado.'}
-                </p>
-                <Link className={styles.backLink} to="/">
-                    ← Volver al catálogo
-                </Link>
+                <ErrorState
+                    title="Producto no disponible"
+                    description={errorMessage ?? 'No encontramos el producto solicitado.'}
+                    actions={
+                        <Link to="/" className={errorStateStyles.primaryAction}>
+                            Volver al catálogo
+                        </Link>
+                    }
+                />
                 <NavBar />
             </main>
         );

@@ -78,13 +78,19 @@ function ordersReducer(
     }
 }
 
+const isObject = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null;
+
 const isValidOrder = (order: unknown): order is Order =>
-    typeof order === 'object' &&
-    order !== null &&
-    typeof (order as Order).orderNumber === 'string' &&
-    typeof (order as Order).createdAt === 'string' &&
-    typeof (order as Order).total === 'number' &&
-    Array.isArray((order as Order).items);
+    isObject(order) &&
+    typeof order.orderNumber === 'string' &&
+    typeof order.createdAt === 'string' &&
+    typeof order.total === 'number' &&
+    typeof order.orderStatus === 'string' &&
+    typeof order.paymentStatus === 'string' &&
+    isObject(order.customer) &&
+    Array.isArray(order.items) &&
+    order.items.every(isObject);
 
 function getInitialOrders(): OrdersState {
     try {

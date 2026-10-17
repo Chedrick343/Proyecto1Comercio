@@ -7,6 +7,7 @@ import { useOrders } from '../../context/OrdersContext';
 import type { Order } from '../../orders/orderTypes';
 import { formatDateTime } from '../../utils/formatDate';
 import OrderDetails from './OrderDetails';
+import ErrorState from '../error/ErrorState';
 
 import styles from './OrderConfirmationPage.module.css';
 
@@ -49,13 +50,11 @@ function OrderHeading({ order }: { order: Order }) {
 
 function OrderNotFound({ orderNumber }: { orderNumber: string }) {
     return (
-        <div className={styles.notFound} role="alert">
-            <h1>No encontramos este pedido</h1>
-            <p>
-                No existe un pedido con el número {orderNumber || 'indicado'} en
-                este dispositivo.
-            </p>
-        </div>
+        <ErrorState
+            icon={FaReceipt}
+            title="No encontramos este pedido"
+            description={`No existe un pedido con el número ${orderNumber || 'indicado'} en este dispositivo.`}
+        />
     );
 }
 
