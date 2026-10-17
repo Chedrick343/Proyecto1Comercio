@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
+import SearchBar from '../search-bar/searchBar';
 import ErrorState from '../error/ErrorState';
 import errorStateStyles from '../error/ErrorState.module.css';
 import type { Product } from '../../utils/Products';
@@ -85,12 +86,20 @@ export default function ProductDetailPage() {
         setAddedToCart(false);
     };
 
+    const pageHeader = (
+        <div className="top-bar">
+            <Header>
+                <div className="search-tools">
+                    <SearchBar mode="submit" />
+                </div>
+            </Header>
+        </div>
+    );
+
     if (isLoading) {
         return (
             <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-                <div className="top-bar">
-                    <Header />
-                </div>
+                {pageHeader}
                 <p className={styles.stateMessage}>{t('product:loading')}</p>
                 <NavBar />
             </main>
@@ -100,9 +109,7 @@ export default function ProductDetailPage() {
     if (errorCode || !product) {
         return (
             <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-                <div className="top-bar">
-                    <Header />
-                </div>
+                {pageHeader}
                 <ErrorState
                     title={t('errors:productLoad.title')}
                     description={t(`errors:productLoad.${errorCode ?? 'notFound'}`)}
@@ -119,9 +126,7 @@ export default function ProductDetailPage() {
 
     return (
         <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-            <div className="top-bar">
-                <Header />
-            </div>
+            {pageHeader}
 
             <div className={styles.content}>
                 <Link className={styles.backLink} to="/">

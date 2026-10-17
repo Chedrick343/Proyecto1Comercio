@@ -89,3 +89,36 @@ h2 {
 p {
   margin: 0;
 }
+
+/* Page transitions (View Transitions API): the header stays put while the content fades */
+::view-transition-old(root) {
+  animation: 150ms ease-in both page-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 300ms ease-out both page-fade-in;
+}
+
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none;
+  }
+}

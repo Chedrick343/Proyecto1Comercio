@@ -29,6 +29,12 @@ export function withCatalogPage(params: URLSearchParams, page: number): URLSearc
     return nextParams;
 }
 
+export function getCatalogSearchPath(query: string): string {
+    const params = withCatalogQuery(new URLSearchParams(), query).toString();
+
+    return params ? `/?${params}` : '/';
+}
+
 // A new search always starts on the first page.
 export function withCatalogQuery(params: URLSearchParams, query: string): URLSearchParams {
     const nextParams = withCatalogPage(params, FIRST_PAGE);
