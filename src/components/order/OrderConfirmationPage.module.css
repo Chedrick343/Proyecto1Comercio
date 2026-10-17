@@ -127,7 +127,28 @@
 
 .actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 12px;
+}
+
+.secondaryAction {
+    padding: 12px 24px;
+    border: 1px solid #555558;
+    border-radius: 999px;
+    color: #e8e3db;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.secondaryAction:hover {
+    background-color: #2a2a2d;
+}
+
+.secondaryAction:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
 }
 
 .primaryAction {
