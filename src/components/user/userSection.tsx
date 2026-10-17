@@ -1,67 +1,114 @@
+import { Link } from 'react-router-dom';
 import {
     FaCog,
+    FaUser,
     FaUserShield,
     FaGem,
     FaPowerOff,
     FaQuestionCircle
-} from "react-icons/fa";
-import {GoArchive} from "react-icons/go";
+} from 'react-icons/fa';
+import { GoArchive } from 'react-icons/go';
+import type { IconType } from 'react-icons';
 
-import userImage from "../../assets/user-svgrepo-com.svg";
-import styles from "./userSection.module.css";
+import { useOrders } from '../../context/OrdersContext';
 
-export default function UserSection() {
+import styles from './userSection.module.css';
+
+export type AccountMenuItemId =
+    | 'orders'
+    | 'settings'
+    | 'privacy'
+    | 'premium'
+    | 'help'
+    | 'logout';
+
+interface AccountMenuItem {
+    id: AccountMenuItemId;
+    label: string;
+    icon: IconType;
+    path?: string;
+    tone?: 'premium' | 'danger';
+}
+
+const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
+    { id: 'orders', label: 'Mis pedidos', icon: GoArchive, path: '/cuenta/pedidos' },
+    { id: 'settings', label: 'Configuración de la cuenta', icon: FaCog },
+    { id: 'privacy', label: 'Privacidad', icon: FaUserShield },
+    { id: 'premium', label: 'Prueba POST Premium', icon: FaGem, tone: 'premium' },
+    { id: 'help', label: 'Centro de ayuda', icon: FaQuestionCircle },
+    { id: 'logout', label: 'Cerrar sesión', icon: FaPowerOff, tone: 'danger' }
+];
+
+const GUEST_NAME = 'Invitado';
+
+function getMenuItemClassName(item: AccountMenuItem, isActive: boolean) {
+    return [
+        styles.menuItem,
+        item.tone && styles[item.tone],
+        isActive && styles.menuItemActive
+    ]
+        .filter(Boolean)
+        .join(' ');
+}
+
+function MenuItemContent({ item }: { item: AccountMenuItem }) {
     return (
-        <section className={styles.userSection}>
-            <div className={styles.content}>
-                <div className={styles.profile}>
-                    <div className={styles.avatar}>
-                        <img src={userImage} alt="User" />
-                    </div>
+        <>
+            <item.icon className={styles.icon} aria-hidden="true" />
+            <span className={styles.menuLabel}>{item.label}</span>
+            {!item.path && <span className={styles.comingSoon}>Próximamente</span>}
+        </>
+    );
+}
 
-                    <h2 className={styles.username}>
-                        User12345678
-                    </h2>
+interface UserSectionProps {
+    activeItemId?: AccountMenuItemId;
+}
+
+export default function UserSection({ activeItemId }: UserSectionProps) {
+    const { orders } = useOrders();
+    const customerName = orders[0]?.customer.fullName || GUEST_NAME;
+
+    return (
+        <div className={styles.userSection}>
+            <div className={styles.profile}>
+                <div className={styles.avatar}>
+                    <FaUser aria-hidden="true" />
                 </div>
 
-                <nav className={styles.menu}>
-                    <button className={styles.menuItem}>
-                        <FaCog className={styles.icon} />
-                        <span>Account configuration</span>
-                    </button>
-
-                    <button className={styles.menuItem}>
-                        
-                        <GoArchive className={styles.icon} />
-                        <span>My Orders</span>
-                    </button>
-
-                    <button className={styles.menuItem}>
-                        <FaUserShield className={styles.icon} />
-                        <span>Privacy</span>
-                    </button>
-
-                    <button
-                        className={`${styles.menuItem} ${styles.premium}`}
-                    >
-                        <FaGem className={styles.icon} />
-                        <span>Try Post premium</span>
-                    </button>
-
-                    <button
-                        className={`${styles.menuItem} ${styles.logout}`}
-                    >
-                        <FaPowerOff className={styles.icon} />
-                        <span>Log out</span>
-                    </button>
-
-                    <button className={styles.menuItem}>
-                        <FaQuestionCircle className={styles.icon} />
-                        <span>Help center</span>
-                    </button>
-                    
-                </nav>
+                <div className={styles.profileText}>
+                    <h2 className={styles.username}>{customerName}</h2>
+                    <p className={styles.orderCount}>
+                        {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
+                    </p>
+                </div>
             </div>
-        </section>
+
+            <nav className={styles.menu} aria-label="Opciones de la cuenta">
+                {ACCOUNT_MENU_ITEMS.map((item) => {
+                    const isActive = item.id === activeItemId;
+
+                    return item.path ? (
+                        <Link
+                            key={item.id}
+                            to={item.path}
+                            className={getMenuItemClassName(item, isActive)}
+                            aria-current={isActive ? 'page' : undefined}
+                        >
+                            <MenuItemContent item={item} />
+                        </Link>
+                    ) : (
+                        <button
+                            key={item.id}
+                            type="button"
+                            className={getMenuItemClassName(item, false)}
+                            disabled
+                        >
+                            <MenuItemContent item={item} />
+                        </button>
+                    );
+                })}
+            </nav>
+        </div>
     );
 }

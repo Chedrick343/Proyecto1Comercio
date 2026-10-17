@@ -1,159 +1,140 @@
 .userSection {
-    min-height: 100vh;
-    background-color: #303030;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
+    display: grid;
+    gap: 16px;
 }
-
-/* Encabezado */
-
-.header {
-    height: 102px;
-    background-color: #606060;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.header h1 {
-    margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 42px;
-    font-weight: 900;
-    letter-spacing: -2px;
-}
-
-/* Contenido principal */
-
-.content {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px 5px 32px;
-    box-sizing: border-box;
-}
-
-/* Perfil */
 
 .profile {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    margin-bottom: 31px;
+    gap: 16px;
+    padding: 20px;
+    background-color: #292929;
+    border: 1px solid #474747;
+    border-radius: 10px;
 }
 
 .avatar {
-    width: 124px;
-    height: 124px;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    border: 2px solid #c9a246;
     border-radius: 50%;
-    background-color: #000;
+    background-color: #1f2025;
+    color: #c9a246;
+    font-size: 26px;
 }
 
-.avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+.profileText {
+    min-width: 0;
 }
 
 .username {
-    margin: 12px 0 0;
-    font-size: 16px;
-    font-weight: 700;
-    text-align: center;
+    margin: 0;
+    color: #f7f3eb;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.2rem;
+    overflow-wrap: anywhere;
 }
 
-/* Menú */
+.orderCount {
+    margin: 4px 0 0;
+    color: #aaa9ad;
+    font-size: 0.86rem;
+}
 
 .menu {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
+    display: grid;
+    gap: 8px;
 }
 
 .menuItem {
     width: 100%;
-    min-height: 59px;
+    min-height: 56px;
     display: flex;
     align-items: center;
-    gap: 18px;
-    padding: 10px 14px;
-    border: none;
-    border-radius: 27px;
-    background-color: #dedede;
-    color: #000;
-    text-align: left;
-    font-family: inherit;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
+    gap: 14px;
+    padding: 12px 16px;
     box-sizing: border-box;
-    transition: filter 0.2s ease, transform 0.2s ease;
+    border: 1px solid #474747;
+    border-radius: 10px;
+    background-color: #292929;
+    color: #f7f2e9;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.menuItem:hover:not(:disabled) {
+    background-color: #333;
+    border-color: #5a5a5d;
+}
+
+.menuItem:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.menuItem:disabled {
+    cursor: default;
+}
+
+.menuItem:disabled .icon,
+.menuItem:disabled .menuLabel {
+    opacity: 0.6;
+}
+
+.menuItemActive {
+    background-color: #2f2a1f;
+    border-color: #c9a246;
 }
 
 .icon {
+    width: 22px;
+    height: 22px;
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    font-size: 36px;
+    color: #c9a246;
 }
 
-.menuItem span {
+.menuLabel {
+    flex: 1;
     line-height: 1.2;
 }
 
-.menuItem:hover {
-    filter: brightness(0.92);
+.comingSoon {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border: 1px solid #474747;
+    border-radius: 999px;
+    color: #aaa9ad;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
-
-.menuItem:active {
-    transform: scale(0.98);
-}
-
-/* Premium */
 
 .premium {
-    background-color: #ffed85;
+    background: linear-gradient(90deg, #3a3122 0%, #292929 70%);
+    border-color: #6b5a2e;
 }
 
-/* Cerrar sesión */
-
-.logout {
-    min-height: 59px;
-    margin-top: 3px;
-    background-color: #ff0808;
+.premium .menuLabel {
+    color: #ecd38f;
 }
 
-/* Accesibilidad */
-
-.menuItem:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 3px;
+.danger .icon,
+.danger .menuLabel {
+    color: #f3aaa5;
 }
-
-/* Pantallas pequeñas */
 
 @media (max-width: 380px) {
-    .header {
-        height: 102px;
-    }
-
-    .content {
-        padding-right: 5px;
-        padding-left: 5px;
-    }
-
     .menuItem {
-        gap: 14px;
-        font-size: 15px;
-    }
-
-    .icon {
-        width: 34px;
-        height: 34px;
-        font-size: 34px;
+        gap: 12px;
+        padding: 12px;
+        font-size: 0.9rem;
     }
 }
