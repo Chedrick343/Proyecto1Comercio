@@ -1,17 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { FaTimes } from 'react-icons/fa';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { isSearchFocusRequested } from './searchFocus';
-import { readCatalogQuery, withCatalogQuery } from '../../catalog/catalogSearchParams';
+import {
+    getCatalogSearchPath,
+    readCatalogQuery,
+    withCatalogQuery
+} from '../../catalog/catalogSearchParams';
+import { useViewTransitionNavigate } from '../navigation/useViewTransitionNavigate';
 import styles from './SearchBar.module.css';
 
 const SEARCH_DEBOUNCE_MS = 250;
 
-export default function SearchBar() {
+// "live" updates the catalog while typing; "submit" only searches on Enter or the button
+// and takes the user to the catalog (used outside the catalog, e.g. the product page).
+export type SearchBarMode = 'live' | 'submit';
+
+interface SearchBarProps {
+    mode?: SearchBarMode;
+}
+
+export default function SearchBar({ mode = 'live' }: SearchBarProps) {
     const { t } = useTranslation('catalog');
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigateWithTransition = useViewTransitionNavigate();
     const query = readCatalogQuery(searchParams);
+    const isLiveSearch = mode === 'live';
 
     const [inputValue, setInputValue] = useState(query);
     const [lastSyncedQuery, setLastSyncedQuery] = useState(query);
@@ -31,8 +46,15 @@ export default function SearchBar() {
         }
     }, [shouldFocusSearch, location.key]);
 
+    const updateCatalogQuery = (nextQuery: string) => {
+        setSearchParams(
+            (currentParams) => withCatalogQuery(currentParams, nextQuery),
+            { replace: true }
+        );
+    };
+
     useEffect(() => {
-        if (inputValue.trim() === query) {
+        if (!isLiveSearch || inputValue.trim() === query) {
             return;
         }
 
@@ -45,41 +67,63 @@ export default function SearchBar() {
         );
 
         return () => window.clearTimeout(timeoutId);
-    }, [inputValue, query, setSearchParams]);
+    }, [isLiveSearch, inputValue, query, setSearchParams]);
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        // Closes the on-screen keyboard on mobile after searching.
+        inputRef.current?.blur();
+
+        if (isLiveSearch) {
+            updateCatalogQuery(inputValue);
+            return;
+        }
+
+        navigateWithTransition(getCatalogSearchPath(inputValue));
+    };
 
     const clearSearch = () => {
         setInputValue('');
-        setSearchParams(
-            (currentParams) => withCatalogQuery(currentParams, ''),
-            { replace: true }
-        );
+        inputRef.current?.focus();
+
+        if (isLiveSearch) {
+            updateCatalogQuery('');
+        }
     };
 
     return (
-        <div className={styles.searchBar}>
+        <form className={styles.searchBar} role="search" onSubmit={handleSubmit}>
             <div className={styles.searchGroup}>
-                <input
-                    ref={inputRef}
-                    type="search"
-                    placeholder={t('search.placeholder')}
-                    className={styles.searchInput}
-                    aria-label={t('search.label')}
-                    autoComplete="off"
-                    value={inputValue}
-                    onChange={(event) => setInputValue(event.target.value)}
-                />
-                {inputValue && (
-                    <button
-                        type="button"
-                        className={styles.clearButton}
-                        aria-label={t('search.clear')}
-                        title={t('search.clear')}
-                        onClick={clearSearch}
-                    >
-                        <FaTimes aria-hidden="true" />
-                    </button>
-                )}
+                <div className={styles.searchField}>
+                    <input
+                        ref={inputRef}
+                        type="search"
+                        enterKeyHint="search"
+                        placeholder={t('search.placeholder')}
+                        className={styles.searchInput}
+                        aria-label={t('search.label')}
+                        autoComplete="off"
+                        value={inputValue}
+                        onChange={(event) => setInputValue(event.target.value)}
+                    />
+                    {inputValue && (
+                        <button
+                            type="button"
+                            className={styles.clearButton}
+                            aria-label={t('search.clear')}
+                            title={t('search.clear')}
+                            onClick={clearSearch}
+                        >
+                            <FaTimes aria-hidden="true" />
+                        </button>
+                    )}
+                </div>
+
+                <button type="submit" className={styles.submitButton}>
+                    <FaSearch aria-hidden="true" />
+                    <span className={styles.submitLabel}>{t('search.submit')}</span>
+                </button>
             </div>
-        </div>
+        </form>
     );
 }

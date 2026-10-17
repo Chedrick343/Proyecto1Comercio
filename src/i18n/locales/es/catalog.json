@@ -3,6 +3,7 @@
   "search": {
     "placeholder": "¿Qué estás buscando?",
     "label": "Buscar productos",
+    "submit": "Buscar",
     "clear": "Limpiar búsqueda"
   },
   "filters": {
