@@ -10,6 +10,7 @@ import type { IconType } from 'react-icons';
 import { Link, useLocation } from 'react-router-dom';
 
 import { useCart } from '../../context/CartContext';
+import { FOCUS_SEARCH_STATE } from '../search-bar/searchFocus';
 
 type NavOption = 'home' | 'search' | 'account' | 'cart';
 
@@ -18,12 +19,14 @@ const navOptions: {
     Icon: IconType;
     label: string;
     path: string;
+    state?: unknown;
 }[] = [
     {
         id: 'search',
         Icon: FaSearch,
         label: 'Buscar',
-        path: '/buscar'
+        path: '/',
+        state: FOCUS_SEARCH_STATE
     },
     {
         id: 'home',
@@ -57,10 +60,6 @@ export default function NavBar() {
             return 'home';
         }
 
-        if (location.pathname.startsWith('/buscar')) {
-            return 'search';
-        }
-
         if (location.pathname.startsWith('/carrito')) {
             return 'cart';
         }
@@ -81,10 +80,11 @@ export default function NavBar() {
         >
 
             {navOptions.map(
-                ({ id, Icon, label, path }) => (
+                ({ id, Icon, label, path, state }) => (
                     <Link
                         key={id}
                         to={path}
+                        state={state}
                         className={`${styles.navItem} ${
                             selected === id
                                 ? styles.active
