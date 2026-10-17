@@ -19,7 +19,7 @@
     margin: 0;
     color: #f7f3eb;
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 1.3rem;
+    font-size: var(--font-size-xl);
 }
 
 .count {

@@ -81,30 +81,22 @@
 
 @media (min-width: 768px) {
     .searchBar {
-        padding: 16px 40px;
-    }
-
-    .searchInput {
-        height: 50px;
-        font-size: 15px;
+        padding: var(--space-3) var(--page-gutter);
     }
 }
 
-
-
-@media (min-width: 1024px) {
+@media (min-width: 861px) {
     .searchBar {
         padding: 0;
     }
 
     .searchGroup {
-        max-width: 900px;
+        max-width: 720px;
         margin: 0 auto;
     }
 
     .searchInput {
-        height: 54px;
-        font-size: 16px;
+        font-size: var(--font-size-md);
     }
 }
 
