@@ -6,6 +6,7 @@
 .top-bar {
     display: flex;
     flex-direction: column;
+    view-transition-name: site-header;
 }
 
 .search-tools {

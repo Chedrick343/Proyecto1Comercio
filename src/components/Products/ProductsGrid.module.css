@@ -1,4 +1,5 @@
 .products {
+    animation: results-enter 0.35s ease-out both;
     width: 100%;
     padding: 20px 16px;
 
@@ -425,5 +426,17 @@
         min-width: 30px;
         padding: 7px 0;
         font-size: 12px;
+    }
+}
+@keyframes results-enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .products {
+        animation: none;
     }
 }
