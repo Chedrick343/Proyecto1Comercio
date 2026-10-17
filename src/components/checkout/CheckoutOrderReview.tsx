@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { formatCurrency } from '../../utils/formatCurrency';
 import type { CartItem } from '../../context/CartContext';
 import type { ShippingDetails } from './checkoutTypes';
-import type { PaymentResult } from './paymentProcessing';
+import type { PaymentResult } from './paymentGateway';
+import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
+import SandboxScenarioSelector from './SandboxScenarioSelector';
 
 import styles from './CheckoutEntryPage.module.css';
 
@@ -13,6 +15,8 @@ interface CheckoutOrderReviewProps {
     paymentDescription: string;
     paymentResult: PaymentResult | null;
     isProcessingPayment: boolean;
+    sandboxScenario: SandboxScenario;
+    onSandboxScenarioChange: (scenario: SandboxScenario) => void;
     onEditDetails: () => void;
     onEditPayment: () => void;
     onSubmitPayment: () => void;
@@ -24,6 +28,8 @@ export default function CheckoutOrderReview({
     paymentDescription,
     paymentResult,
     isProcessingPayment,
+    sandboxScenario,
+    onSandboxScenarioChange,
     onEditDetails,
     onEditPayment,
     onSubmitPayment
@@ -113,6 +119,12 @@ export default function CheckoutOrderReview({
                     </li>
                 ))}
             </ul>
+
+            <SandboxScenarioSelector
+                selectedScenario={sandboxScenario}
+                disabled={isProcessingPayment || paymentResult === 'PAYMENT_APPROVED'}
+                onScenarioChange={onSandboxScenarioChange}
+            />
 
             <div className={styles.reviewActions}>
                 <button
