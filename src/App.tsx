@@ -18,7 +18,7 @@ import ProductDetailPage from './components/product-detail/ProductDetailPage';
 import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 import OrderConfirmationPage from './components/order/OrderConfirmationPage';
-import UserSection from './components/user/userSection';
+import AccountPage from './components/user/AccountPage';
 
 import {
     DEFAULT_FILTERS,
@@ -61,10 +61,11 @@ function ProductCatalog() {
         <main className="app">
 
             <div className="top-bar">
-                <Header />
-                <div className="search-tools">
-                    <SearchBar />
-                </div>
+                <Header>
+                    <div className="search-tools">
+                        <SearchBar />
+                    </div>
+                </Header>
             </div>
 
             <div className="catalog-layout">
@@ -161,28 +162,26 @@ export default function App() {
                 element={
                     <main className="app">
                         <div className="top-bar">
-                            
-                            <Header />
-                        </div>
-                        <CarritoSection />
-                        
-                    </main>
-                }
-            />
-            <Route
-                path="/cuenta"
-                element={
-                    <main className="app">
-                        <div className="top-bar">
                             <Header />
                         </div>
 
-                        <UserSection />
+                        <CarritoSection />
 
                         <NavBar />
                     </main>
                 }
-                    
+            />
+
+            {/*CUENTA*/}
+
+            <Route
+                path="/cuenta"
+                element={<AccountPage view="menu" />}
+            />
+
+            <Route
+                path="/cuenta/pedidos"
+                element={<AccountPage view="orders" />}
             />
 
             <Route
