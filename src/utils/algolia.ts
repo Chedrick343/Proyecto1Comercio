@@ -54,29 +54,43 @@ export function normalizeAlgoliaProduct(hit: unknown): Product {
     };
 }
 
-export async function getProductById(productId: string): Promise<Product> {
+const PRODUCT_UNAVAILABLE_MESSAGE =
+    'No pudimos cargar el producto. Inténtalo de nuevo en unos momentos.';
+
+async function fetchProductHit(productId: string): Promise<Response> {
     if (!applicationId || !searchApiKey || !indexName) {
-        throw new Error(
+        console.error(
             'Faltan VITE_ALGOLIA_APPLICATION_ID, VITE_ALGOLIA_SEARCH_API_KEY o VITE_ALGOLIA_INDEX_NAME.'
         );
+        throw new Error(PRODUCT_UNAVAILABLE_MESSAGE);
     }
 
-    const response = await fetch(
-        `https://${applicationId}-dsn.algolia.net/1/indexes/${encodeURIComponent(indexName)}/${encodeURIComponent(productId)}`,
-        {
-            headers: {
-                'X-Algolia-Application-Id': applicationId,
-                'X-Algolia-API-Key': searchApiKey
+    try {
+        return await fetch(
+            `https://${applicationId}-dsn.algolia.net/1/indexes/${encodeURIComponent(indexName)}/${encodeURIComponent(productId)}`,
+            {
+                headers: {
+                    'X-Algolia-Application-Id': applicationId,
+                    'X-Algolia-API-Key': searchApiKey
+                }
             }
-        }
-    );
+        );
+    } catch (networkError) {
+        console.error('No se pudo contactar a Algolia:', networkError);
+        throw new Error('No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.');
+    }
+}
+
+export async function getProductById(productId: string): Promise<Product> {
+    const response = await fetchProductHit(productId);
 
     if (response.status === 404) {
         throw new Error('No encontramos el producto solicitado.');
     }
 
     if (!response.ok) {
-        throw new Error(`Algolia respondió con HTTP ${response.status}.`);
+        console.error(`Algolia respondió con HTTP ${response.status}.`);
+        throw new Error(PRODUCT_UNAVAILABLE_MESSAGE);
     }
 
     const hit: unknown = await response.json();
