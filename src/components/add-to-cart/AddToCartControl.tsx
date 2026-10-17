@@ -11,22 +11,28 @@ interface AddToCartControlProps {
     product: Product;
     fullWidth?: boolean;
     className?: string;
+    onAdded?: () => void;
 }
 
 export default function AddToCartControl({
     product,
     fullWidth = false,
-    className
+    className,
+    onAdded
 }: AddToCartControlProps) {
     const { t } = useTranslation('product');
     const { cart, addProduct, increaseQuantity, decreaseQuantity, removeProduct } = useCart();
     const [announcement, setAnnouncement] = useState('');
-    // The stepper only appears after adding during this visit; reloading or navigating resets it.
-    const [wasAddedInThisVisit, setWasAddedInThisVisit] = useState(false);
+    // Counts only the units added during this visit; reloading or navigating resets it,
+    // while the cart keeps its full quantity.
+    const [addedInThisVisit, setAddedInThisVisit] = useState(0);
 
     const productId = String(product.objectID);
     const quantityInCart = cart.find((item) => item.id === productId)?.quantity ?? 0;
-    const showStepper = wasAddedInThisVisit && quantityInCart > 0;
+    // Never shows more than the cart has, in case it was changed elsewhere.
+    const displayedQuantity = Math.min(addedInThisVisit, quantityInCart);
+    const showStepper = displayedQuantity > 0;
+    const removesProduct = quantityInCart === 1;
     const isOutOfStock = !product.in_stock;
     const hasReachedStock = quantityInCart >= product.stock_quantity;
     const name = product.title;
@@ -37,14 +43,21 @@ export default function AddToCartControl({
 
     const handleAdd = () => {
         addProduct(product, 1);
-        setWasAddedInThisVisit(true);
+        setAddedInThisVisit(1);
         setAnnouncement(t('addedAnnouncement', { name }));
+        onAdded?.();
+    };
+
+    const handleIncrease = () => {
+        increaseQuantity(productId);
+        setAddedInThisVisit(displayedQuantity + 1);
     };
 
     const handleDecrease = () => {
-        if (quantityInCart === 1) {
+        setAddedInThisVisit(displayedQuantity - 1);
+
+        if (removesProduct) {
             removeProduct(productId);
-            setWasAddedInThisVisit(false);
             setAnnouncement(t('cartControl.removedAnnouncement', { name }));
             return;
         }
@@ -82,25 +95,25 @@ export default function AddToCartControl({
                         className={styles.stepButton}
                         onClick={handleDecrease}
                         aria-label={
-                            quantityInCart === 1
+                            removesProduct
                                 ? t('cartControl.remove', { name })
                                 : t('cartControl.decrease', { name })
                         }
                     >
-                        {quantityInCart === 1
+                        {displayedQuantity === 1
                             ? <FaTrash aria-hidden="true" />
                             : <FaMinus aria-hidden="true" />}
                     </button>
 
                     <span className={styles.quantity} aria-live="polite">
-                        <strong>{quantityInCart}</strong>{' '}
+                        <strong>{displayedQuantity}</strong>{' '}
                         <span className={styles.inCartLabel}>{t('cartControl.inCart')}</span>
                     </span>
 
                     <button
                         type="button"
                         className={styles.stepButton}
-                        onClick={() => increaseQuantity(productId)}
+                        onClick={handleIncrease}
                         disabled={hasReachedStock}
                         aria-label={t('cartControl.increase', { name })}
                     >
