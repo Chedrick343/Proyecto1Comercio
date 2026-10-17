@@ -5,7 +5,7 @@ import {
     FaShoppingCart
 } from 'react-icons/fa';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -24,6 +24,12 @@ export default function CarritoSection() {
         total
     } = useCart();
 
+    const location = useLocation();
+    const wasRedirectedFromCheckout = Boolean(
+        (location.state as { checkoutBlockedByEmptyCart?: boolean } | null)
+            ?.checkoutBlockedByEmptyCart
+    );
+
     if (cart.length === 0) {
         return (
             <section className={styles.cartPage}>
@@ -33,6 +39,16 @@ export default function CarritoSection() {
                     </div>
 
                     <h1>Tu carrito está vacío</h1>
+
+                    {wasRedirectedFromCheckout && (
+                        <p
+                            className={styles.emptyCartNotice}
+                            role="alert"
+                        >
+                            Necesitas al menos un producto en el carrito
+                            para finalizar la compra.
+                        </p>
+                    )}
 
                     <p>
                         Todavía no has agregado productos
