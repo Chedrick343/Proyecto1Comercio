@@ -32,8 +32,13 @@
     flex-direction: column;
     gap: 5px;
     flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
     color: #fff;
+    font: inherit;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .headerIcon {
