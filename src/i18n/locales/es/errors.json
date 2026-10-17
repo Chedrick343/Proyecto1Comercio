@@ -1,0 +1,26 @@
+{
+  "unexpected": {
+    "title": "Algo salió mal",
+    "description": "Ocurrió un problema inesperado. Tu carrito y tus pedidos siguen guardados.",
+    "goHome": "Ir al inicio"
+  },
+  "notFound": {
+    "title": "No encontramos esta página",
+    "description": "Es posible que el enlace esté incompleto o que la página ya no exista.",
+    "goToCatalog": "Ir al catálogo"
+  },
+  "catalogLoad": {
+    "title": "No pudimos cargar los productos",
+    "description": "Revisa tu conexión a internet e inténtalo de nuevo."
+  },
+  "storeUnavailable": {
+    "title": "La tienda no está disponible",
+    "description": "Estamos teniendo problemas para mostrar el catálogo. Inténtalo de nuevo más tarde."
+  },
+  "productLoad": {
+    "title": "Producto no disponible",
+    "notFound": "No encontramos el producto solicitado.",
+    "network": "No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.",
+    "unavailable": "No pudimos cargar el producto. Inténtalo de nuevo en unos momentos."
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "loading": "Cargando información del producto...",
+  "imageLabel": "Imagen del producto",
+  "outOfStock": "Agotado",
+  "addToCart": "Agregar al carrito",
+  "addedToCart": "Agregado",
+  "quantity": {
+    "label": "Cantidad a agregar",
+    "decrease": "Disminuir cantidad",
+    "increase": "Aumentar cantidad"
+  },
+  "availability": {
+    "label": "Disponibilidad:",
+    "inStock_one": "{{count}} unidad disponible",
+    "inStock_other": "{{count}} unidades disponibles",
+    "outOfStock": "Producto agotado"
+  },
+  "rating": {
+    "label": "Calificación:",
+    "value": "{{rating}} / 5"
+  },
+  "sections": {
+    "description": "Descripción",
+    "categories": "Categorías",
+    "specifications": "Especificaciones"
+  },
+  "specifications": {
+    "id": "Identificador",
+    "currency": "Moneda"
+  },
+  "facets": {
+    "material": "Material",
+    "color": "Color",
+    "stone": "Piedra",
+    "gender": "Género",
+    "style": "Estilo",
+    "collection": "Colección",
+    "length": "Largo",
+    "width": "Ancho",
+    "size": "Talla",
+    "diameter": "Diámetro",
+    "movement": "Movimiento",
+    "waterproof": "Resistente al agua",
+    "structure": "Estructura",
+    "pendant": "Dije",
+    "closure": "Cierre",
+    "type": "Tipo",
+    "design": "Diseño"
+  },
+  "addedDialog": {
+    "eyebrow": "LISTO PARA DISFRUTAR",
+    "title": "Producto agregado",
+    "description": "Ya está en tu carrito de compras.",
+    "goToCart": "Ir al carrito"
+  }
+}

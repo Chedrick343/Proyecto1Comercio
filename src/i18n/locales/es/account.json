@@ -1,0 +1,16 @@
+{
+  "eyebrow": "TU CUENTA",
+  "title": "Mi cuenta",
+  "backToAccount": "Volver a mi cuenta",
+  "guestName": "Invitado",
+  "comingSoon": "Próximamente",
+  "menu": {
+    "label": "Opciones de la cuenta",
+    "orders": "Mis pedidos",
+    "settings": "Configuración de la cuenta",
+    "privacy": "Privacidad",
+    "premium": "Prueba POST Premium",
+    "help": "Centro de ayuda",
+    "logout": "Cerrar sesión"
+  }
+}
