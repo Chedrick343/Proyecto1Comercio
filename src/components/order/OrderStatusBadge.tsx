@@ -1,9 +1,6 @@
-import {
-    ORDER_STATUS_LABELS,
-    PAYMENT_STATUS_LABELS,
-    type OrderStatus,
-    type PaymentStatus
-} from '../../orders/orderTypes';
+import { useTranslation } from 'react-i18next';
+
+import type { OrderStatus, PaymentStatus } from '../../orders/orderTypes';
 
 import styles from './OrderStatusBadge.module.css';
 
@@ -27,18 +24,22 @@ function StatusBadge({ label, tone }: { label: string; tone: StatusTone }) {
 }
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
+    const { t } = useTranslation('orders');
+
     return (
         <StatusBadge
-            label={ORDER_STATUS_LABELS[status]}
+            label={t(`status.order.${status}`)}
             tone={ORDER_STATUS_TONES[status]}
         />
     );
 }
 
 export function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
+    const { t } = useTranslation('orders');
+
     return (
         <StatusBadge
-            label={PAYMENT_STATUS_LABELS[status]}
+            label={t(`status.payment.${status}`)}
             tone={PAYMENT_STATUS_TONES[status]}
         />
     );

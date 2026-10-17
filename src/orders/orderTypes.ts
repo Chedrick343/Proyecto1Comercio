@@ -47,15 +47,3 @@ export const ORDER_STATUS_BY_PAYMENT_STATUS: Record<
     ERROR: 'PENDING'
 };
 
-export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-    PENDING: 'Pendiente',
-    CONFIRMED: 'Confirmada',
-    FAILED: 'Fallida'
-};
-
-export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-    PENDING: 'Pendiente',
-    APPROVED: 'Aprobado',
-    DECLINED: 'Rechazado',
-    ERROR: 'Error del servicio'
-};

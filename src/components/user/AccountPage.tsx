@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
@@ -19,6 +20,8 @@ interface AccountPageProps {
 }
 
 export default function AccountPage({ view }: AccountPageProps) {
+    const { t } = useTranslation('account');
+
     return (
         <main className="app">
             <div className="top-bar">
@@ -27,8 +30,8 @@ export default function AccountPage({ view }: AccountPageProps) {
 
             <section className={styles.accountPage}>
                 <header className={styles.pageHeader}>
-                    <p className={styles.eyebrow}>TU CUENTA</p>
-                    <h1>Mi cuenta</h1>
+                    <p className={styles.eyebrow}>{t('eyebrow')}</p>
+                    <h1>{t('title')}</h1>
                 </header>
 
                 <div className={`${styles.accountLayout} ${LAYOUT_CLASS_BY_VIEW[view]}`}>
@@ -38,7 +41,7 @@ export default function AccountPage({ view }: AccountPageProps) {
 
                     <div className={styles.content}>
                         <Link to="/cuenta" className={styles.backLink}>
-                            ← Volver a mi cuenta
+                            ← {t('backToAccount')}
                         </Link>
                         <Orders />
                     </div>
