@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Route, Routes, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -25,7 +25,6 @@ import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
 
 import {
-    DEFAULT_FILTERS,
     type ProductFilters,
     filterProducts
 } from './utils/Products';
@@ -36,8 +35,9 @@ import {
     searchClient
 } from './utils/algolia';
 import {
+    readCatalogFilters,
     readCatalogQuery,
-    withCatalogPage
+    withCatalogFilters
 } from './catalog/catalogSearchParams';
 
 // Filtering and pagination happen on the client, so the whole index is requested.
@@ -57,13 +57,11 @@ function ProductCatalog() {
         }
     }, [error]);
 
-    const [filters, setFilters] =
-        useState<ProductFilters>(DEFAULT_FILTERS);
+    const filters = useMemo(() => readCatalogFilters(searchParams), [searchParams]);
 
     const handleFiltersChange = (nextFilters: ProductFilters) => {
-        setFilters(nextFilters);
         setSearchParams(
-            (currentParams) => withCatalogPage(currentParams, 1),
+            (currentParams) => withCatalogFilters(currentParams, nextFilters),
             { replace: true }
         );
     };

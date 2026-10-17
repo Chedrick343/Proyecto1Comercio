@@ -1,7 +1,72 @@
+import {
+    MAX_PRICE,
+    MIN_PRICE,
+    type ProductFilters
+} from '../utils/Products';
+
 export const CATALOG_QUERY_PARAM = 'q';
 export const CATALOG_PAGE_PARAM = 'pagina';
+export const CATALOG_CATEGORY_PARAM = 'categoria';
+export const CATALOG_MIN_PRICE_PARAM = 'precioMin';
+export const CATALOG_MAX_PRICE_PARAM = 'precioMax';
 
 const FIRST_PAGE = 1;
+
+function readPriceParam(params: URLSearchParams, name: string, fallback: number): number {
+    const rawValue = params.get(name);
+    const value = Number(rawValue);
+
+    if (rawValue === null || !Number.isFinite(value)) {
+        return fallback;
+    }
+
+    return Math.min(Math.max(value, MIN_PRICE), MAX_PRICE);
+}
+
+function setOrDeleteParam(params: URLSearchParams, name: string, value: string | null) {
+    if (value === null) {
+        params.delete(name);
+    } else {
+        params.set(name, value);
+    }
+}
+
+export function readCatalogFilters(params: URLSearchParams): ProductFilters {
+    return {
+        search: '',
+        categories: params.getAll(CATALOG_CATEGORY_PARAM),
+        minPrice: readPriceParam(params, CATALOG_MIN_PRICE_PARAM, MIN_PRICE),
+        maxPrice: readPriceParam(params, CATALOG_MAX_PRICE_PARAM, MAX_PRICE)
+    };
+}
+
+// Changing filters always goes back to the first page; default values stay out of the URL.
+export function withCatalogFilters(params: URLSearchParams, filters: ProductFilters): URLSearchParams {
+    const nextParams = withCatalogPage(params, FIRST_PAGE);
+
+    nextParams.delete(CATALOG_CATEGORY_PARAM);
+    filters.categories.forEach((category) => nextParams.append(CATALOG_CATEGORY_PARAM, category));
+
+    setOrDeleteParam(
+        nextParams,
+        CATALOG_MIN_PRICE_PARAM,
+        filters.minPrice !== MIN_PRICE ? String(filters.minPrice) : null
+    );
+    setOrDeleteParam(
+        nextParams,
+        CATALOG_MAX_PRICE_PARAM,
+        filters.maxPrice !== MAX_PRICE ? String(filters.maxPrice) : null
+    );
+
+    return nextParams;
+}
+
+export function getCatalogCategoryPath(category: string): string {
+    const params = new URLSearchParams();
+    params.append(CATALOG_CATEGORY_PARAM, category);
+
+    return `/?${params.toString()}`;
+}
 
 export const readCatalogQuery = (params: URLSearchParams): string =>
     params.get(CATALOG_QUERY_PARAM) ?? '';
