@@ -14,8 +14,7 @@ import { useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import CheckoutOrderReview from './CheckoutOrderReview';
 import PaymentMethodSelection from './PaymentMethodSelection';
-import { submitPayment, type PaymentResult } from './paymentGateway';
-import { generateOrderNumber } from '../../orders/createOrder';
+import { useOrderPayment } from './useOrderPayment';
 import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
 import {
     DEFAULT_SAVED_CARD,
@@ -48,11 +47,8 @@ export default function CheckoutEntryPage() {
         INITIAL_NEW_PAYMENT_CARD
     );
     const [paymentCardErrors, setPaymentCardErrors] = useState<PaymentCardErrors>({});
-    const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
-    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [sandboxScenario, setSandboxScenario] =
         useState<SandboxScenario>('APPROVE');
-    const [orderNumber] = useState(generateOrderNumber);
 
     const {
         cart,
@@ -63,8 +59,27 @@ export default function CheckoutEntryPage() {
         total
     } = useCart();
 
+    const {
+        paymentResult,
+        isProcessingPayment,
+        confirmedOrderNumber,
+        payOrder,
+        clearPaymentResult,
+        discardActiveOrder
+    } = useOrderPayment();
+
+    if (confirmedOrderNumber) {
+        return <Navigate to={`/orden/${confirmedOrderNumber}`} replace />;
+    }
+
     if (cart.length === 0) {
-        return <Navigate to="/carrito" replace />;
+        return (
+            <Navigate
+                to="/carrito"
+                replace
+                state={{ checkoutBlockedByEmptyCart: true }}
+            />
+        );
     }
 
     const handleDetailsChange = (
@@ -89,6 +104,7 @@ export default function CheckoutEntryPage() {
         setFieldErrors(validationErrors);
 
         if (Object.keys(validationErrors).length === 0) {
+            discardActiveOrder();
             setCurrentStep(2);
         }
     };
@@ -111,7 +127,7 @@ export default function CheckoutEntryPage() {
     const handlePaymentMethodChange = (method: PaymentMethod) => {
         setSelectedPaymentMethod(method);
         setPaymentCardErrors({});
-        setPaymentResult(null);
+        clearPaymentResult();
     };
 
     const handlePaymentCardChange = (
@@ -132,26 +148,7 @@ export default function CheckoutEntryPage() {
         });
     };
 
-    const handlePayment = async () => {
-        if (isProcessingPayment || paymentResult === 'PAYMENT_APPROVED') {
-            return;
-        }
-
-        setIsProcessingPayment(true);
-        setPaymentResult(null);
-
-        const paymentOutcome = await submitPayment(
-            {
-                orderId: orderNumber,
-                amount: total,
-                currency: cart[0]?.currency ?? 'CRC'
-            },
-            sandboxScenario
-        );
-
-        setPaymentResult(paymentOutcome.result);
-        setIsProcessingPayment(false);
-    };
+    const handlePayment = () => payOrder(shippingDetails, sandboxScenario);
 
     const checkoutSteps: {
         number: number;
