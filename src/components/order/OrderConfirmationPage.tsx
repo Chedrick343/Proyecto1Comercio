@@ -82,6 +82,9 @@ export default function OrderConfirmationPage() {
                     )}
 
                     <div className={styles.actions}>
+                        <Link to="/cuenta/pedidos" className={styles.secondaryAction}>
+                            Ver mis pedidos
+                        </Link>
                         <Link to="/" className={styles.primaryAction}>
                             Seguir comprando
                         </Link>

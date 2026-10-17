@@ -9,7 +9,7 @@ import {
 
 import './App.css';
 
-import Header, { CartButton } from './components/header/Header';
+import Header from './components/header/Header';
 import SearchBar from './components/search-bar/searchBar';
 import Filters from './components/filters/filters';
 import ProductsGrid from './components/Products/Products';
@@ -18,6 +18,7 @@ import ProductDetailPage from './components/product-detail/ProductDetailPage';
 import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 import OrderConfirmationPage from './components/order/OrderConfirmationPage';
+import AccountPage from './components/user/AccountPage';
 
 import {
     DEFAULT_FILTERS,
@@ -60,11 +61,11 @@ function ProductCatalog() {
         <main className="app">
 
             <div className="top-bar">
-                <Header showCart={false} />
-                <div className="search-tools">
-                    <SearchBar />
-                    <CartButton inSearchTools />
-                </div>
+                <Header>
+                    <div className="search-tools">
+                        <SearchBar />
+                    </div>
+                </Header>
             </div>
 
             <div className="catalog-layout">
@@ -169,6 +170,18 @@ export default function App() {
                         <NavBar />
                     </main>
                 }
+            />
+
+            {/*CUENTA*/}
+
+            <Route
+                path="/cuenta"
+                element={<AccountPage view="menu" />}
+            />
+
+            <Route
+                path="/cuenta/pedidos"
+                element={<AccountPage view="orders" />}
             />
 
             <Route

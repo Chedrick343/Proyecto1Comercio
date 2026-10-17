@@ -2,21 +2,28 @@
     position: relative;
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
 }
 
-@media (min-width: 861px) {
-    .header {
-        width: 240px;
-        flex: 0 0 240px;
-        justify-content: space-between;
-    }
+.headerContent {
+    flex: 1 1 100%;
+    min-width: 0;
 }
 
-.cartButton {
+/* Mobile: the buttons sit on top of the logo bar, which is 110px tall */
+.headerActions {
     position: absolute;
+    top: 0;
     right: 16px;
-    top: 50%;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.headerButton {
+    position: relative;
     width: 68px;
     min-height: 76px;
     display: flex;
@@ -24,33 +31,26 @@
     justify-content: center;
     flex-direction: column;
     gap: 5px;
+    flex-shrink: 0;
     color: #fff;
     text-decoration: none;
-    transform: translateY(-50%);
 }
 
-.searchCartButton {
-    position: relative;
-    top: auto;
-    right: auto;
-    flex: 0 0 68px;
-    transform: none;
-}
-
-.cartIcon {
+.headerIcon {
     width: 28px;
     height: 28px;
 }
 
-.cartLabel {
+.headerLabel {
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
 }
 
-.cartButton:focus-visible {
+.headerButton:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
+    border-radius: 8px;
 }
 
 .cartBadge {
@@ -72,13 +72,51 @@
     line-height: 1;
 }
 
+.accountButton {
+    display: none;
+}
+
 @media (min-width: 861px) {
-    .cartButton {
-        position: relative;
-        top: auto;
-        right: auto;
-        flex: 0 0 68px;
-        color: #fff;
-        transform: none;
+    .header {
+        flex: 1;
+        flex-wrap: nowrap;
+        gap: 24px;
+    }
+
+    .headerContent {
+        order: 1;
+        flex: 1;
+    }
+
+    .headerActions {
+        order: 2;
+        position: static;
+        height: auto;
+        gap: 4px;
+        margin-left: auto;
+    }
+
+    .accountButton {
+        display: flex;
+    }
+}
+
+@media (max-width: 380px) {
+    .headerActions {
+        gap: 0;
+        right: 4px;
+    }
+
+    .headerButton {
+        width: 58px;
+    }
+
+    .headerIcon {
+        width: 25px;
+        height: 25px;
+    }
+
+    .headerLabel {
+        font-size: 11px;
     }
 }
