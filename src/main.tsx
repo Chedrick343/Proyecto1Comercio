@@ -9,6 +9,7 @@ import { CartProvider } from './context/CartContext';
 import { OrdersProvider } from './context/OrdersContext';
 import AppErrorBoundary from './components/error/AppErrorBoundary';
 import ScrollToTop from './components/navigation/ScrollToTop';
+import CartPreviewProvider from './components/cart-preview/CartPreviewProvider';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
@@ -17,7 +18,9 @@ createRoot(document.getElementById('root')!).render(
                 <ScrollToTop />
                 <CartProvider>
                     <OrdersProvider>
-                        <App />
+                        <CartPreviewProvider>
+                            <App />
+                        </CartPreviewProvider>
                     </OrdersProvider>
                 </CartProvider>
             </BrowserRouter>

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { FOCUS_SEARCH_STATE } from '../search-bar/searchFocus';
 import CartBadge from '../cart-badge/CartBadge';
+import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
 
 type NavOption = 'home' | 'search' | 'account' | 'cart';
 
@@ -51,13 +52,15 @@ export default function NavBar() {
     const { t } = useTranslation();
     const { pathname } = useLocation();
     const { totalItems } = useCart();
+    const cartPreview = useCartPreview();
 
     const selected = getSelectedOption(pathname);
 
     return (
         <nav className={styles.navBar} aria-label={t('nav.label')}>
             {NAV_ITEMS.map(({ id, Icon, path, state, disabled }) => {
-                const isSelected = selected === id;
+                const opensCartPreview = id === 'cart' && isCartPreviewAvailable(pathname);
+                const isSelected = selected === id || (opensCartPreview && cartPreview.isOpen);
                 const label = t(`nav.${id}`);
 
                 const content = (
@@ -86,6 +89,21 @@ export default function NavBar() {
                         >
                             {content}
                         </span>
+                    );
+                }
+
+                if (opensCartPreview) {
+                    return (
+                        <button
+                            key={id}
+                            type="button"
+                            className={`${styles.navItem} ${isSelected ? styles.active : ''}`}
+                            aria-haspopup="dialog"
+                            aria-expanded={cartPreview.isOpen}
+                            onClick={cartPreview.open}
+                        >
+                            {content}
+                        </button>
                     );
                 }
 

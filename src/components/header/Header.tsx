@@ -1,27 +1,26 @@
 import type { ReactNode } from 'react';
 import Logo from '../logo/logo';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import CartBadge from '../cart-badge/CartBadge';
+import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
 
 import styles from './Header.module.css';
 
 function CartButton() {
     const { t } = useTranslation();
     const { totalItems } = useCart();
+    const { pathname } = useLocation();
+    const cartPreview = useCartPreview();
 
-    return (
-        <Link
-            to="/carrito"
-            className={styles.headerButton}
-            aria-label={
-                totalItems > 0
-                    ? t('header.cartWithItems', { count: totalItems })
-                    : t('nav.cart')
-            }
-        >
+    const label = totalItems > 0
+        ? t('header.cartWithItems', { count: totalItems })
+        : t('nav.cart');
+
+    const content = (
+        <>
             <FaShoppingCart
                 className={styles.headerIcon}
                 aria-hidden="true"
@@ -32,7 +31,28 @@ function CartButton() {
             </span>
 
             <CartBadge count={totalItems} className={styles.cartBadge} />
-        </Link>
+        </>
+    );
+
+    if (!isCartPreviewAvailable(pathname)) {
+        return (
+            <Link to="/carrito" className={styles.headerButton} aria-label={label}>
+                {content}
+            </Link>
+        );
+    }
+
+    return (
+        <button
+            type="button"
+            className={styles.headerButton}
+            aria-label={label}
+            aria-haspopup="dialog"
+            aria-expanded={cartPreview.isOpen}
+            onClick={cartPreview.open}
+        >
+            {content}
+        </button>
     );
 }
 
