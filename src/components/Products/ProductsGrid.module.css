@@ -154,6 +154,7 @@
 ===================== */
 
 .card {
+    position: relative;
     display: flex;
     flex-direction: column;
 
@@ -163,16 +164,41 @@
 
     overflow: hidden;
     color: inherit;
+
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+    .card:hover {
+        border-color: #c9a246;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card:hover .image {
+        transform: scale(1.04);
+    }
+}
+
+.card:has(.cardLink:focus-visible) {
+    outline: 2px solid #c9a246;
+    outline-offset: 3px;
+}
+
+.cardLink {
+    color: inherit;
     text-decoration: none;
 }
 
-.card:hover {
-    border-color: #ffffff;
+.cardLink:focus-visible {
+    outline: none;
 }
 
-.card:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 3px;
+/* Makes the whole card clickable while the add-to-cart button stays on top */
+.cardLink::after {
+    position: absolute;
+    inset: 0;
+    content: '';
 }
 
 .listCard {
@@ -221,7 +247,10 @@
 
     padding: 10px;
     box-sizing: border-box;
+
+    transition: transform 0.3s ease;
 }
+
 
 .outOfStock {
     position: absolute;
@@ -239,11 +268,31 @@
 }
 
 .cardBody {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 6px;
 
     padding: 12px;
+}
+
+.cardFooter {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-1);
+}
+
+.listCard .cardFooter {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.listCard .cardFooter > :last-child {
+    min-width: 190px;
 }
 
 .category {
@@ -276,7 +325,8 @@
 }
 
 .price {
-    margin: 4px 0 0;
+    margin: 0;
+    min-width: 0;
 
     font-size: 16px;
     font-weight: 700;

@@ -3,7 +3,9 @@
   "imageLabel": "Imagen del producto",
   "outOfStock": "Agotado",
   "addToCart": "Agregar al carrito",
+  "addToCartShort": "Agregar",
   "addedToCart": "Agregado",
+  "addedAnnouncement": "{{name}} se agregó al carrito",
   "quantity": {
     "label": "Cantidad a agregar",
     "decrease": "Disminuir cantidad",
@@ -52,5 +54,13 @@
     "title": "Producto agregado",
     "description": "Ya está en tu carrito de compras.",
     "goToCart": "Ir al carrito"
+  },
+  "cartControl": {
+    "label": "Cantidad de {{name}} en el carrito",
+    "inCart": "en el carrito",
+    "remove": "Eliminar {{name}} del carrito",
+    "decrease": "Quitar una unidad de {{name}}",
+    "increase": "Agregar una unidad de {{name}}",
+    "removedAnnouncement": "{{name}} se eliminó del carrito"
   }
 }
