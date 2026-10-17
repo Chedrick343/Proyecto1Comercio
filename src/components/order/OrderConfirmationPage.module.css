@@ -1,0 +1,161 @@
+.page {
+    min-height: 100vh;
+    padding: var(--page-padding-top) var(--page-gutter) var(--mobile-navbar-clearance);
+    background-color: #16171c;
+    color: #f7f2e9;
+}
+
+.content {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    animation: fadeInUp 0.9s ease-out both;
+}
+
+.confirmedIcon {
+    animation: popIn 0.8s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .content,
+    .confirmedIcon {
+        animation: none;
+    }
+}
+
+.heading {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.confirmedIcon,
+.neutralIcon {
+    margin-bottom: 8px;
+    font-size: 2.5rem;
+}
+
+.confirmedIcon {
+    color: #68a877;
+}
+
+.neutralIcon {
+    color: #c9a246;
+}
+
+.eyebrow {
+    margin: 0;
+    color: #c9a246;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.heading h1 {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--font-size-page-title);
+}
+
+.description {
+    margin: 0;
+    color: #aaa9ad;
+    overflow-wrap: anywhere;
+}
+
+.orderMeta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 32px;
+    margin: 16px 0 0;
+}
+
+.orderMeta div {
+    display: grid;
+    gap: 4px;
+}
+
+.orderMeta dt {
+    color: #aaa9ad;
+    font-size: 0.8rem;
+}
+
+.orderMeta dd {
+    margin: 0;
+    color: #f7f2e9;
+    font-weight: 700;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.secondaryAction {
+    padding: 12px 24px;
+    border: 1px solid #555558;
+    border-radius: 999px;
+    color: #e8e3db;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.secondaryAction:hover {
+    background-color: #2a2a2d;
+}
+
+.secondaryAction:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.primaryAction {
+    padding: 13px 24px;
+    border-radius: 999px;
+    background-color: #c9a246;
+    color: #252525;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.primaryAction:hover {
+    background-color: #dfbd5d;
+}
+
+.primaryAction:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+

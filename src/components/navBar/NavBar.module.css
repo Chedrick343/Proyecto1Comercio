@@ -24,32 +24,9 @@
 }
 
 .cartBadge {
-    position: absolute;
-
-    top: 8px;
+    --cart-badge-ring: #faf6ee;
+    top: 10px;
     right: 8px;
-
-    min-width: 21px;
-    height: 21px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0 5px;
-
-    border-radius: 50%;
-
-    background-color: #c9a246;
-
-    color: #2b2b2b;
-
-    font-size: 0.7rem;
-    font-weight: 800;
-
-    border: 2px solid #faf6ee;
-
-    line-height: 1;
 }
 /* =================================
    BOTONES
@@ -63,6 +40,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    padding: 0;
     border: none;
     border-radius: 50%;
     background: transparent;
@@ -74,12 +52,17 @@
         transform 0.15s ease;
 }
 
-.navItem:hover {
+.navItem:not(.disabled):hover {
     background-color: #efe7d6;
 }
 
-.navItem:active {
+.navItem:not(.disabled):active {
     transform: scale(0.94);
+}
+
+.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
 }
 
 .navItem:focus-visible {
@@ -102,6 +85,10 @@
 
 .navItem.active .navIcon {
     color: #2b2b2b;
+}
+
+.navItem.active .cartBadge {
+    --cart-badge-ring: #c9a246;
 }
 
 

@@ -1,0 +1,50 @@
+{
+  "status": {
+    "order": {
+      "PENDING": "Pendiente",
+      "CONFIRMED": "Confirmada",
+      "FAILED": "Fallida"
+    },
+    "payment": {
+      "PENDING": "Pendiente",
+      "APPROVED": "Aprobado",
+      "DECLINED": "Rechazado",
+      "ERROR": "Error del servicio"
+    }
+  },
+  "actions": {
+    "viewOrders": "Ver mis pedidos"
+  },
+  "confirmation": {
+    "eyebrowConfirmed": "COMPRA CONFIRMADA",
+    "eyebrowDetail": "DETALLE DEL PEDIDO",
+    "titleConfirmed": "¡Gracias por tu compra!",
+    "titleDetail": "Tu pedido",
+    "emailNotice": "Enviaremos los detalles de tu pedido a {{email}}.",
+    "orderNumber": "Número de orden",
+    "date": "Fecha"
+  },
+  "details": {
+    "statusTitle": "Estado",
+    "order": "Orden",
+    "payment": "Pago",
+    "transaction": "Transacción",
+    "deliveryTitle": "Entrega",
+    "productsTitle": "Productos",
+    "columns": {
+      "product": "Producto",
+      "quantity": "Cantidad",
+      "unitPrice": "Precio unitario"
+    }
+  },
+  "history": {
+    "title": "Mis pedidos",
+    "emptyTitle": "Aún no tienes pedidos",
+    "emptyDescription": "Cuando completes una compra, la verás aquí.",
+    "exploreCatalog": "Explorar catálogo"
+  },
+  "notFound": {
+    "title": "No encontramos este pedido",
+    "description": "No existe un pedido con el número {{orderNumber}} en este dispositivo."
+  }
+}

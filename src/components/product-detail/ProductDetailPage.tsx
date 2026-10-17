@@ -1,275 +1,103 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
+import SearchBar from '../search-bar/searchBar';
+import ErrorState from '../error/ErrorState';
+import errorStateStyles from '../error/ErrorState.module.css';
+import { getCatalogReturnPath } from '../../catalog/catalogReturn';
+import { getCatalogCategoryPath } from '../../catalog/catalogSearchParams';
 import type { Product } from '../../utils/Products';
-import { getProductById } from '../../utils/algolia';
-import { getJewelryThemeVariables } from '../../theme/jewelryTheme';
+import ProductOverview from './ProductOverview';
+import ProductSpecifications from './ProductSpecifications';
+import RelatedProducts from './RelatedProducts';
+import { useProduct } from './useProduct';
+
 import styles from './ProductDetailPage.module.css';
-import {useCart} from '../../context/CartContext.tsx';
 
-const jewelryThemeStyle = getJewelryThemeVariables();
-
-const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat('es-CR', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
-
-const formatFacetName = (facetName: string) =>
-    facetName
-        .replaceAll('_', ' ')
-        .replace(/\b\w/g, (letter) => letter.toUpperCase());
-
-const formatFacetValue = (facetValue: string | number | boolean) => {
-    if (typeof facetValue === 'boolean') {
-        return facetValue ? 'Sí' : 'No';
-    }
-
-    return String(facetValue);
-};
-
-export default function ProductDetailPage() {
-    const { addProduct } = useCart();
-    const { productId } = useParams<{ productId: string }>();
-    const [product, setProduct] = useState<Product | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-    const [addedToCart, setAddedToCart] = useState(false);
-    const [quantity, setQuantity] = useState(1);
-    const cartDialogRef = useRef<HTMLDialogElement>(null);
-
-    useEffect(() => {
-        if (!productId) {
-            setErrorMessage('El producto solicitado no tiene un identificador válido.');
-            setIsLoading(false);
-            return;
-        }
-
-        setIsLoading(true);
-        setErrorMessage(null);
-        setAddedToCart(false);
-        setQuantity(1);
-
-        getProductById(productId)
-            .then(setProduct)
-            .catch((error: unknown) => {
-                setErrorMessage(
-                    error instanceof Error
-                        ? error.message
-                        : 'No se pudo cargar el producto.'
-                );
-            })
-            .finally(() => setIsLoading(false));
-    }, [productId]);
-
-    const handleAddToCart = () => {
-        if (!product || addedToCart) {
-            return;
-        }
-
-        addProduct(product, quantity);
-        setAddedToCart(true);
-        cartDialogRef.current?.showModal();
-    };
-
-    const handleDecreaseQuantity = () => {
-        setQuantity((current) => Math.max(1, current - 1));
-        setAddedToCart(false);
-    };
-
-    const handleIncreaseQuantity = (maxQuantity: number) => {
-        setQuantity((current) => Math.min(maxQuantity, current + 1));
-        setAddedToCart(false);
-    };
-
-    if (isLoading) {
-        return (
-            <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-                <div className="top-bar">
-                    <Header />
-                </div>
-                <p className={styles.stateMessage}>Cargando información del producto...</p>
-                <NavBar />
-            </main>
-        );
-    }
-
-    if (errorMessage || !product) {
-        return (
-            <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
-                <div className="top-bar">
-                    <Header />
-                </div>
-                <p className={styles.stateMessage} role="alert">
-                    {errorMessage ?? 'Producto no encontrado.'}
-                </p>
-                <Link className={styles.backLink} to="/">
-                    ← Volver al catálogo
-                </Link>
-                <NavBar />
-            </main>
-        );
-    }
+function Breadcrumb({ product }: { product: Product }) {
+    const { t } = useTranslation('product');
+    const location = useLocation();
+    const category = product.categories[product.categories.length - 1];
 
     return (
-        <main className={`app ${styles.detailPage}`} style={jewelryThemeStyle}>
+        <nav className={styles.breadcrumb} aria-label={t('breadcrumb.label')}>
+            <ol>
+                <li>
+                    <Link to={getCatalogReturnPath(location.state)}>
+                        {t('breadcrumb.catalog')}
+                    </Link>
+                </li>
+                {category && (
+                    <li>
+                        <Link to={getCatalogCategoryPath(category)}>{category}</Link>
+                    </li>
+                )}
+            </ol>
+        </nav>
+    );
+}
+
+function ProductImage({ product }: { product: Product }) {
+    const { t } = useTranslation('product');
+
+    return (
+        <div className={styles.imagePanel}>
+            <img className={styles.image} src={product.image_url} alt={product.title} />
+            {!product.in_stock && (
+                <span className={styles.outOfStockBadge}>{t('outOfStock')}</span>
+            )}
+        </div>
+    );
+}
+
+export default function ProductDetailPage() {
+    const { t } = useTranslation(['product', 'errors', 'common']);
+    const { productId } = useParams<{ productId: string }>();
+    const { product, errorCode, isLoading } = useProduct(productId);
+
+    return (
+        <main className="app">
             <div className="top-bar">
-                <Header />
-            </div>
-
-            <div className={styles.content}>
-                <Link className={styles.backLink} to="/">
-                    ← Volver al catálogo
-                </Link>
-
-                <article className={styles.productCard}>
-                    <section className={styles.imageSection} aria-label="Imagen del producto">
-                        <div className={styles.imageWrapper}>
-                            <img
-                                className={styles.productImage}
-                                src={product.image_url}
-                                alt={product.title}
-                            />
-                            {!product.in_stock && (
-                                <span className={styles.stockBadge}>Agotado</span>
-                            )}
-                        </div>
-                    </section>
-
-                    <section className={styles.productInformation}>
-                        <p className={styles.brand}>{product.brand}</p>
-                        <h1 className={styles.title}>{product.title}</h1>
-                        <p className={styles.price}>
-                            {formatPrice(product.b2c.price, product.b2c.currency)}
-                        </p>
-
-                        <div className={styles.purchaseRow}>
-                            <div className={styles.quantitySelector} aria-label="Cantidad a agregar">
-                                <button
-                                    type="button"
-                                    onClick={handleDecreaseQuantity}
-                                    disabled={!product.in_stock || quantity <= 1}
-                                >
-                                    −
-                                </button>
-                                <span aria-live="polite">{quantity}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleIncreaseQuantity(product.stock_quantity)}
-                                    disabled={!product.in_stock || quantity >= product.stock_quantity}
-                                >
-                                    +
-                                </button>
-                            </div>
-
-                            <button
-                                type="button"
-                                className={styles.addToCartButton}
-                                onClick={handleAddToCart}
-                                disabled={!product.in_stock || addedToCart}
-                            >
-                                {addedToCart ? 'Agregado' : 'Agregar al carrito'}
-                            </button>
-                        </div>
-
-                        <div className={styles.summary}>
-                            <p>
-                                <strong>Disponibilidad:</strong>{' '}
-                                {product.in_stock
-                                    ? `${product.stock_quantity} unidades disponibles`
-                                    : 'Producto agotado'}
-                            </p>
-                            <p>
-                                <strong>Calificación:</strong> {product.rating} / 5
-                            </p>
-                        </div>
-
-                        <div className={styles.detailSection}>
-                            <h2>Descripción</h2>
-                            <p>{product.description}</p>
-                        </div>
-
-                        <div className={styles.detailSection}>
-                            <h2>Categorías</h2>
-                            <div className={styles.categoryList}>
-                                {product.categories.map((category) => (
-                                    <span className={styles.category} key={category}>
-                                        {category}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className={styles.detailSection}>
-                            <h2>Especificaciones</h2>
-                            <dl className={styles.specifications}>
-                                <div>
-                                    <dt>Identificador</dt>
-                                    <dd>{product.objectID}</dd>
-                                </div>
-                                <div>
-                                    <dt>Moneda</dt>
-                                    <dd>{product.b2c.currency}</dd>
-                                </div>
-                                {Object.entries(product.facets).map(([facetName, facetValue]) => (
-                                    <div key={facetName}>
-                                        <dt>{formatFacetName(facetName)}</dt>
-                                        <dd>{formatFacetValue(facetValue)}</dd>
-                                    </div>
-                                ))}
-                            </dl>
-                        </div>
-                    </section>
-                </article>
-            </div>
-
-            <dialog
-                ref={cartDialogRef}
-                className={styles.addedDialog}
-                aria-labelledby="cart-added-title"
-                onClick={(event) => {
-                    if (event.target === event.currentTarget) {
-                        event.currentTarget.close();
-                    }
-                }}
-            >
-                <div className={styles.modalContent}>
-                    <span className={styles.modalCheck} aria-hidden="true">✓</span>
-                    <p className={styles.modalEyebrow}>LISTO PARA DISFRUTAR</p>
-                    <h2 id="cart-added-title" className={styles.modalTitle}>
-                        Producto agregado
-                    </h2>
-                    <p className={styles.modalProduct}>
-                        {quantity} × {product.title}
-                    </p>
-                    <p className={styles.modalDescription}>
-                        Ya está en tu carrito de compras.
-                    </p>
-                    <div className={styles.modalActions}>
-                        <button
-                            type="button"
-                            className={styles.modalSecondary}
-                            onClick={() => cartDialogRef.current?.close()}
-                        >
-                            Seguir comprando
-                        </button>
-                        <Link
-                            to="/carrito"
-                            className={styles.modalPrimary}
-                            onClick={() => cartDialogRef.current?.close()}
-                        >
-                            Ir al carrito
-                        </Link>
+                <Header>
+                    <div className="search-tools">
+                        <SearchBar mode="submit" />
                     </div>
+                </Header>
+            </div>
+
+            {isLoading && (
+                <p className={styles.loading} role="status">{t('product:loading')}</p>
+            )}
+
+            {!isLoading && !product && (
+                <ErrorState
+                    title={t('errors:productLoad.title')}
+                    description={t(`errors:productLoad.${errorCode ?? 'notFound'}`)}
+                    actions={
+                        <Link to="/" className={errorStateStyles.primaryAction}>
+                            {t('common:actions.backToCatalog')}
+                        </Link>
+                    }
+                />
+            )}
+
+            {product && (
+                <div className={styles.page}>
+                    <Breadcrumb product={product} />
+
+                    <article className={styles.hero}>
+                        <ProductImage product={product} />
+                        <ProductOverview product={product} />
+                    </article>
+
+                    <ProductSpecifications facets={product.facets} />
+                    <RelatedProducts product={product} />
                 </div>
-            </dialog>
+            )}
 
             <NavBar />
         </main>
     );
 }
-

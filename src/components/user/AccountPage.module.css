@@ -1,0 +1,86 @@
+.accountPage {
+    min-height: 100vh;
+    padding: var(--page-padding-top) var(--page-gutter) var(--mobile-navbar-clearance);
+    background-color: #16171c;
+    color: #f7f2e9;
+}
+
+.pageHeader,
+.accountLayout {
+    width: 100%;
+    max-width: var(--page-max-width);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.pageHeader {
+    margin-bottom: 24px;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: #c9a246;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.pageHeader h1 {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--font-size-page-title);
+}
+
+.accountLayout {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+}
+
+.sidebar {
+    position: sticky;
+    top: 24px;
+}
+
+.content {
+    min-width: 0;
+}
+
+.backLink {
+    display: none;
+    margin-bottom: 16px;
+    color: #c9a246;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 860px) {
+    .accountLayout {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 560px;
+    }
+
+    .pageHeader {
+        max-width: 560px;
+    }
+
+    .sidebar {
+        position: static;
+    }
+
+    .showingMenu .content,
+    .showingOrders .sidebar {
+        display: none;
+    }
+
+    .showingOrders .backLink {
+        display: inline-block;
+    }
+}
+

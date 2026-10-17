@@ -1,22 +1,47 @@
 :root {
+  /* Colors */
   --text: #b9b9b9;
   --text-h: #f7f2e9;
   --bg: #16171c;
-  --border: #474747;
-  --code-bg: #292929;
-  --accent: #c9a246;
-  --accent-bg: rgba(201, 162, 70, 0.1);
-  --accent-border: rgba(201, 162, 70, 0.5);
-  --social-bg: rgba(47, 47, 47, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
+  /* Typography */
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-product-title: clamp(1.5rem, 1.2rem + 0.9vw, 1.875rem);
+  --font-size-page-title: clamp(1.75rem, 1.4rem + 1.1vw, 2.25rem);
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Layout */
+  --page-max-width: 1200px;
+  --page-max-width-wide: 1440px;
+  --page-gutter: clamp(16px, 3vw, 40px);
+  --page-padding-top: clamp(24px, 2.5vw, 40px);
+  --header-height: 88px;
+  --header-height-mobile: 72px;
+  --mobile-navbar-clearance: 120px;
+
+  /* Shape */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  font: 16px/1.5 var(--sans);
   color-scheme: dark;
   color: var(--text);
   background: var(--bg);
@@ -24,10 +49,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+/* Reserves the scrollbar space so the layout doesn't shift between short and long pages */
+html {
+  scrollbar-gutter: stable;
 }
 
 #root {
@@ -44,44 +70,55 @@ body {
 
 h1,
 h2 {
+  margin: 0;
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-size: var(--font-size-page-title);
+  line-height: 1.15;
 }
+
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+  font-size: var(--font-size-xl);
+  line-height: 1.2;
 }
+
 p {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* Page transitions (View Transitions API): the header stays put while the content fades */
+::view-transition-old(root) {
+  animation: 150ms ease-in both page-fade-out;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+::view-transition-new(root) {
+  animation: 300ms ease-out both page-fade-in;
+}
+
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none;
+  }
 }

@@ -2,83 +2,112 @@
     position: relative;
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
 }
 
-@media (min-width: 861px) {
-    .header {
-        width: 240px;
-        flex: 0 0 240px;
-        justify-content: space-between;
-    }
+.headerContent {
+    flex: 1 1 100%;
+    min-width: 0;
 }
 
-.cartButton {
+/* Mobile: the buttons sit on top of the logo bar */
+.headerActions {
     position: absolute;
-    right: 16px;
-    top: 50%;
-    width: 68px;
-    min-height: 76px;
+    top: 0;
+    right: var(--space-4);
+    height: var(--header-height-mobile);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.headerButton {
+    position: relative;
+    width: 64px;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     gap: 5px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
     color: #fff;
+    font: inherit;
     text-decoration: none;
-    transform: translateY(-50%);
+    cursor: pointer;
 }
 
-.searchCartButton {
-    position: relative;
-    top: auto;
-    right: auto;
-    flex: 0 0 68px;
-    transform: none;
+.headerIcon {
+    width: 24px;
+    height: 24px;
 }
 
-.cartIcon {
-    width: 28px;
-    height: 28px;
-}
-
-.cartLabel {
+.headerLabel {
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
 }
 
-.cartButton:focus-visible {
+.headerButton:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
+    border-radius: 8px;
 }
 
 .cartBadge {
-    position: absolute;
-    top: 5px;
+    top: 2px;
     right: 8px;
-    min-width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-    border: 2px solid #666;
-    border-radius: 999px;
-    background: #c9a246;
-    color: #2b2b2b;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1;
+}
+
+.accountButton {
+    display: none;
 }
 
 @media (min-width: 861px) {
-    .cartButton {
-        position: relative;
-        top: auto;
-        right: auto;
-        flex: 0 0 68px;
-        color: #fff;
-        transform: none;
+    .header {
+        flex: 1;
+        flex-wrap: nowrap;
+        gap: var(--space-5);
+    }
+
+    .headerContent {
+        order: 1;
+        flex: 1;
+    }
+
+    .headerActions {
+        order: 2;
+        position: static;
+        height: auto;
+        gap: 4px;
+        margin-left: auto;
+    }
+
+    .accountButton {
+        display: flex;
+    }
+}
+
+@media (max-width: 380px) {
+    .headerActions {
+        gap: 0;
+        right: 4px;
+    }
+
+    .headerButton {
+        width: 58px;
+    }
+
+    .headerIcon {
+        width: 25px;
+        height: 25px;
+    }
+
+    .headerLabel {
+        font-size: 11px;
     }
 }

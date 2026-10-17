@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import styles from './filters.module.css';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 import {
     MIN_PRICE,
@@ -24,6 +26,7 @@ export default function Filters({
     onFiltersChange
 }: FiltersProps) {
 
+    const { t } = useTranslation('catalog');
     const [filtersOpen, setFiltersOpen] = useState(false);
 
     const { selectedCategories } = {
@@ -128,8 +131,9 @@ export default function Filters({
                 type="button"
                 className={styles.filtersButton}
                 onClick={() => setFiltersOpen(!filtersOpen)}
+                aria-expanded={filtersOpen}
             >
-                Filters
+                {t('filters.toggle')}
                 {selectedCategories.length > 0 && ` (${selectedCategories.length})`}
                 <span>{filtersOpen ? '▲' : '▼'}</span>
             </button>
@@ -143,7 +147,7 @@ export default function Filters({
                 {/* CATEGORÍAS (sin cambios, aplican al instante) */}
 
                 <div className={styles.filterSection}>
-                    <h2 className={styles.filterTitle}>Categories</h2>
+                    <h2 className={styles.filterTitle}>{t('filters.categories')}</h2>
 
                     <div className={styles.categoriesList}>
                         {categories.map((category) => (
@@ -162,23 +166,26 @@ export default function Filters({
                 {/* RANGO DE PRECIO (borrador + botón Apply) */}
 
                 <div className={styles.filterSection}>
-                    <h2 className={styles.filterTitle}>Price Range</h2>
+                    <h2 className={styles.filterTitle}>{t('filters.priceRange')}</h2>
 
                     <div className={styles.priceValues}>
                         <div className={styles.priceBox}>
-                            <span>Minimum</span>
-                            <strong>₡{draftMinPrice.toLocaleString('es-CR')}</strong>
+                            <span>{t('filters.minimum')}</span>
+                            <strong>{formatCurrency(draftMinPrice)}</strong>
                         </div>
 
                         <div className={styles.priceBox}>
-                            <span>Maximum</span>
-                            <strong>₡{draftMaxPrice.toLocaleString('es-CR')}</strong>
+                            <span>{t('filters.maximum')}</span>
+                            <strong>{formatCurrency(draftMaxPrice)}</strong>
                         </div>
                     </div>
 
                     <div className={styles.sliderContainer}>
-                        <label className={styles.sliderLabel}>Minimum Price</label>
+                        <label htmlFor="filter-min-price" className={styles.sliderLabel}>
+                            {t('filters.minimumPrice')}
+                        </label>
                         <input
+                            id="filter-min-price"
                             type="range"
                             min={MIN_PRICE}
                             max={MAX_PRICE}
@@ -192,8 +199,11 @@ export default function Filters({
                     </div>
 
                     <div className={styles.sliderContainer}>
-                        <label className={styles.sliderLabel}>Maximum Price</label>
+                        <label htmlFor="filter-max-price" className={styles.sliderLabel}>
+                            {t('filters.maximumPrice')}
+                        </label>
                         <input
+                            id="filter-max-price"
                             type="range"
                             min={MIN_PRICE}
                             max={MAX_PRICE}
@@ -207,8 +217,8 @@ export default function Filters({
                     </div>
 
                     <div className={styles.priceLimits}>
-                        <span>₡0</span>
-                        <span>₡3,000,000</span>
+                        <span>{formatCurrency(MIN_PRICE)}</span>
+                        <span>{formatCurrency(MAX_PRICE)}</span>
                     </div>
 
                     <button
@@ -217,7 +227,7 @@ export default function Filters({
                         onClick={handleApplyPrice}
                         disabled={!priceIsDirty}
                     >
-                        Apply price
+                        {t('filters.applyPrice')}
                     </button>
                 </div>
 
@@ -226,7 +236,7 @@ export default function Filters({
                     className={styles.clearButton}
                     onClick={handleClearFilters}
                 >
-                    Clear filters
+                    {t('filters.clear')}
                 </button>
 
             </div>

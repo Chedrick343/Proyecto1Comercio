@@ -1,4 +1,5 @@
 .products {
+    animation: results-enter 0.35s ease-out both;
     width: 100%;
     padding: 20px 16px;
 
@@ -26,7 +27,7 @@
     font-size: 20px;
     font-weight: 600;
     color: #f5f5f5;
-    font-family: var(--jewel-font-heading, Georgia, 'Times New Roman', serif);
+    font-family: Georgia, 'Times New Roman', serif;
 }
 
 .headerRight {
@@ -130,7 +131,7 @@
 
 @media (min-width: 861px) {
     .grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
 }
 
@@ -153,6 +154,7 @@
 ===================== */
 
 .card {
+    position: relative;
     display: flex;
     flex-direction: column;
 
@@ -162,16 +164,41 @@
 
     overflow: hidden;
     color: inherit;
+
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+    .card:hover {
+        border-color: #c9a246;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card:hover .image {
+        transform: scale(1.04);
+    }
+}
+
+.card:has(.cardLink:focus-visible) {
+    outline: 2px solid #c9a246;
+    outline-offset: 3px;
+}
+
+.cardLink {
+    color: inherit;
     text-decoration: none;
 }
 
-.card:hover {
-    border-color: #ffffff;
+.cardLink:focus-visible {
+    outline: none;
 }
 
-.card:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 3px;
+/* Makes the whole card clickable while the add-to-cart button stays on top */
+.cardLink::after {
+    position: absolute;
+    inset: 0;
+    content: '';
 }
 
 .listCard {
@@ -185,6 +212,7 @@
 .imageWrapper {
     position: relative;
 
+    width: 100%;
     aspect-ratio: 1 / 1;
 
     background-color: #ffffff;
@@ -209,6 +237,9 @@
 }
 
 .image {
+    position: absolute;
+    inset: 0;
+
     width: 100%;
     height: 100%;
 
@@ -216,7 +247,10 @@
 
     padding: 10px;
     box-sizing: border-box;
+
+    transition: transform 0.3s ease;
 }
+
 
 .outOfStock {
     position: absolute;
@@ -234,11 +268,31 @@
 }
 
 .cardBody {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 6px;
 
     padding: 12px;
+}
+
+.cardFooter {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-1);
+}
+
+.listCard .cardFooter {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.listCard .cardFooter > :last-child {
+    min-width: 190px;
 }
 
 .category {
@@ -259,7 +313,7 @@
     font-size: 14px;
     font-weight: 500;
     line-height: 1.35;
-    font-family: var(--jewel-font-heading, Georgia, 'Times New Roman', serif);
+    font-family: Georgia, 'Times New Roman', serif;
 
     color: #f1f1f1;
 
@@ -271,7 +325,8 @@
 }
 
 .price {
-    margin: 4px 0 0;
+    margin: 0;
+    min-width: 0;
 
     font-size: 16px;
     font-weight: 700;
@@ -421,5 +476,17 @@
         min-width: 30px;
         padding: 7px 0;
         font-size: 12px;
+    }
+}
+@keyframes results-enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .products {
+        animation: none;
     }
 }

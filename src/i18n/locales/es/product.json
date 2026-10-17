@@ -1,0 +1,70 @@
+{
+  "loading": "Cargando información del producto...",
+  "outOfStock": "Agotado",
+  "addToCart": "Agregar al carrito",
+  "addToCartShort": "Agregar",
+  "addedAnnouncement": "{{name}} se agregó al carrito",
+  "cartControl": {
+    "label": "Cantidad de {{name}} en el carrito",
+    "inCart": "en el carrito",
+    "remove": "Eliminar {{name}} del carrito",
+    "decrease": "Quitar una unidad de {{name}}",
+    "increase": "Agregar una unidad de {{name}}",
+    "removedAnnouncement": "{{name}} se eliminó del carrito"
+  },
+  "breadcrumb": {
+    "label": "Ruta de navegación",
+    "catalog": "Catálogo"
+  },
+  "rating": {
+    "label": "Calificación: {{rating}} de 5"
+  },
+  "priceNote": "IVA ({{rate}}) y envío se calculan al finalizar la compra.",
+  "stock": {
+    "available": "Disponible",
+    "lowStock_one": "¡Última unidad!",
+    "lowStock_other": "Últimas {{count}} unidades",
+    "outOfStock": "Agotado"
+  },
+  "stores": "En tiendas: {{stores}}",
+  "description": "Descripción",
+  "reference": "Ref. {{sku}}",
+  "details": {
+    "title": "Detalles del producto",
+    "groups": {
+      "general": "General",
+      "materials": "Materiales",
+      "measures": "Medidas",
+      "chainAndPendant": "Cadena y colgante",
+      "watch": "Reloj",
+      "other": "Otros"
+    }
+  },
+  "facets": {
+    "material": "Material",
+    "color": "Color",
+    "stone": "Piedra",
+    "gender": "Género",
+    "style": "Estilo",
+    "collection": "Colección",
+    "length": "Largo",
+    "width": "Ancho",
+    "size": "Talla",
+    "diameter": "Diámetro",
+    "movement": "Movimiento",
+    "waterproof": "Resistente al agua",
+    "structure": "Estructura",
+    "pendant": "Dije",
+    "closure": "Cierre",
+    "type": "Tipo",
+    "design": "Diseño"
+  },
+  "related": {
+    "title": "Más de {{brand}}"
+  },
+  "addedDialog": {
+    "eyebrow": "LISTO PARA DISFRUTAR",
+    "title": "Producto agregado",
+    "goToCart": "Ir al carrito"
+  }
+}

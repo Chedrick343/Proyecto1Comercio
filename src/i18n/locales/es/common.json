@@ -1,0 +1,38 @@
+{
+  "brand": "POST",
+  "yes": "Sí",
+  "no": "No",
+  "yourPurchase": "TU COMPRA",
+  "itemCount_one": "{{count}} artículo",
+  "itemCount_other": "{{count}} artículos",
+  "header": {
+    "homeLink": "{{brand}}, inicio",
+    "cartWithItems_one": "Carrito, {{count}} producto",
+    "cartWithItems_other": "Carrito, {{count}} productos"
+  },
+  "nav": {
+    "label": "Navegación principal",
+    "search": "Buscar",
+    "home": "Inicio",
+    "cart": "Carrito",
+    "account": "Cuenta"
+  },
+  "actions": {
+    "retry": "Reintentar",
+    "backToCatalog": "Volver al catálogo",
+    "continueShopping": "Seguir comprando"
+  },
+  "summary": {
+    "title": "Resumen de compra",
+    "subtotal": "Subtotal",
+    "iva": "IVA ({{rate}})",
+    "shipping": "Envío ({{rate}})",
+    "total": "Total"
+  },
+  "delivery": {
+    "recipient": "Recibe",
+    "contact": "Contacto",
+    "address": "Dirección",
+    "notes": "Indicaciones"
+  }
+}

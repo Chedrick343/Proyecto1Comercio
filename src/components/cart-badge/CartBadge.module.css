@@ -1,0 +1,23 @@
+/* The ring color should match the surface behind the badge; consumers override --cart-badge-ring. */
+.badge {
+    position: absolute;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--cart-badge-ring, #666);
+    border-radius: var(--radius-pill);
+    background-color: #c9a246;
+    color: #2b2b2b;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.inverted {
+    background-color: #faf6ee;
+    color: #2b2b2b;
+}

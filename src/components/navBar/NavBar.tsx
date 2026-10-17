@@ -1,126 +1,124 @@
 import styles from './NavBar.module.css';
 
-import { FaSearch } from 'react-icons/fa';
-import { FaHome } from 'react-icons/fa';
-import { FaShoppingCart } from 'react-icons/fa';
-import { FaUser } from 'react-icons/fa';
-
+import { FaHome, FaSearch, FaShoppingCart, FaUser } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useCart } from '../../context/CartContext';
+import { FOCUS_SEARCH_STATE } from '../search-bar/searchFocus';
+import CartBadge from '../cart-badge/CartBadge';
+import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
 
 type NavOption = 'home' | 'search' | 'account' | 'cart';
 
-const navOptions: {
+interface NavItem {
     id: NavOption;
     Icon: IconType;
-    label: string;
     path: string;
-}[] = [
-    {
-        id: 'search',
-        Icon: FaSearch,
-        label: 'Buscar',
-        path: '/buscar'
-    },
-    {
-        id: 'home',
-        Icon: FaHome,
-        label: 'Inicio',
-        path: '/'
-    },
-    {
-        id: 'cart',
-        Icon: FaShoppingCart,
-        label: 'Carrito',
-        path: '/carrito'
-    },
-    {
-        id: 'account',
-        Icon: FaUser,
-        label: 'Cuenta',
-        path: '/cuenta'
-    }
+    state?: unknown;
+    disabled?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
+    { id: 'search', Icon: FaSearch, path: '/', state: FOCUS_SEARCH_STATE },
+    { id: 'account', Icon: FaUser, path: '/cuenta' },
+    { id: 'cart', Icon: FaShoppingCart, path: '/carrito' },
+    { id: 'home', Icon: FaHome, path: '/', disabled: true }
 ];
 
+const SELECTED_OPTION_BY_PATH_PREFIX: [string, NavOption][] = [
+    ['/producto', 'search'],
+    ['/carrito', 'cart'],
+    ['/checkout', 'cart'],
+    ['/cuenta', 'account'],
+    ['/orden', 'account']
+];
+
+function getSelectedOption(pathname: string): NavOption | null {
+    if (pathname === '/') {
+        return 'search';
+    }
+
+    const match = SELECTED_OPTION_BY_PATH_PREFIX.find(([prefix]) =>
+        pathname.startsWith(prefix)
+    );
+
+    return match ? match[1] : null;
+}
+
 export default function NavBar() {
-
-    const location = useLocation();
-
+    const { t } = useTranslation();
+    const { pathname } = useLocation();
     const { totalItems } = useCart();
+    const cartPreview = useCartPreview();
 
-    const getSelectedOption = (): NavOption => {
-
-        if (location.pathname === '/') {
-            return 'home';
-        }
-
-        if (location.pathname.startsWith('/buscar')) {
-            return 'search';
-        }
-
-        if (location.pathname.startsWith('/carrito')) {
-            return 'cart';
-        }
-
-        if (location.pathname.startsWith('/cuenta')) {
-            return 'account';
-        }
-
-        return 'home';
-    };
-
-    const selected = getSelectedOption();
+    const selected = getSelectedOption(pathname);
 
     return (
-        <nav
-            className={styles.navBar}
-            aria-label="Navegación principal"
-        >
+        <nav className={styles.navBar} aria-label={t('nav.label')}>
+            {NAV_ITEMS.map(({ id, Icon, path, state, disabled }) => {
+                const opensCartPreview = id === 'cart' && isCartPreviewAvailable(pathname);
+                const isSelected = selected === id || (opensCartPreview && cartPreview.isOpen);
+                const label = t(`nav.${id}`);
 
-            {navOptions.map(
-                ({ id, Icon, label, path }) => (
+                const content = (
+                    <>
+                        <Icon className={styles.navIcon} size={28} aria-hidden="true" />
+
+                        {id === 'cart' && (
+                            <CartBadge
+                                count={totalItems}
+                                inverted={isSelected}
+                                className={styles.cartBadge}
+                            />
+                        )}
+
+                        <span className={styles.srOnly}>{label}</span>
+                    </>
+                );
+
+                if (disabled) {
+                    return (
+                        <span
+                            key={id}
+                            className={`${styles.navItem} ${styles.disabled}`}
+                            aria-disabled="true"
+                            role="link"
+                        >
+                            {content}
+                        </span>
+                    );
+                }
+
+                if (opensCartPreview) {
+                    return (
+                        <button
+                            key={id}
+                            type="button"
+                            className={`${styles.navItem} ${isSelected ? styles.active : ''}`}
+                            aria-haspopup="dialog"
+                            aria-expanded={cartPreview.isOpen}
+                            onClick={cartPreview.open}
+                        >
+                            {content}
+                        </button>
+                    );
+                }
+
+                return (
                     <Link
                         key={id}
                         to={path}
-                        className={`${styles.navItem} ${
-                            selected === id
-                                ? styles.active
-                                : ''
-                        }`}
-                        aria-current={
-                            selected === id
-                                ? 'page'
-                                : undefined
-                        }
-                        aria-label={label}
+                        state={state}
+                        className={`${styles.navItem} ${isSelected ? styles.active : ''}`}
+                        aria-current={isSelected ? 'page' : undefined}
                     >
-                        <Icon
-                            className={styles.navIcon}
-                            size={28}
-                            aria-hidden="true"
-                        />
-
-                        {id === 'cart' &&
-                            totalItems > 0 && (
-                                <span
-                                    className={styles.cartBadge}
-                                >
-                                    {totalItems}
-                                </span>
-                            )}
-
-                        <span
-                            className={styles.srOnly}
-                        >
-                            {label}
-                        </span>
+                        {content}
                     </Link>
-                )
-            )}
-
+                );
+            })}
         </nav>
     );
 }

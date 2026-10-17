@@ -1,0 +1,38 @@
+{
+  "loading": "Cargando productos...",
+  "search": {
+    "placeholder": "¿Qué estás buscando?",
+    "label": "Buscar productos",
+    "submit": "Buscar",
+    "clear": "Limpiar búsqueda"
+  },
+  "filters": {
+    "toggle": "Filtros",
+    "categories": "Categorías",
+    "priceRange": "Rango de precio",
+    "minimum": "Mínimo",
+    "maximum": "Máximo",
+    "minimumPrice": "Precio mínimo",
+    "maximumPrice": "Precio máximo",
+    "applyPrice": "Aplicar precio",
+    "clear": "Limpiar filtros"
+  },
+  "grid": {
+    "title": "Productos",
+    "empty": "No hay productos que coincidan con los filtros. Prueba quitando alguno.",
+    "resultCount_one": "{{count}} resultado",
+    "resultCount_other": "{{count}} resultados",
+    "viewMode": "Tipo de vista",
+    "viewAsGrid": "Ver en cuadrícula",
+    "viewAsList": "Ver en lista"
+  },
+  "product": {
+    "outOfStock": "Agotado",
+    "uncategorized": "Sin categoría"
+  },
+  "pagination": {
+    "label": "Paginación de productos",
+    "previous": "Página anterior",
+    "next": "Página siguiente"
+  }
+}

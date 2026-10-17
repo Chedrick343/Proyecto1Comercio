@@ -5,23 +5,14 @@ import {
     FaShoppingCart
 } from 'react-icons/fa';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
-import { useCart } from '../../context/CartContext';
+import { IVA_RATE, SHIPPING_RATE, useCart } from '../../context/CartContext';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { formatRate } from '../../utils/formatRate';
 
 import styles from './carritoSection.module.css';
-
-const formatPrice = (
-    price: number,
-    currency: string = 'CRC'
-) => {
-    return new Intl.NumberFormat('es-CR', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
-};
 
 export default function CarritoSection() {
     const {
@@ -35,6 +26,14 @@ export default function CarritoSection() {
         total
     } = useCart();
 
+    const { t } = useTranslation(['cart', 'common']);
+
+    const location = useLocation();
+    const wasRedirectedFromCheckout = Boolean(
+        (location.state as { checkoutBlockedByEmptyCart?: boolean } | null)
+            ?.checkoutBlockedByEmptyCart
+    );
+
     if (cart.length === 0) {
         return (
             <section className={styles.cartPage}>
@@ -43,18 +42,26 @@ export default function CarritoSection() {
                         <FaShoppingCart />
                     </div>
 
-                    <h1>Tu carrito está vacío</h1>
+                    <h1>{t('cart:empty.title')}</h1>
+
+                    {wasRedirectedFromCheckout && (
+                        <p
+                            className={styles.emptyCartNotice}
+                            role="alert"
+                        >
+                            {t('cart:empty.checkoutBlocked')}
+                        </p>
+                    )}
 
                     <p>
-                        Todavía no has agregado productos
-                        a tu carrito.
+                        {t('cart:empty.description')}
                     </p>
 
                     <Link
                         to="/"
                         className={styles.catalogButton}
                     >
-                        ← Volver al catálogo
+                        ← {t('common:actions.backToCatalog')}
                     </Link>
                 </div>
             </section>
@@ -67,22 +74,18 @@ export default function CarritoSection() {
             <div className={styles.cartHeader}>
                 <div>
                     <p className={styles.eyebrow}>
-                        TU COMPRA
+                        {t('common:yourPurchase')}
                     </p>
 
-                    <h1>Carrito de compras</h1>
+                    <h1>{t('cart:title')}</h1>
 
                     <p className={styles.cartDescription}>
-                        Revisa tus productos antes de
-                        continuar con tu compra.
+                        {t('cart:description')}
                     </p>
                 </div>
 
                 <span className={styles.itemCount}>
-                    {cart.length}{' '}
-                    {cart.length === 1
-                        ? 'producto'
-                        : 'productos'}
+                    {t('cart:productCount', { count: cart.length })}
                 </span>
             </div>
 
@@ -117,7 +120,7 @@ export default function CarritoSection() {
                                     </h2>
 
                                     <p className={styles.unitPrice}>
-                                        {formatPrice(
+                                        {formatCurrency(
                                             item.price,
                                             item.currency
                                         )}{' '}
@@ -140,7 +143,7 @@ export default function CarritoSection() {
                                                         item.id
                                                     )
                                                 }
-                                                aria-label={`Disminuir cantidad de ${item.name}`}
+                                                aria-label={t('cart:item.decrease', { name: item.name })}
                                             >
                                                 <FaMinus />
                                             </button>
@@ -156,7 +159,7 @@ export default function CarritoSection() {
                                                         item.id
                                                     )
                                                 }
-                                                aria-label={`Aumentar cantidad de ${item.name}`}
+                                                aria-label={t('cart:item.increase', { name: item.name })}
                                             >
                                                 <FaPlus />
                                             </button>
@@ -176,7 +179,7 @@ export default function CarritoSection() {
                                             <FaTrash />
 
                                             <span>
-                                                Eliminar
+                                                {t('cart:item.remove')}
                                             </span>
                                         </button>
 
@@ -185,11 +188,11 @@ export default function CarritoSection() {
 
                                 <div className={styles.itemSubtotal}>
                                     <span>
-                                        Subtotal
+                                        {t('common:summary.subtotal')}
                                     </span>
 
                                     <strong>
-                                        {formatPrice(
+                                        {formatCurrency(
                                             itemSubtotal,
                                             item.currency
                                         )}
@@ -204,7 +207,7 @@ export default function CarritoSection() {
                         to="/"
                         className={styles.continueShopping}
                     >
-                        ← Continuar comprando
+                        ← {t('common:actions.continueShopping')}
                     </Link>
 
                 </div>
@@ -215,7 +218,7 @@ export default function CarritoSection() {
 
                     <div className={styles.summaryHeader}>
                         <h2>
-                            Resumen de compra
+                            {t('common:summary.title')}
                         </h2>
                     </div>
 
@@ -223,31 +226,31 @@ export default function CarritoSection() {
 
                         <div>
                             <span>
-                                Subtotal
+                                {t('common:summary.subtotal')}
                             </span>
 
                             <strong>
-                                {formatPrice(subtotal)}
+                                {formatCurrency(subtotal)}
                             </strong>
                         </div>
 
                         <div>
                             <span>
-                                IVA (13%)
+                                {t('common:summary.iva', { rate: formatRate(IVA_RATE) })}
                             </span>
 
                             <strong>
-                                {formatPrice(iva)}
+                                {formatCurrency(iva)}
                             </strong>
                         </div>
 
                         <div>
                             <span>
-                                Envío (5%)
+                                {t('common:summary.shipping', { rate: formatRate(SHIPPING_RATE) })}
                             </span>
 
                             <strong>
-                                {formatPrice(shipping)}
+                                {formatCurrency(shipping)}
                             </strong>
                         </div>
 
@@ -257,25 +260,23 @@ export default function CarritoSection() {
 
                     <div className={styles.totalRow}>
                         <span>
-                            Total
+                            {t('common:summary.total')}
                         </span>
 
                         <strong>
-                            {formatPrice(total)}
+                            {formatCurrency(total)}
                         </strong>
                     </div>
 
-                    <button
-                        type="button"
+                    <Link
+                        to="/checkout"
                         className={styles.checkoutButton}
                     >
-                        Continuar con la compra
-                    </button>
+                        {t('cart:checkout')}
+                    </Link>
 
                     <p className={styles.shippingNote}>
-                        El costo de envío se calcula
-                        automáticamente según el subtotal
-                        de tu compra.
+                        {t('cart:shippingNote')}
                     </p>
 
                 </aside>

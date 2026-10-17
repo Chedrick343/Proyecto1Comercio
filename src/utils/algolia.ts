@@ -54,29 +54,67 @@ export function normalizeAlgoliaProduct(hit: unknown): Product {
     };
 }
 
-export async function getProductById(productId: string): Promise<Product> {
-    if (!applicationId || !searchApiKey || !indexName) {
-        throw new Error(
-            'Faltan VITE_ALGOLIA_APPLICATION_ID, VITE_ALGOLIA_SEARCH_API_KEY o VITE_ALGOLIA_INDEX_NAME.'
-        );
+export async function searchProductsByText(
+    query: string,
+    hitsPerPage: number
+): Promise<Product[]> {
+    if (!searchClient || !indexName) {
+        return [];
     }
 
-    const response = await fetch(
-        `https://${applicationId}-dsn.algolia.net/1/indexes/${encodeURIComponent(indexName)}/${encodeURIComponent(productId)}`,
-        {
-            headers: {
-                'X-Algolia-Application-Id': applicationId,
-                'X-Algolia-API-Key': searchApiKey
+    const { results } = await searchClient.searchForHits<unknown>({
+        requests: [{ indexName, query, hitsPerPage }]
+    });
+
+    return (results[0]?.hits ?? []).map(normalizeAlgoliaProduct);
+}
+
+export type ProductLoadErrorCode = 'notFound' | 'network' | 'unavailable';
+
+export class ProductLoadError extends Error {
+    readonly code: ProductLoadErrorCode;
+
+    constructor(code: ProductLoadErrorCode) {
+        super(code);
+        this.name = 'ProductLoadError';
+        this.code = code;
+    }
+}
+
+async function fetchProductHit(productId: string): Promise<Response> {
+    if (!applicationId || !searchApiKey || !indexName) {
+        console.error(
+            'Faltan VITE_ALGOLIA_APPLICATION_ID, VITE_ALGOLIA_SEARCH_API_KEY o VITE_ALGOLIA_INDEX_NAME.'
+        );
+        throw new ProductLoadError('unavailable');
+    }
+
+    try {
+        return await fetch(
+            `https://${applicationId}-dsn.algolia.net/1/indexes/${encodeURIComponent(indexName)}/${encodeURIComponent(productId)}`,
+            {
+                headers: {
+                    'X-Algolia-Application-Id': applicationId,
+                    'X-Algolia-API-Key': searchApiKey
+                }
             }
-        }
-    );
+        );
+    } catch (networkError) {
+        console.error('No se pudo contactar a Algolia:', networkError);
+        throw new ProductLoadError('network');
+    }
+}
+
+export async function getProductById(productId: string): Promise<Product> {
+    const response = await fetchProductHit(productId);
 
     if (response.status === 404) {
-        throw new Error('No encontramos el producto solicitado.');
+        throw new ProductLoadError('notFound');
     }
 
     if (!response.ok) {
-        throw new Error(`Algolia respondió con HTTP ${response.status}.`);
+        console.error(`Algolia respondió con HTTP ${response.status}.`);
+        throw new ProductLoadError('unavailable');
     }
 
     const hit: unknown = await response.json();

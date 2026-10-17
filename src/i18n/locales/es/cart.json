@@ -1,0 +1,26 @@
+{
+  "title": "Carrito de compras",
+  "description": "Revisa tus productos antes de continuar con tu compra.",
+  "productCount_one": "{{count}} producto",
+  "productCount_other": "{{count}} productos",
+  "checkout": "Continuar con la compra",
+  "shippingNote": "El costo de envío se calcula automáticamente según el subtotal de tu compra.",
+  "item": {
+    "decrease": "Disminuir cantidad de {{name}}",
+    "increase": "Aumentar cantidad de {{name}}",
+    "remove": "Eliminar",
+    "removeNamed": "Eliminar {{name}} del carrito"
+  },
+  "empty": {
+    "title": "Tu carrito está vacío",
+    "description": "Todavía no has agregado productos a tu carrito.",
+    "checkoutBlocked": "Necesitas al menos un producto en el carrito para finalizar la compra."
+  },
+  "preview": {
+    "title": "Tu carrito",
+    "close": "Cerrar vista previa del carrito",
+    "explore": "Explorar catálogo",
+    "viewCart": "Ver carrito",
+    "checkout": "Finalizar compra"
+  }
+}

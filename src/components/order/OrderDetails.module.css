@@ -1,0 +1,151 @@
+.orderDetails {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.panel {
+    min-width: 0;
+    padding: 24px;
+    background-color: #292929;
+    border: 1px solid #474747;
+    border-radius: 10px;
+}
+
+.productsPanel {
+    grid-column: 1 / -1;
+}
+
+.panel h2 {
+    margin: 0 0 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #474747;
+    color: #f7f3eb;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.2rem;
+}
+
+.infoList,
+.totals {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+}
+
+.infoList div,
+.totals div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.infoList dt,
+.totals dt {
+    color: #aaa9ad;
+    font-size: 0.86rem;
+}
+
+.infoList dd,
+.totals dd {
+    min-width: 0;
+    margin: 0;
+    color: #f7f2e9;
+    font-size: 0.9rem;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.itemsTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.itemsTable th {
+    padding: 0 8px 10px;
+    color: #aaa9ad;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.itemsTable td {
+    padding: 12px 8px;
+    border-top: 1px solid #3a3a3a;
+    color: #f1ede5;
+    text-align: right;
+}
+
+.itemsTable th:first-child,
+.itemsTable td:first-child {
+    padding-left: 0;
+    text-align: left;
+}
+
+.itemsTable th:last-child,
+.itemsTable td:last-child {
+    padding-right: 0;
+}
+
+.totals {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #474747;
+}
+
+.totals .totalRow {
+    padding-top: 12px;
+    border-top: 1px solid #474747;
+}
+
+.totals .totalRow dt,
+.totals .totalRow dd {
+    color: #f7f2e9;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+@media (max-width: 760px) {
+    .orderDetails {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .itemsTable thead {
+        display: none;
+    }
+
+    .itemsTable tr {
+        display: grid;
+        gap: 6px;
+        padding: 12px 0;
+        border-top: 1px solid #3a3a3a;
+    }
+
+    .itemsTable td,
+    .itemsTable td:first-child {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0;
+        border: 0;
+        text-align: right;
+    }
+
+    .itemsTable td::before {
+        content: attr(data-label);
+        color: #aaa9ad;
+        font-size: 0.82rem;
+        text-align: left;
+    }
+
+    .itemsTable td:first-child {
+        color: #f7f2e9;
+        font-weight: 700;
+    }
+}

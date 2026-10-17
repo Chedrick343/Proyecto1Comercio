@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { FaThLarge, FaList } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import styles from './ProductsGrid.module.css';
 import type { Product } from '../../utils/Products';
+import ProductCard, { type ProductCardLayout } from './ProductCard';
+import {
+    CATALOG_PAGE_PARAM,
+    formatCatalogPageParam,
+    readCatalogPage,
+    withCatalogPage
+} from '../../catalog/catalogSearchParams';
 
 
 interface ProductsGridProps {
@@ -10,7 +18,6 @@ interface ProductsGridProps {
 }
 
 
-type ViewMode = 'grid' | 'list';
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -25,17 +32,6 @@ type PageItem = number | typeof ELLIPSIS;
 /* =====================
    UTILIDADES
 ===================== */
-const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat('es-CR', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
-
-
-const getMainCategory = (categories: string[]) =>
-    categories.length > 0 ? categories[categories.length - 1] : 'Sin categoría';
 
 
 const getPageNumbers = (
@@ -88,10 +84,11 @@ const getPageNumbers = (
 
 export default function ProductsGrid({ products }: ProductsGridProps) {
 
+    const { t } = useTranslation('catalog');
     const allProducts = useMemo(() => products, [products]);
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [viewMode, setViewMode] = useState<ViewMode>('grid');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [viewMode, setViewMode] = useState<ProductCardLayout>('grid');
 
     const sectionRef = useRef<HTMLElement>(null);
 
@@ -102,9 +99,19 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     );
 
 
+    const currentPage = Math.min(readCatalogPage(searchParams), totalPages);
+    const pageParamInUrl = searchParams.get(CATALOG_PAGE_PARAM);
+    const canonicalPageParam = formatCatalogPageParam(currentPage);
+
+    // Fixes out-of-range or malformed pages in the URL (e.g. ?pagina=999).
     useEffect(() => {
-        setCurrentPage(1);
-    }, [allProducts]);
+        if (allProducts.length > 0 && pageParamInUrl !== canonicalPageParam) {
+            setSearchParams(
+                (currentParams) => withCatalogPage(currentParams, currentPage),
+                { replace: true }
+            );
+        }
+    }, [allProducts.length, pageParamInUrl, canonicalPageParam, currentPage, setSearchParams]);
 
 
     const visibleProducts = useMemo(() => {
@@ -125,7 +132,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
             return;
         }
 
-        setCurrentPage(page);
+        setSearchParams((currentParams) => withCatalogPage(currentParams, page));
 
         sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
@@ -135,7 +142,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
         return (
             <section className={styles.products}>
                 <p className={styles.emptyState}>
-                    No hay productos que coincidan con los filtros. Probá quitando alguno.
+                    {t('grid.empty')}
                 </p>
             </section>
         );
@@ -147,14 +154,14 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
         <section className={styles.products} ref={sectionRef}>
 
             <header className={styles.productsHeader}>
-                <h2 className={styles.productsTitle}>Productos</h2>
+                <h2 className={styles.productsTitle}>{t('grid.title')}</h2>
 
                 <div className={styles.headerRight}>
                     <span className={styles.productsCount}>
-                        {allProducts.length} resultados
+                        {t('grid.resultCount', { count: allProducts.length })}
                     </span>
 
-                    <div className={styles.viewToggle} role="group" aria-label="Tipo de vista">
+                    <div className={styles.viewToggle} role="group" aria-label={t('grid.viewMode')}>
                         <button
                             type="button"
                             className={`${styles.viewButton} ${
@@ -164,7 +171,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                             aria-pressed={viewMode === 'grid'}
                         >
                             <FaThLarge aria-hidden="true" />
-                            <span className={styles.srOnly}>Ver en cuadrícula</span>
+                            <span className={styles.srOnly}>{t('grid.viewAsGrid')}</span>
                         </button>
 
                         <button
@@ -176,7 +183,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                             aria-pressed={viewMode === 'list'}
                         >
                             <FaList aria-hidden="true" />
-                            <span className={styles.srOnly}>Ver en lista</span>
+                            <span className={styles.srOnly}>{t('grid.viewAsList')}</span>
                         </button>
                     </div>
                 </div>
@@ -186,40 +193,11 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
             <div className={styles.scrollArea}>
                 <div className={viewMode === 'grid' ? styles.grid : styles.list}>
                     {visibleProducts.map((product) => (
-                        <Link
+                        <ProductCard
                             key={product.objectID}
-                            to={`/producto/${encodeURIComponent(product.objectID)}`}
-                            className={
-                                viewMode === 'list'
-                                    ? `${styles.card} ${styles.listCard}`
-                                    : styles.card
-                            }
-                        >
-                            <div className={viewMode === 'list' ? styles.listImageWrapper : styles.imageWrapper}>
-                                <img
-                                    src={product.image_url}
-                                    alt={product.title}
-                                    className={styles.image}
-                                    loading="lazy"
-                                />
-
-                                {!product.in_stock && (
-                                    <span className={styles.outOfStock}>Agotado</span>
-                                )}
-                            </div>
-
-                            <div className={styles.cardBody}>
-                                <span className={styles.category}>
-                                    {getMainCategory(product.categories)}
-                                </span>
-
-                                <h3 className={styles.cardTitle}>{product.title}</h3>
-
-                                <p className={styles.price}>
-                                    {formatPrice(product.b2c.price, product.b2c.currency)}
-                                </p>
-                            </div>
-                        </Link>
+                            product={product}
+                            layout={viewMode}
+                        />
                     ))}
                 </div>
             </div>
@@ -229,12 +207,13 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                 PAGINACIÓN
             ===================== */}
 
-            <nav className={styles.pagination} aria-label="Paginación de productos">
+            <nav className={styles.pagination} aria-label={t('pagination.label')}>
 
                 <button
                     className={styles.pageButton}
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
+                    aria-label={t('pagination.previous')}
                 >
                     ◀
                 </button>
@@ -270,6 +249,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                     className={styles.pageButton}
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
+                    aria-label={t('pagination.next')}
                 >
                     ▶
                 </button>
