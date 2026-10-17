@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Logo from '../logo/logo';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
@@ -5,19 +6,13 @@ import { useCart } from '../../context/CartContext';
 
 import styles from './Header.module.css';
 
-interface CartButtonProps {
-    inSearchTools?: boolean;
-}
-
-export function CartButton({ inSearchTools = false }: CartButtonProps) {
+function CartButton() {
     const { totalItems } = useCart();
 
     return (
         <Link
             to="/carrito"
-            className={`${styles.headerButton} ${styles.cartButton} ${
-                inSearchTools ? styles.searchCartButton : ''
-            }`}
+            className={styles.headerButton}
             aria-label={`Carrito${totalItems > 0 ? `, ${totalItems} productos` : ''}`}
         >
             <FaShoppingCart
@@ -38,7 +33,7 @@ export function CartButton({ inSearchTools = false }: CartButtonProps) {
     );
 }
 
-export function AccountButton() {
+function AccountButton() {
     return (
         <Link
             to="/cuenta"
@@ -57,7 +52,11 @@ export function AccountButton() {
     );
 }
 
-export default function Header() {
+interface HeaderProps {
+    children?: ReactNode;
+}
+
+export default function Header({ children }: HeaderProps) {
     return (
         <header className={styles.header}>
             <Logo />
@@ -66,6 +65,12 @@ export default function Header() {
                 <AccountButton />
                 <CartButton />
             </div>
+
+            {children && (
+                <div className={styles.headerContent}>
+                    {children}
+                </div>
+            )}
         </header>
     );
 }
