@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { FaPlus } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 import PaymentCardPreview from './PaymentCardPreview';
 import type {
@@ -36,18 +37,19 @@ export default function PaymentMethodSelection({
     onBack,
     onContinue
 }: PaymentMethodSelectionProps) {
+    const { t } = useTranslation('checkout');
     const newCardLastFour = newCard.cardNumber.replace(/\D/g, '').slice(-4);
 
     return (
         <form className={styles.formPanel} onSubmit={onContinue}>
             <div className={styles.panelHeader}>
-                <h2 id="payment-method-heading">Método de pago</h2>
-                <span>Usa tu tarjeta guardada o agrega una nueva.</span>
+                <h2 id="payment-method-heading">{t('payment.title')}</h2>
+                <span>{t('payment.description')}</span>
             </div>
 
             <fieldset className={styles.paymentMethodList}>
                 <legend className={styles.visuallyHidden}>
-                    Selecciona la tarjeta que deseas usar
+                    {t('payment.selectCard')}
                 </legend>
 
                 <div
@@ -66,8 +68,8 @@ export default function PaymentMethodSelection({
                             onChange={() => onMethodChange('SAVED_CARD')}
                         />
                         <span className={styles.paymentMethodText}>
-                            <strong>Tarjeta predeterminada</strong>
-                            <span>{savedCard.brand} terminada en {savedCard.lastFourDigits}</span>
+                            <strong>{t('payment.savedCard.title')}</strong>
+                            <span>{t('payment.cardEndingIn', { brand: savedCard.brand, lastFourDigits: savedCard.lastFourDigits })}</span>
                         </span>
                     </label>
 
@@ -90,8 +92,8 @@ export default function PaymentMethodSelection({
                         />
                         <FaPlus aria-hidden="true" />
                         <span className={styles.paymentMethodText}>
-                            <strong>Usar otra tarjeta</strong>
-                            <span>Ingresa los datos de la tarjeta para esta compra.</span>
+                            <strong>{t('payment.newCard.title')}</strong>
+                            <span>{t('payment.newCard.description')}</span>
                         </span>
                     </label>
 
@@ -102,12 +104,12 @@ export default function PaymentMethodSelection({
                                 lastFourDigits={newCardLastFour}
                                 expirationMonth={newCard.expirationMonth}
                                 expirationYear={newCard.expirationYear}
-                                label="Vista previa de la nueva tarjeta"
+                                label={t('payment.newCard.previewLabel')}
                             />
 
                             <div className={styles.paymentFields}>
                                 <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                                    <label htmlFor="payment-cardholder">Nombre en la tarjeta *</label>
+                                    <label htmlFor="payment-cardholder">{t('payment.fields.cardholder')} *</label>
                                     <input
                                         id="payment-cardholder"
                                         className={errors.cardholder
@@ -121,13 +123,13 @@ export default function PaymentMethodSelection({
                                     />
                                     {errors.cardholder && (
                                         <span id="payment-cardholder-error" className={styles.fieldError}>
-                                            {errors.cardholder}
+                                            {t(`validation.${errors.cardholder}`)}
                                         </span>
                                     )}
                                 </div>
 
                                 <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                                    <label htmlFor="payment-card-number">Número de tarjeta *</label>
+                                    <label htmlFor="payment-card-number">{t('payment.fields.cardNumber')} *</label>
                                     <input
                                         id="payment-card-number"
                                         className={errors.cardNumber
@@ -144,13 +146,13 @@ export default function PaymentMethodSelection({
                                     />
                                     {errors.cardNumber && (
                                         <span id="payment-card-number-error" className={styles.fieldError}>
-                                            {errors.cardNumber}
+                                            {t(`validation.${errors.cardNumber}`)}
                                         </span>
                                     )}
                                 </div>
 
                                 <div className={styles.formField}>
-                                    <label htmlFor="payment-expiration-month">Mes *</label>
+                                    <label htmlFor="payment-expiration-month">{t('payment.fields.month')} *</label>
                                     <select
                                         id="payment-expiration-month"
                                         className={errors.expirationMonth
@@ -162,7 +164,7 @@ export default function PaymentMethodSelection({
                                         aria-describedby={errors.expirationMonth ? 'payment-expiration-error' : undefined}
                                         onChange={(event) => onCardChange('expirationMonth', event.target.value)}
                                     >
-                                        <option value="">MM</option>
+                                        <option value="">{t('payment.fields.monthPlaceholder')}</option>
                                         {Array.from({ length: 12 }, (_, monthIndex) => {
                                             const month = String(monthIndex + 1).padStart(2, '0');
                                             return <option key={month} value={month}>{month}</option>;
@@ -171,7 +173,7 @@ export default function PaymentMethodSelection({
                                 </div>
 
                                 <div className={styles.formField}>
-                                    <label htmlFor="payment-expiration-year">Año *</label>
+                                    <label htmlFor="payment-expiration-year">{t('payment.fields.year')} *</label>
                                     <select
                                         id="payment-expiration-year"
                                         className={errors.expirationMonth
@@ -183,7 +185,7 @@ export default function PaymentMethodSelection({
                                         aria-describedby={errors.expirationMonth ? 'payment-expiration-error' : undefined}
                                         onChange={(event) => onCardChange('expirationYear', event.target.value)}
                                     >
-                                        <option value="">AAAA</option>
+                                        <option value="">{t('payment.fields.yearPlaceholder')}</option>
                                         {expirationYears.map((year) => (
                                             <option key={year} value={year}>{year}</option>
                                         ))}
@@ -191,7 +193,7 @@ export default function PaymentMethodSelection({
                                 </div>
 
                                 <div className={styles.formField}>
-                                    <label htmlFor="payment-security-code">CVV *</label>
+                                    <label htmlFor="payment-security-code">{t('payment.fields.securityCode')} *</label>
                                     <input
                                         id="payment-security-code"
                                         className={errors.securityCode
@@ -208,14 +210,14 @@ export default function PaymentMethodSelection({
                                     />
                                     {errors.securityCode && (
                                         <span id="payment-security-code-error" className={styles.fieldError}>
-                                            {errors.securityCode}
+                                            {t(`validation.${errors.securityCode}`)}
                                         </span>
                                     )}
                                 </div>
 
                                 {errors.expirationMonth && (
                                     <span id="payment-expiration-error" className={styles.fieldError}>
-                                        {errors.expirationMonth}
+                                        {t(`validation.${errors.expirationMonth}`)}
                                     </span>
                                 )}
                             </div>
@@ -230,10 +232,10 @@ export default function PaymentMethodSelection({
                     type="button"
                     onClick={onBack}
                 >
-                    Volver a entrega
+                    {t('actions.backToShipping')}
                 </button>
                 <button className={styles.primaryAction} type="submit">
-                    Revisar pedido
+                    {t('actions.reviewOrder')}
                 </button>
             </div>
         </form>

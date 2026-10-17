@@ -1,3 +1,5 @@
+import type { ValidationMessageKey } from './checkoutTypes';
+
 export type PaymentMethod = 'SAVED_CARD' | 'NEW_CARD';
 
 export interface NewPaymentCard {
@@ -9,7 +11,7 @@ export interface NewPaymentCard {
 }
 
 export type PaymentCardErrors = Partial<
-    Record<keyof NewPaymentCard, string>
+    Record<keyof NewPaymentCard, ValidationMessageKey>
 >;
 
 export interface SavedPaymentCard {
@@ -35,15 +37,15 @@ export function validatePaymentCard(card: NewPaymentCard): PaymentCardErrors {
     const cardNumberDigits = card.cardNumber.replace(/\D/g, '');
 
     if (!card.cardholder.trim()) {
-        errors.cardholder = 'Ingresa el nombre que aparece en la tarjeta.';
+        errors.cardholder = 'cardholderRequired';
     }
 
     if (cardNumberDigits.length < 13 || cardNumberDigits.length > 19) {
-        errors.cardNumber = 'Ingresa un número de tarjeta válido.';
+        errors.cardNumber = 'cardNumberInvalid';
     }
 
     if (!card.expirationMonth || !card.expirationYear) {
-        errors.expirationMonth = 'Selecciona la fecha de vencimiento.';
+        errors.expirationMonth = 'expirationRequired';
     } else {
         const expirationDate = new Date(
             Number(card.expirationYear),
@@ -55,12 +57,12 @@ export function validatePaymentCard(card: NewPaymentCard): PaymentCardErrors {
         currentMonth.setHours(0, 0, 0, 0);
 
         if (expirationDate < currentMonth) {
-            errors.expirationMonth = 'La tarjeta está vencida.';
+            errors.expirationMonth = 'cardExpired';
         }
     }
 
     if (!/^\d{3,4}$/.test(card.securityCode)) {
-        errors.securityCode = 'Ingresa un código de seguridad válido.';
+        errors.securityCode = 'securityCodeInvalid';
     }
 
     return errors;

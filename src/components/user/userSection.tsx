@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa';
 import { GoArchive } from 'react-icons/go';
 import type { IconType } from 'react-icons';
+import { useTranslation } from 'react-i18next';
 
 import { useOrders } from '../../context/OrdersContext';
 
@@ -24,22 +25,19 @@ export type AccountMenuItemId =
 
 interface AccountMenuItem {
     id: AccountMenuItemId;
-    label: string;
     icon: IconType;
     path?: string;
     tone?: 'premium' | 'danger';
 }
 
 const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
-    { id: 'orders', label: 'Mis pedidos', icon: GoArchive, path: '/cuenta/pedidos' },
-    { id: 'settings', label: 'Configuración de la cuenta', icon: FaCog },
-    { id: 'privacy', label: 'Privacidad', icon: FaUserShield },
-    { id: 'premium', label: 'Prueba POST Premium', icon: FaGem, tone: 'premium' },
-    { id: 'help', label: 'Centro de ayuda', icon: FaQuestionCircle },
-    { id: 'logout', label: 'Cerrar sesión', icon: FaPowerOff, tone: 'danger' }
+    { id: 'orders', icon: GoArchive, path: '/cuenta/pedidos' },
+    { id: 'settings', icon: FaCog },
+    { id: 'privacy', icon: FaUserShield },
+    { id: 'premium', icon: FaGem, tone: 'premium' },
+    { id: 'help', icon: FaQuestionCircle },
+    { id: 'logout', icon: FaPowerOff, tone: 'danger' }
 ];
-
-const GUEST_NAME = 'Invitado';
 
 function getMenuItemClassName(item: AccountMenuItem, isActive: boolean) {
     return [
@@ -52,11 +50,13 @@ function getMenuItemClassName(item: AccountMenuItem, isActive: boolean) {
 }
 
 function MenuItemContent({ item }: { item: AccountMenuItem }) {
+    const { t } = useTranslation('account');
+
     return (
         <>
             <item.icon className={styles.icon} aria-hidden="true" />
-            <span className={styles.menuLabel}>{item.label}</span>
-            {!item.path && <span className={styles.comingSoon}>Próximamente</span>}
+            <span className={styles.menuLabel}>{t(`menu.${item.id}`)}</span>
+            {!item.path && <span className={styles.comingSoon}>{t('comingSoon')}</span>}
         </>
     );
 }
@@ -67,7 +67,8 @@ interface UserSectionProps {
 
 export default function UserSection({ activeItemId }: UserSectionProps) {
     const { orders } = useOrders();
-    const customerName = orders[0]?.customer.fullName || GUEST_NAME;
+    const { t } = useTranslation('account');
+    const customerName = orders[0]?.customer.fullName || t('guestName');
 
     return (
         <div className={styles.userSection}>
@@ -84,7 +85,7 @@ export default function UserSection({ activeItemId }: UserSectionProps) {
                 </div>
             </div>
 
-            <nav className={styles.menu} aria-label="Opciones de la cuenta">
+            <nav className={styles.menu} aria-label={t('menu.label')}>
                 {ACCOUNT_MENU_ITEMS.map((item) => {
                     const isActive = item.id === activeItemId;
 

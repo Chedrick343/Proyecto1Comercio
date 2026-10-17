@@ -8,6 +8,7 @@ import { FaUser } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useCart } from '../../context/CartContext';
 import { FOCUS_SEARCH_STATE } from '../search-bar/searchFocus';
@@ -17,39 +18,35 @@ type NavOption = 'home' | 'search' | 'account' | 'cart';
 const navOptions: {
     id: NavOption;
     Icon: IconType;
-    label: string;
     path: string;
     state?: unknown;
 }[] = [
     {
         id: 'search',
         Icon: FaSearch,
-        label: 'Buscar',
         path: '/',
         state: FOCUS_SEARCH_STATE
     },
     {
         id: 'home',
         Icon: FaHome,
-        label: 'Inicio',
         path: '/'
     },
     {
         id: 'cart',
         Icon: FaShoppingCart,
-        label: 'Carrito',
         path: '/carrito'
     },
     {
         id: 'account',
         Icon: FaUser,
-        label: 'Cuenta',
         path: '/cuenta'
     }
 ];
 
 export default function NavBar() {
 
+    const { t } = useTranslation();
     const location = useLocation();
 
     const { totalItems } = useCart();
@@ -76,11 +73,11 @@ export default function NavBar() {
     return (
         <nav
             className={styles.navBar}
-            aria-label="Navegación principal"
+            aria-label={t('nav.label')}
         >
 
             {navOptions.map(
-                ({ id, Icon, label, path, state }) => (
+                ({ id, Icon, path, state }) => (
                     <Link
                         key={id}
                         to={path}
@@ -95,7 +92,7 @@ export default function NavBar() {
                                 ? 'page'
                                 : undefined
                         }
-                        aria-label={label}
+                        aria-label={t(`nav.${id}`)}
                     >
                         <Icon
                             className={styles.navIcon}
@@ -115,7 +112,7 @@ export default function NavBar() {
                         <span
                             className={styles.srOnly}
                         >
-                            {label}
+                            {t(`nav.${id}`)}
                         </span>
                     </Link>
                 )

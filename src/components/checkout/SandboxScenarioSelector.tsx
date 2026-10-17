@@ -1,13 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
 
 import styles from './SandboxScenarioSelector.module.css';
 
-const SCENARIO_OPTIONS: { value: SandboxScenario; label: string }[] = [
-    { value: 'APPROVE', label: 'Pago aprobado' },
-    { value: 'DECLINE', label: 'Pago rechazado' },
-    { value: 'SERVICE_ERROR', label: 'Error del servicio' },
-    { value: 'NO_RESPONSE', label: 'Sin respuesta' }
-];
+const SCENARIOS: SandboxScenario[] = ['APPROVE', 'DECLINE', 'SERVICE_ERROR', 'NO_RESPONSE'];
 
 interface SandboxScenarioSelectorProps {
     selectedScenario: SandboxScenario;
@@ -20,19 +16,21 @@ export default function SandboxScenarioSelector({
     disabled,
     onScenarioChange
 }: SandboxScenarioSelectorProps) {
+    const { t } = useTranslation('checkout');
+
     return (
         <fieldset className={styles.sandboxPanel} disabled={disabled}>
-            <legend className={styles.title}>Modo Sandbox</legend>
+            <legend className={styles.title}>{t('sandbox.title')}</legend>
             <p className={styles.hint}>
-                Elige el resultado que devolverá el servicio de pago simulado.
+                {t('sandbox.hint')}
             </p>
 
             <div className={styles.optionList}>
-                {SCENARIO_OPTIONS.map((option) => (
+                {SCENARIOS.map((scenario) => (
                     <label
-                        key={option.value}
+                        key={scenario}
                         className={
-                            option.value === selectedScenario
+                            scenario === selectedScenario
                                 ? `${styles.option} ${styles.optionSelected}`
                                 : styles.option
                         }
@@ -40,11 +38,11 @@ export default function SandboxScenarioSelector({
                         <input
                             type="radio"
                             name="sandbox-scenario"
-                            value={option.value}
-                            checked={option.value === selectedScenario}
-                            onChange={() => onScenarioChange(option.value)}
+                            value={scenario}
+                            checked={scenario === selectedScenario}
+                            onChange={() => onScenarioChange(scenario)}
                         />
-                        {option.label}
+                        {t(`sandbox.scenarios.${scenario}`)}
                     </label>
                 ))}
             </div>

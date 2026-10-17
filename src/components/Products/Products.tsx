@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaThLarge, FaList } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import styles from './ProductsGrid.module.css';
 import type { Product } from '../../utils/Products';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 
 interface ProductsGridProps {
@@ -25,17 +27,8 @@ type PageItem = number | typeof ELLIPSIS;
 /* =====================
    UTILIDADES
 ===================== */
-const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat('es-CR', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
-
-
-const getMainCategory = (categories: string[]) =>
-    categories.length > 0 ? categories[categories.length - 1] : 'Sin categoría';
+const getMainCategory = (categories: string[]): string | undefined =>
+    categories[categories.length - 1];
 
 
 const getPageNumbers = (
@@ -88,6 +81,7 @@ const getPageNumbers = (
 
 export default function ProductsGrid({ products }: ProductsGridProps) {
 
+    const { t } = useTranslation('catalog');
     const allProducts = useMemo(() => products, [products]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -135,7 +129,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
         return (
             <section className={styles.products}>
                 <p className={styles.emptyState}>
-                    No hay productos que coincidan con los filtros. Probá quitando alguno.
+                    {t('grid.empty')}
                 </p>
             </section>
         );
@@ -147,14 +141,14 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
         <section className={styles.products} ref={sectionRef}>
 
             <header className={styles.productsHeader}>
-                <h2 className={styles.productsTitle}>Productos</h2>
+                <h2 className={styles.productsTitle}>{t('grid.title')}</h2>
 
                 <div className={styles.headerRight}>
                     <span className={styles.productsCount}>
-                        {allProducts.length} resultados
+                        {t('grid.resultCount', { count: allProducts.length })}
                     </span>
 
-                    <div className={styles.viewToggle} role="group" aria-label="Tipo de vista">
+                    <div className={styles.viewToggle} role="group" aria-label={t('grid.viewMode')}>
                         <button
                             type="button"
                             className={`${styles.viewButton} ${
@@ -164,7 +158,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                             aria-pressed={viewMode === 'grid'}
                         >
                             <FaThLarge aria-hidden="true" />
-                            <span className={styles.srOnly}>Ver en cuadrícula</span>
+                            <span className={styles.srOnly}>{t('grid.viewAsGrid')}</span>
                         </button>
 
                         <button
@@ -176,7 +170,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                             aria-pressed={viewMode === 'list'}
                         >
                             <FaList aria-hidden="true" />
-                            <span className={styles.srOnly}>Ver en lista</span>
+                            <span className={styles.srOnly}>{t('grid.viewAsList')}</span>
                         </button>
                     </div>
                 </div>
@@ -204,19 +198,19 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                                 />
 
                                 {!product.in_stock && (
-                                    <span className={styles.outOfStock}>Agotado</span>
+                                    <span className={styles.outOfStock}>{t('product.outOfStock')}</span>
                                 )}
                             </div>
 
                             <div className={styles.cardBody}>
                                 <span className={styles.category}>
-                                    {getMainCategory(product.categories)}
+                                    {getMainCategory(product.categories) ?? t('product.uncategorized')}
                                 </span>
 
                                 <h3 className={styles.cardTitle}>{product.title}</h3>
 
                                 <p className={styles.price}>
-                                    {formatPrice(product.b2c.price, product.b2c.currency)}
+                                    {formatCurrency(product.b2c.price, product.b2c.currency)}
                                 </p>
                             </div>
                         </Link>
@@ -229,12 +223,13 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                 PAGINACIÓN
             ===================== */}
 
-            <nav className={styles.pagination} aria-label="Paginación de productos">
+            <nav className={styles.pagination} aria-label={t('pagination.label')}>
 
                 <button
                     className={styles.pageButton}
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
+                    aria-label={t('pagination.previous')}
                 >
                     ◀
                 </button>
@@ -270,6 +265,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                     className={styles.pageButton}
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
+                    aria-label={t('pagination.next')}
                 >
                     ▶
                 </button>

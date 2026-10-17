@@ -1,3 +1,7 @@
+import type checkoutMessages from '../../i18n/locales/es/checkout.json';
+
+export type ValidationMessageKey = keyof typeof checkoutMessages.validation;
+
 export interface ShippingDetails {
     fullName: string;
     email: string;
@@ -9,7 +13,7 @@ export interface ShippingDetails {
 }
 
 export type ShippingFieldErrors = Partial<
-    Record<keyof ShippingDetails, string>
+    Record<keyof ShippingDetails, ValidationMessageKey>
 >;
 
 export const INITIAL_SHIPPING_DETAILS: ShippingDetails = {

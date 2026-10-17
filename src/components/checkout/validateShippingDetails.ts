@@ -9,32 +9,32 @@ export function validateShippingDetails(
     const errors: ShippingFieldErrors = {};
 
     if (!details.fullName.trim()) {
-        errors.fullName = 'Ingresa el nombre completo.';
+        errors.fullName = 'fullNameRequired';
     }
 
     if (!details.email.trim()) {
-        errors.email = 'Ingresa el correo electrónico.';
+        errors.email = 'emailRequired';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email.trim())) {
-        errors.email = 'Ingresa un correo electrónico válido.';
+        errors.email = 'emailInvalid';
     }
 
     const phoneDigits = details.phone.replace(/\D/g, '');
     if (!details.phone.trim()) {
-        errors.phone = 'Ingresa el teléfono de contacto.';
+        errors.phone = 'phoneRequired';
     } else if (phoneDigits.length < 8 || phoneDigits.length > 15) {
-        errors.phone = 'Ingresa un teléfono válido de 8 a 15 dígitos.';
+        errors.phone = 'phoneInvalid';
     }
 
     if (!details.province) {
-        errors.province = 'Selecciona una provincia.';
+        errors.province = 'provinceRequired';
     }
 
     if (!details.canton.trim()) {
-        errors.canton = 'Ingresa el cantón.';
+        errors.canton = 'cantonRequired';
     }
 
     if (!details.address.trim()) {
-        errors.address = 'Ingresa la dirección de entrega.';
+        errors.address = 'addressRequired';
     }
 
     return errors;

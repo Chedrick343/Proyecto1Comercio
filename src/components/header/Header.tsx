@@ -2,18 +2,24 @@ import type { ReactNode } from 'react';
 import Logo from '../logo/logo';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 
 import styles from './Header.module.css';
 
 function CartButton() {
+    const { t } = useTranslation();
     const { totalItems } = useCart();
 
     return (
         <Link
             to="/carrito"
             className={styles.headerButton}
-            aria-label={`Carrito${totalItems > 0 ? `, ${totalItems} productos` : ''}`}
+            aria-label={
+                totalItems > 0
+                    ? t('header.cartWithItems', { count: totalItems })
+                    : t('nav.cart')
+            }
         >
             <FaShoppingCart
                 className={styles.headerIcon}
@@ -21,7 +27,7 @@ function CartButton() {
             />
 
             <span className={styles.headerLabel}>
-                Carrito
+                {t('nav.cart')}
             </span>
 
             {totalItems > 0 && (
@@ -34,11 +40,13 @@ function CartButton() {
 }
 
 function AccountButton() {
+    const { t } = useTranslation();
+
     return (
         <Link
             to="/cuenta"
             className={`${styles.headerButton} ${styles.accountButton}`}
-            aria-label="Cuenta"
+            aria-label={t('nav.account')}
         >
             <FaUser
                 className={styles.headerIcon}
@@ -46,7 +54,7 @@ function AccountButton() {
             />
 
             <span className={styles.headerLabel}>
-                Cuenta
+                {t('nav.account')}
             </span>
         </Link>
     );

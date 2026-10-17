@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
     Configure,
     InstantSearch,
@@ -37,6 +38,7 @@ import {
 
 
 function ProductCatalog() {
+    const { t } = useTranslation(['catalog', 'errors', 'common']);
     const { items } = useHits();
     const { status, error, refresh } = useInstantSearch();
 
@@ -91,21 +93,21 @@ function ProductCatalog() {
                 >
                     {isLoading && !hasVisibleResults && (
                         <p>
-                            Cargando productos...
+                            {t('catalog:loading')}
                         </p>
                     )}
 
                     {status === 'error' && (
                         <ErrorState
-                            title="No pudimos cargar los productos"
-                            description="Revisa tu conexión a internet e inténtalo de nuevo."
+                            title={t('errors:catalogLoad.title')}
+                            description={t('errors:catalogLoad.description')}
                             actions={
                                 <button
                                     type="button"
                                     className={errorStateStyles.primaryAction}
                                     onClick={refresh}
                                 >
-                                    Reintentar
+                                    {t('common:actions.retry')}
                                 </button>
                             }
                         />
@@ -129,6 +131,7 @@ function ProductCatalog() {
 
 
 export default function App() {
+    const { t } = useTranslation('errors');
 
     if (!searchClient || !indexName) {
         console.error(
@@ -138,8 +141,8 @@ export default function App() {
         return (
             <main className={errorStateStyles.fullPage}>
                 <ErrorState
-                    title="La tienda no está disponible"
-                    description="Estamos teniendo problemas para mostrar el catálogo. Inténtalo de nuevo más tarde."
+                    title={t('storeUnavailable.title')}
+                    description={t('storeUnavailable.description')}
                 />
             </main>
         );

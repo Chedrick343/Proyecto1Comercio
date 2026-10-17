@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FaChevronRight } from 'react-icons/fa';
 import { GoArchive } from 'react-icons/go';
+import { useTranslation } from 'react-i18next';
 
 import { useOrders } from '../../context/OrdersContext';
 import type { Order } from '../../orders/orderTypes';
@@ -32,6 +33,7 @@ function OrderThumbnails({ order }: { order: Order }) {
 }
 
 function OrderCard({ order }: { order: Order }) {
+    const { t } = useTranslation('common');
     const itemCount = countItems(order);
 
     return (
@@ -41,8 +43,7 @@ function OrderCard({ order }: { order: Order }) {
             <div className={styles.orderInfo}>
                 <strong className={styles.orderNumber}>{order.orderNumber}</strong>
                 <span className={styles.orderMeta}>
-                    {formatDateTime(order.createdAt)} · {itemCount}{' '}
-                    {itemCount === 1 ? 'artículo' : 'artículos'}
+                    {formatDateTime(order.createdAt)} · {t('itemCount', { count: itemCount })}
                 </span>
                 <div className={styles.badges}>
                     <OrderStatusBadge status={order.orderStatus} />
@@ -60,25 +61,28 @@ function OrderCard({ order }: { order: Order }) {
 }
 
 function EmptyOrders() {
+    const { t } = useTranslation('orders');
+
     return (
         <div className={styles.emptyState}>
             <GoArchive className={styles.emptyIcon} aria-hidden="true" />
-            <h3>Aún no tienes pedidos</h3>
-            <p>Cuando completes una compra, la verás aquí.</p>
+            <h3>{t('history.emptyTitle')}</h3>
+            <p>{t('history.emptyDescription')}</p>
             <Link to="/" className={styles.catalogLink}>
-                Explorar catálogo
+                {t('history.exploreCatalog')}
             </Link>
         </div>
     );
 }
 
 export default function Orders() {
+    const { t } = useTranslation('orders');
     const { orders } = useOrders();
 
     return (
         <section className={styles.ordersPanel} aria-labelledby="orders-heading">
             <div className={styles.panelHeader}>
-                <h2 id="orders-heading">Mis pedidos</h2>
+                <h2 id="orders-heading">{t('history.title')}</h2>
                 {orders.length > 0 && (
                     <span className={styles.count}>{orders.length}</span>
                 )}

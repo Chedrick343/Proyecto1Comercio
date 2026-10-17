@@ -1,0 +1,106 @@
+{
+  "title": "Finalizar compra",
+  "description": "Completa tus datos y revisa tu pedido de forma segura.",
+  "onlinePaymentBadge": "Pago en línea",
+  "steps": {
+    "label": "Etapas de compra",
+    "delivery": "Entrega",
+    "payment": "Pago",
+    "review": "Revisión"
+  },
+  "actions": {
+    "backToCart": "Volver al carrito",
+    "backToShipping": "Volver a entrega",
+    "reviewOrder": "Revisar pedido"
+  },
+  "form": {
+    "requiredHint": "Los campos marcados con * son obligatorios",
+    "validationSummary": "Revisa los campos indicados antes de continuar."
+  },
+  "shipping": {
+    "title": "Información de entrega",
+    "selectProvince": "Selecciona una provincia",
+    "fields": {
+      "fullName": "Nombre completo",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "province": "Provincia",
+      "canton": "Cantón",
+      "address": "Dirección exacta",
+      "deliveryNotes": "Indicaciones adicionales"
+    }
+  },
+  "payment": {
+    "title": "Método de pago",
+    "description": "Usa tu tarjeta guardada o agrega una nueva.",
+    "selectCard": "Selecciona la tarjeta que deseas usar",
+    "cardEndingIn": "{{brand}} terminada en {{lastFourDigits}}",
+    "newCardEndingIn": "Tarjeta terminada en {{lastFourDigits}}",
+    "savedCard": {
+      "title": "Tarjeta predeterminada"
+    },
+    "newCard": {
+      "title": "Usar otra tarjeta",
+      "description": "Ingresa los datos de la tarjeta para esta compra.",
+      "previewLabel": "Vista previa de la nueva tarjeta"
+    },
+    "fields": {
+      "cardholder": "Nombre en la tarjeta",
+      "cardNumber": "Número de tarjeta",
+      "month": "Mes",
+      "monthPlaceholder": "MM",
+      "year": "Año",
+      "yearPlaceholder": "AAAA",
+      "securityCode": "CVV"
+    }
+  },
+  "cardPreview": {
+    "cardholderPlaceholder": "NOMBRE DEL TITULAR",
+    "expires": "VENCE",
+    "expirationPlaceholder": "MM/AA"
+  },
+  "validation": {
+    "fullNameRequired": "Ingresa el nombre completo.",
+    "emailRequired": "Ingresa el correo electrónico.",
+    "emailInvalid": "Ingresa un correo electrónico válido.",
+    "phoneRequired": "Ingresa el teléfono de contacto.",
+    "phoneInvalid": "Ingresa un teléfono válido de 8 a 15 dígitos.",
+    "provinceRequired": "Selecciona una provincia.",
+    "cantonRequired": "Ingresa el cantón.",
+    "addressRequired": "Ingresa la dirección de entrega.",
+    "cardholderRequired": "Ingresa el nombre que aparece en la tarjeta.",
+    "cardNumberInvalid": "Ingresa un número de tarjeta válido.",
+    "expirationRequired": "Selecciona la fecha de vencimiento.",
+    "cardExpired": "La tarjeta está vencida.",
+    "securityCodeInvalid": "Ingresa un código de seguridad válido."
+  },
+  "review": {
+    "title": "Revisión del pedido",
+    "editDelivery": "Editar entrega",
+    "paymentMethod": "Método de pago",
+    "changePayment": "Cambiar",
+    "products": "Productos",
+    "editCart": "Editar carrito"
+  },
+  "sandbox": {
+    "title": "Modo Sandbox",
+    "hint": "Elige el resultado que devolverá el servicio de pago simulado.",
+    "scenarios": {
+      "APPROVE": "Pago aprobado",
+      "DECLINE": "Pago rechazado",
+      "SERVICE_ERROR": "Error del servicio",
+      "NO_RESPONSE": "Sin respuesta"
+    }
+  },
+  "payButton": {
+    "pay": "Confirmar y pagar",
+    "processing": "Procesando pago...",
+    "approved": "Pago aprobado",
+    "retry": "Intentar pagar nuevamente"
+  },
+  "paymentResult": {
+    "PAYMENT_APPROVED": "El pago fue aprobado. Gracias por tu compra.",
+    "PAYMENT_DECLINED": "El pago no fue aprobado. Puedes intentarlo nuevamente.",
+    "PAYMENT_ERROR": "No pudimos procesar el pago. Inténtalo nuevamente en unos momentos."
+  }
+}

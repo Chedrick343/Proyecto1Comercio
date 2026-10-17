@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { FaCheckCircle, FaReceipt } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
@@ -12,6 +13,7 @@ import ErrorState from '../error/ErrorState';
 import styles from './OrderConfirmationPage.module.css';
 
 function OrderHeading({ order }: { order: Order }) {
+    const { t } = useTranslation('orders');
     const isConfirmed = order.orderStatus === 'CONFIRMED';
     const HeadingIcon = isConfirmed ? FaCheckCircle : FaReceipt;
 
@@ -23,24 +25,24 @@ function OrderHeading({ order }: { order: Order }) {
             />
 
             <p className={styles.eyebrow}>
-                {isConfirmed ? 'COMPRA CONFIRMADA' : 'DETALLE DEL PEDIDO'}
+                {isConfirmed ? t('confirmation.eyebrowConfirmed') : t('confirmation.eyebrowDetail')}
             </p>
 
-            <h1>{isConfirmed ? '¡Gracias por tu compra!' : 'Tu pedido'}</h1>
+            <h1>{isConfirmed ? t('confirmation.titleConfirmed') : t('confirmation.titleDetail')}</h1>
 
             {isConfirmed && (
                 <p className={styles.description}>
-                    Enviaremos los detalles de tu pedido a {order.customer.email}.
+                    {t('confirmation.emailNotice', { email: order.customer.email })}
                 </p>
             )}
 
             <dl className={styles.orderMeta}>
                 <div>
-                    <dt>Número de orden</dt>
+                    <dt>{t('confirmation.orderNumber')}</dt>
                     <dd>{order.orderNumber}</dd>
                 </div>
                 <div>
-                    <dt>Fecha</dt>
+                    <dt>{t('confirmation.date')}</dt>
                     <dd>{formatDateTime(order.createdAt)}</dd>
                 </div>
             </dl>
@@ -49,16 +51,19 @@ function OrderHeading({ order }: { order: Order }) {
 }
 
 function OrderNotFound({ orderNumber }: { orderNumber: string }) {
+    const { t } = useTranslation('orders');
+
     return (
         <ErrorState
             icon={FaReceipt}
-            title="No encontramos este pedido"
-            description={`No existe un pedido con el número ${orderNumber || 'indicado'} en este dispositivo.`}
+            title={t('notFound.title')}
+            description={t('notFound.description', { orderNumber })}
         />
     );
 }
 
 export default function OrderConfirmationPage() {
+    const { t } = useTranslation(['orders', 'common']);
     const { orderNumber = '' } = useParams();
     const { getOrderByNumber } = useOrders();
     const order = getOrderByNumber(orderNumber);
@@ -82,10 +87,10 @@ export default function OrderConfirmationPage() {
 
                     <div className={styles.actions}>
                         <Link to="/cuenta/pedidos" className={styles.secondaryAction}>
-                            Ver mis pedidos
+                            {t('orders:actions.viewOrders')}
                         </Link>
                         <Link to="/" className={styles.primaryAction}>
-                            Seguir comprando
+                            {t('common:actions.continueShopping')}
                         </Link>
                     </div>
                 </div>
