@@ -1,10 +1,6 @@
 import styles from './NavBar.module.css';
 
-import { FaSearch } from 'react-icons/fa';
-import { FaHome } from 'react-icons/fa';
-import { FaShoppingCart } from 'react-icons/fa';
-import { FaUser } from 'react-icons/fa';
-
+import { FaHome, FaSearch, FaShoppingCart, FaUser } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 
 import { Link, useLocation } from 'react-router-dom';
@@ -12,112 +8,99 @@ import { useTranslation } from 'react-i18next';
 
 import { useCart } from '../../context/CartContext';
 import { FOCUS_SEARCH_STATE } from '../search-bar/searchFocus';
+import CartBadge from '../cart-badge/CartBadge';
 
 type NavOption = 'home' | 'search' | 'account' | 'cart';
 
-const navOptions: {
+interface NavItem {
     id: NavOption;
     Icon: IconType;
     path: string;
     state?: unknown;
-}[] = [
-    {
-        id: 'search',
-        Icon: FaSearch,
-        path: '/',
-        state: FOCUS_SEARCH_STATE
-    },
-    {
-        id: 'home',
-        Icon: FaHome,
-        path: '/'
-    },
-    {
-        id: 'cart',
-        Icon: FaShoppingCart,
-        path: '/carrito'
-    },
-    {
-        id: 'account',
-        Icon: FaUser,
-        path: '/cuenta'
-    }
+    disabled?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
+    { id: 'search', Icon: FaSearch, path: '/', state: FOCUS_SEARCH_STATE },
+    { id: 'account', Icon: FaUser, path: '/cuenta' },
+    { id: 'cart', Icon: FaShoppingCart, path: '/carrito' },
+    { id: 'home', Icon: FaHome, path: '/', disabled: true }
 ];
 
+const SELECTED_OPTION_BY_PATH_PREFIX: [string, NavOption][] = [
+    ['/producto', 'search'],
+    ['/carrito', 'cart'],
+    ['/checkout', 'cart'],
+    ['/cuenta', 'account'],
+    ['/orden', 'account']
+];
+
+function getSelectedOption(pathname: string): NavOption | null {
+    if (pathname === '/') {
+        return 'search';
+    }
+
+    const match = SELECTED_OPTION_BY_PATH_PREFIX.find(([prefix]) =>
+        pathname.startsWith(prefix)
+    );
+
+    return match ? match[1] : null;
+}
+
 export default function NavBar() {
-
     const { t } = useTranslation();
-    const location = useLocation();
-
+    const { pathname } = useLocation();
     const { totalItems } = useCart();
 
-    const getSelectedOption = (): NavOption => {
-
-        if (location.pathname === '/') {
-            return 'home';
-        }
-
-        if (location.pathname.startsWith('/carrito')) {
-            return 'cart';
-        }
-
-        if (location.pathname.startsWith('/cuenta')) {
-            return 'account';
-        }
-
-        return 'home';
-    };
-
-    const selected = getSelectedOption();
+    const selected = getSelectedOption(pathname);
 
     return (
-        <nav
-            className={styles.navBar}
-            aria-label={t('nav.label')}
-        >
+        <nav className={styles.navBar} aria-label={t('nav.label')}>
+            {NAV_ITEMS.map(({ id, Icon, path, state, disabled }) => {
+                const isSelected = selected === id;
+                const label = t(`nav.${id}`);
 
-            {navOptions.map(
-                ({ id, Icon, path, state }) => (
+                const content = (
+                    <>
+                        <Icon className={styles.navIcon} size={28} aria-hidden="true" />
+
+                        {id === 'cart' && (
+                            <CartBadge
+                                count={totalItems}
+                                inverted={isSelected}
+                                className={styles.cartBadge}
+                            />
+                        )}
+
+                        <span className={styles.srOnly}>{label}</span>
+                    </>
+                );
+
+                if (disabled) {
+                    return (
+                        <span
+                            key={id}
+                            className={`${styles.navItem} ${styles.disabled}`}
+                            aria-disabled="true"
+                            role="link"
+                        >
+                            {content}
+                        </span>
+                    );
+                }
+
+                return (
                     <Link
                         key={id}
                         to={path}
                         state={state}
-                        className={`${styles.navItem} ${
-                            selected === id
-                                ? styles.active
-                                : ''
-                        }`}
-                        aria-current={
-                            selected === id
-                                ? 'page'
-                                : undefined
-                        }
-                        aria-label={t(`nav.${id}`)}
+                        className={`${styles.navItem} ${isSelected ? styles.active : ''}`}
+                        aria-current={isSelected ? 'page' : undefined}
                     >
-                        <Icon
-                            className={styles.navIcon}
-                            size={28}
-                            aria-hidden="true"
-                        />
-
-                        {id === 'cart' &&
-                            totalItems > 0 && (
-                                <span
-                                    className={styles.cartBadge}
-                                >
-                                    {totalItems}
-                                </span>
-                            )}
-
-                        <span
-                            className={styles.srOnly}
-                        >
-                            {t(`nav.${id}`)}
-                        </span>
+                        {content}
                     </Link>
-                )
-            )}
-
+                );
+            })}
         </nav>
     );
 }

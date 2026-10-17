@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
+import CartBadge from '../cart-badge/CartBadge';
 
 import styles from './Header.module.css';
 
@@ -30,11 +31,7 @@ function CartButton() {
                 {t('nav.cart')}
             </span>
 
-            {totalItems > 0 && (
-                <span className={styles.cartBadge} aria-hidden="true">
-                    {totalItems}
-                </span>
-            )}
+            <CartBadge count={totalItems} className={styles.cartBadge} />
         </Link>
     );
 }
