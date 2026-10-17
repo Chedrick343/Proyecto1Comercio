@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { useSearchBox } from 'react-instantsearch';
+import { isSearchFocusRequested } from './searchFocus';
 import styles from './SearchBar.module.css';
 
 const SEARCH_DEBOUNCE_MS = 250;
@@ -8,6 +10,15 @@ const SEARCH_DEBOUNCE_MS = 250;
 export default function SearchBar() {
     const { query, refine } = useSearchBox();
     const [inputValue, setInputValue] = useState(query);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const location = useLocation();
+    const shouldFocusSearch = isSearchFocusRequested(location.state);
+
+    useEffect(() => {
+        if (shouldFocusSearch) {
+            inputRef.current?.focus();
+        }
+    }, [shouldFocusSearch, location.key]);
 
     useEffect(() => {
         if (inputValue === query) {
@@ -26,6 +37,7 @@ export default function SearchBar() {
         <div className={styles.searchBar}>
             <div className={styles.searchGroup}>
                 <input
+                    ref={inputRef}
                     type="search"
                     placeholder="Are you looking for something specific?"
                     className={styles.searchInput}
