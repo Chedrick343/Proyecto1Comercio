@@ -283,7 +283,7 @@
 @media (min-width: 768px) {
 
     .filters {
-        padding: 20px 40px;
+        padding: 20px var(--page-gutter);
     }
 
     .filterTitle {
