@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
+import i18n from '../../i18n';
 import ErrorState from './ErrorState';
 
 import styles from './ErrorState.module.css';
@@ -40,8 +41,8 @@ export default class AppErrorBoundary extends Component<
         return (
             <main className={styles.fullPage}>
                 <ErrorState
-                    title="Algo salió mal"
-                    description="Ocurrió un problema inesperado. Tu carrito y tus pedidos siguen guardados."
+                    title={i18n.t('errors:unexpected.title')}
+                    description={i18n.t('errors:unexpected.description')}
                     actions={
                         <>
                             <button
@@ -49,10 +50,10 @@ export default class AppErrorBoundary extends Component<
                                 className={styles.secondaryAction}
                                 onClick={this.handleRetry}
                             >
-                                Reintentar
+                                {i18n.t('common:actions.retry')}
                             </button>
                             <a href={import.meta.env.BASE_URL} className={styles.primaryAction}>
-                                Ir al inicio
+                                {i18n.t('errors:unexpected.goHome')}
                             </a>
                         </>
                     }
