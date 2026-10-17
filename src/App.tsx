@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     Configure,
@@ -35,12 +35,21 @@ import {
     normalizeAlgoliaProduct,
     searchClient
 } from './utils/algolia';
+import {
+    readCatalogQuery,
+    withCatalogPage
+} from './catalog/catalogSearchParams';
+
+// Filtering and pagination happen on the client, so the whole index is requested.
+const CATALOG_HITS_PER_PAGE = 1000;
 
 
 function ProductCatalog() {
     const { t } = useTranslation(['catalog', 'errors', 'common']);
     const { items } = useHits();
     const { status, error, refresh } = useInstantSearch();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const query = readCatalogQuery(searchParams);
 
     useEffect(() => {
         if (error) {
@@ -50,6 +59,14 @@ function ProductCatalog() {
 
     const [filters, setFilters] =
         useState<ProductFilters>(DEFAULT_FILTERS);
+
+    const handleFiltersChange = (nextFilters: ProductFilters) => {
+        setFilters(nextFilters);
+        setSearchParams(
+            (currentParams) => withCatalogPage(currentParams, 1),
+            { replace: true }
+        );
+    };
 
     const allProducts = useMemo(
         () => items.map(normalizeAlgoliaProduct),
@@ -70,6 +87,7 @@ function ProductCatalog() {
 
     return (
         <main className="app">
+            <Configure hitsPerPage={CATALOG_HITS_PER_PAGE} query={query} />
 
             <div className="top-bar">
                 <Header>
@@ -84,7 +102,7 @@ function ProductCatalog() {
                 <Filters
                     products={allProducts}
                     filters={filters}
-                    onFiltersChange={setFilters}
+                    onFiltersChange={handleFiltersChange}
                 />
 
                 <div
@@ -160,8 +178,6 @@ export default function App() {
                         searchClient={searchClient}
                         indexName={indexName}
                     >
-                        <Configure hitsPerPage={1000} />
-
                         <ProductCatalog />
                     </InstantSearch>
                 }
