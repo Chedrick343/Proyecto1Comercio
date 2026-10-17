@@ -9,10 +9,8 @@ import {
 
 import './App.css';
 
-import Header, {
-    CartButton,
-    AccountButton
-} from './components/header/Header';import SearchBar from './components/search-bar/searchBar';
+import Header from './components/header/Header';
+import SearchBar from './components/search-bar/searchBar';
 import Filters from './components/filters/filters';
 import ProductsGrid from './components/Products/Products';
 import NavBar from './components/navBar/NavBar';
@@ -20,6 +18,7 @@ import ProductDetailPage from './components/product-detail/ProductDetailPage';
 import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 import OrderConfirmationPage from './components/order/OrderConfirmationPage';
+import UserSection from './components/user/userSection';
 
 import {
     DEFAULT_FILTERS,
@@ -62,7 +61,7 @@ function ProductCatalog() {
         <main className="app">
 
             <div className="top-bar">
-                <Header showCart={false} />
+                <Header />
                 <div className="search-tools">
                     <SearchBar />
                 </div>

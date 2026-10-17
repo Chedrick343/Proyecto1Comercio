@@ -5,10 +5,6 @@ import { useCart } from '../../context/CartContext';
 
 import styles from './Header.module.css';
 
-interface HeaderProps {
-    showCart?: boolean;
-}
-
 interface CartButtonProps {
     inSearchTools?: boolean;
 }
@@ -61,7 +57,7 @@ export function AccountButton() {
     );
 }
 
-export default function Header({ showCart = true }: HeaderProps) {
+export default function Header() {
     return (
         <header className={styles.header}>
             <Logo />
