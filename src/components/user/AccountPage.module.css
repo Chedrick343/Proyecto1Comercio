@@ -1,6 +1,6 @@
 .accountPage {
     min-height: 100vh;
-    padding: 64px 40px 130px;
+    padding: var(--page-padding-top) var(--page-gutter) var(--mobile-navbar-clearance);
     background-color: #16171c;
     color: #f7f2e9;
 }
@@ -8,7 +8,7 @@
 .pageHeader,
 .accountLayout {
     width: 100%;
-    max-width: 1160px;
+    max-width: var(--page-max-width);
     margin-right: auto;
     margin-left: auto;
 }
@@ -28,7 +28,7 @@
 .pageHeader h1 {
     margin: 0;
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 2.2rem;
+    font-size: var(--font-size-page-title);
 }
 
 .accountLayout {
@@ -61,14 +61,6 @@
 }
 
 @media (max-width: 860px) {
-    .accountPage {
-        padding: 36px 20px 130px;
-    }
-
-    .pageHeader h1 {
-        font-size: 1.8rem;
-    }
-
     .accountLayout {
         grid-template-columns: minmax(0, 1fr);
         max-width: 560px;
@@ -92,8 +84,3 @@
     }
 }
 
-@media (max-width: 480px) {
-    .accountPage {
-        padding: 28px 16px 120px;
-    }
-}

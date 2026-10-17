@@ -1,6 +1,6 @@
 .checkoutPage {
     min-height: 100vh;
-    padding: 64px 40px 130px;
+    padding: var(--page-padding-top) var(--page-gutter) var(--mobile-navbar-clearance);
     background-color: #16171c;
     color: #f7f2e9;
 }
@@ -9,7 +9,7 @@
 .checkoutSteps,
 .checkoutLayout {
     width: 100%;
-    max-width: 1160px;
+    max-width: var(--page-max-width);
     margin-right: auto;
     margin-left: auto;
 }
@@ -57,9 +57,9 @@
 }
 
 .eyebrow {
-    margin: 0 0 6px;
+    margin: 0 0 var(--space-2);
     color: #c9a246;
-    font-size: 0.82rem;
+    font-size: var(--font-size-xs);
     font-weight: 700;
     letter-spacing: 0.15em;
 }
@@ -68,7 +68,7 @@
     margin: 0;
     color: #f8f4ed;
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 2.5rem;
+    font-size: var(--font-size-page-title);
 }
 
 .description {
@@ -200,7 +200,7 @@
     margin: 0;
     color: #f7f3eb;
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 1.3rem;
+    font-size: var(--font-size-xl);
 }
 
 .panelHeader span {
@@ -699,11 +699,6 @@
 }
 
 @media (max-width: 1000px) {
-    .checkoutPage {
-        padding-right: 32px;
-        padding-left: 32px;
-    }
-
     .checkoutLayout {
         grid-template-columns: minmax(0, 1.5fr) minmax(270px, 1fr);
         gap: 18px;
@@ -711,10 +706,6 @@
 }
 
 @media (max-width: 760px) {
-    .checkoutPage {
-        padding: 48px 20px 120px;
-    }
-
     .checkoutLayout {
         grid-template-columns: 1fr;
     }
@@ -733,17 +724,9 @@
 }
 
 @media (max-width: 480px) {
-    .checkoutPage {
-        padding: 36px 16px 110px;
-    }
-
     .pageHeader {
         flex-direction: column;
         gap: 16px;
-    }
-
-    .pageHeader h1 {
-        font-size: 2rem;
     }
 
     .orderPanel,
