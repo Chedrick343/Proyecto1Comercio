@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { Link, Navigate } from 'react-router-dom';
 import {
     FaCheck,
@@ -32,8 +33,11 @@ import {
     type ShippingFieldErrors
 } from './checkoutTypes';
 import { validateShippingDetails } from './validateShippingDetails';
+import { focusFirstInvalidField } from './focusFirstInvalidField';
 
 import styles from './CheckoutEntryPage.module.css';
+
+const hasErrors = (errors: object) => Object.keys(errors).length > 0;
 
 export default function CheckoutEntryPage() {
     const [currentStep, setCurrentStep] = useState(1);
@@ -68,6 +72,10 @@ export default function CheckoutEntryPage() {
         discardActiveOrder
     } = useOrderPayment();
 
+    useEffect(() => {
+        window.scrollTo({ top: 0 });
+    }, [currentStep]);
+
     if (confirmedOrderNumber) {
         return <Navigate to={`/orden/${confirmedOrderNumber}`} replace />;
     }
@@ -99,26 +107,35 @@ export default function CheckoutEntryPage() {
 
     const handleShippingSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        const form = event.currentTarget;
 
         const validationErrors = validateShippingDetails(shippingDetails);
-        setFieldErrors(validationErrors);
 
-        if (Object.keys(validationErrors).length === 0) {
-            discardActiveOrder();
-            setCurrentStep(2);
+        if (hasErrors(validationErrors)) {
+            flushSync(() => setFieldErrors(validationErrors));
+            focusFirstInvalidField(form);
+            return;
         }
+
+        setFieldErrors({});
+        discardActiveOrder();
+        setCurrentStep(2);
     };
 
     const handlePaymentMethodSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        const form = event.currentTarget;
 
         if (selectedPaymentMethod === 'NEW_CARD') {
             const validationErrors = validatePaymentCard(newPaymentCard);
-            setPaymentCardErrors(validationErrors);
 
-            if (Object.keys(validationErrors).length > 0) {
+            if (hasErrors(validationErrors)) {
+                flushSync(() => setPaymentCardErrors(validationErrors));
+                focusFirstInvalidField(form);
                 return;
             }
+
+            setPaymentCardErrors({});
         }
 
         setCurrentStep(3);
