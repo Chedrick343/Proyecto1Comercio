@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FaThLarge, FaList } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import styles from './ProductsGrid.module.css';
 import type { Product } from '../../utils/Products';
 import { formatCurrency } from '../../utils/formatCurrency';
+import {
+    CATALOG_PAGE_PARAM,
+    formatCatalogPageParam,
+    readCatalogPage,
+    withCatalogPage
+} from '../../catalog/catalogSearchParams';
 
 
 interface ProductsGridProps {
@@ -84,7 +90,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     const { t } = useTranslation('catalog');
     const allProducts = useMemo(() => products, [products]);
 
-    const [currentPage, setCurrentPage] = useState(1);
+    const [searchParams, setSearchParams] = useSearchParams();
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
     const sectionRef = useRef<HTMLElement>(null);
@@ -96,9 +102,19 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     );
 
 
+    const currentPage = Math.min(readCatalogPage(searchParams), totalPages);
+    const pageParamInUrl = searchParams.get(CATALOG_PAGE_PARAM);
+    const canonicalPageParam = formatCatalogPageParam(currentPage);
+
+    // Fixes out-of-range or malformed pages in the URL (e.g. ?pagina=999).
     useEffect(() => {
-        setCurrentPage(1);
-    }, [allProducts]);
+        if (allProducts.length > 0 && pageParamInUrl !== canonicalPageParam) {
+            setSearchParams(
+                (currentParams) => withCatalogPage(currentParams, currentPage),
+                { replace: true }
+            );
+        }
+    }, [allProducts.length, pageParamInUrl, canonicalPageParam, currentPage, setSearchParams]);
 
 
     const visibleProducts = useMemo(() => {
@@ -119,7 +135,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
             return;
         }
 
-        setCurrentPage(page);
+        setSearchParams((currentParams) => withCatalogPage(currentParams, page));
 
         sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };

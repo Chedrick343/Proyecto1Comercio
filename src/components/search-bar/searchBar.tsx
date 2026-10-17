@@ -1,20 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import { useSearchBox } from 'react-instantsearch';
 import { isSearchFocusRequested } from './searchFocus';
+import { readCatalogQuery, withCatalogQuery } from '../../catalog/catalogSearchParams';
 import styles from './SearchBar.module.css';
 
 const SEARCH_DEBOUNCE_MS = 250;
 
 export default function SearchBar() {
     const { t } = useTranslation('catalog');
-    const { query, refine } = useSearchBox();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const query = readCatalogQuery(searchParams);
+
     const [inputValue, setInputValue] = useState(query);
+    const [lastSyncedQuery, setLastSyncedQuery] = useState(query);
     const inputRef = useRef<HTMLInputElement>(null);
     const location = useLocation();
     const shouldFocusSearch = isSearchFocusRequested(location.state);
+
+    // Keeps the input in sync when the URL changes from outside (e.g. back button).
+    if (query !== lastSyncedQuery) {
+        setLastSyncedQuery(query);
+        setInputValue(query);
+    }
 
     useEffect(() => {
         if (shouldFocusSearch) {
@@ -23,17 +32,28 @@ export default function SearchBar() {
     }, [shouldFocusSearch, location.key]);
 
     useEffect(() => {
-        if (inputValue === query) {
+        if (inputValue.trim() === query) {
             return;
         }
 
         const timeoutId = window.setTimeout(
-            () => refine(inputValue),
+            () => setSearchParams(
+                (currentParams) => withCatalogQuery(currentParams, inputValue),
+                { replace: true }
+            ),
             SEARCH_DEBOUNCE_MS
         );
 
         return () => window.clearTimeout(timeoutId);
-    }, [inputValue, query, refine]);
+    }, [inputValue, query, setSearchParams]);
+
+    const clearSearch = () => {
+        setInputValue('');
+        setSearchParams(
+            (currentParams) => withCatalogQuery(currentParams, ''),
+            { replace: true }
+        );
+    };
 
     return (
         <div className={styles.searchBar}>
@@ -54,10 +74,7 @@ export default function SearchBar() {
                         className={styles.clearButton}
                         aria-label={t('search.clear')}
                         title={t('search.clear')}
-                        onClick={() => {
-                            setInputValue('');
-                            refine('');
-                        }}
+                        onClick={clearSearch}
                     >
                         <FaTimes aria-hidden="true" />
                     </button>
