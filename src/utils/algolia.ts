@@ -54,15 +54,24 @@ export function normalizeAlgoliaProduct(hit: unknown): Product {
     };
 }
 
-const PRODUCT_UNAVAILABLE_MESSAGE =
-    'No pudimos cargar el producto. Inténtalo de nuevo en unos momentos.';
+export type ProductLoadErrorCode = 'notFound' | 'network' | 'unavailable';
+
+export class ProductLoadError extends Error {
+    readonly code: ProductLoadErrorCode;
+
+    constructor(code: ProductLoadErrorCode) {
+        super(code);
+        this.name = 'ProductLoadError';
+        this.code = code;
+    }
+}
 
 async function fetchProductHit(productId: string): Promise<Response> {
     if (!applicationId || !searchApiKey || !indexName) {
         console.error(
             'Faltan VITE_ALGOLIA_APPLICATION_ID, VITE_ALGOLIA_SEARCH_API_KEY o VITE_ALGOLIA_INDEX_NAME.'
         );
-        throw new Error(PRODUCT_UNAVAILABLE_MESSAGE);
+        throw new ProductLoadError('unavailable');
     }
 
     try {
@@ -77,7 +86,7 @@ async function fetchProductHit(productId: string): Promise<Response> {
         );
     } catch (networkError) {
         console.error('No se pudo contactar a Algolia:', networkError);
-        throw new Error('No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.');
+        throw new ProductLoadError('network');
     }
 }
 
@@ -85,12 +94,12 @@ export async function getProductById(productId: string): Promise<Product> {
     const response = await fetchProductHit(productId);
 
     if (response.status === 404) {
-        throw new Error('No encontramos el producto solicitado.');
+        throw new ProductLoadError('notFound');
     }
 
     if (!response.ok) {
         console.error(`Algolia respondió con HTTP ${response.status}.`);
-        throw new Error(PRODUCT_UNAVAILABLE_MESSAGE);
+        throw new ProductLoadError('unavailable');
     }
 
     const hit: unknown = await response.json();
