@@ -54,6 +54,21 @@ export function normalizeAlgoliaProduct(hit: unknown): Product {
     };
 }
 
+export async function searchProductsByText(
+    query: string,
+    hitsPerPage: number
+): Promise<Product[]> {
+    if (!searchClient || !indexName) {
+        return [];
+    }
+
+    const { results } = await searchClient.searchForHits<unknown>({
+        requests: [{ indexName, query, hitsPerPage }]
+    });
+
+    return (results[0]?.hits ?? []).map(normalizeAlgoliaProduct);
+}
+
 export type ProductLoadErrorCode = 'notFound' | 'network' | 'unavailable';
 
 export class ProductLoadError extends Error {

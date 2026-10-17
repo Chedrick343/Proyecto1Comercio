@@ -1,34 +1,44 @@
 {
   "loading": "Cargando información del producto...",
-  "imageLabel": "Imagen del producto",
   "outOfStock": "Agotado",
   "addToCart": "Agregar al carrito",
   "addToCartShort": "Agregar",
-  "addedToCart": "Agregado",
   "addedAnnouncement": "{{name}} se agregó al carrito",
-  "quantity": {
-    "label": "Cantidad a agregar",
-    "decrease": "Disminuir cantidad",
-    "increase": "Aumentar cantidad"
+  "cartControl": {
+    "label": "Cantidad de {{name}} en el carrito",
+    "inCart": "en el carrito",
+    "remove": "Eliminar {{name}} del carrito",
+    "decrease": "Quitar una unidad de {{name}}",
+    "increase": "Agregar una unidad de {{name}}",
+    "removedAnnouncement": "{{name}} se eliminó del carrito"
   },
-  "availability": {
-    "label": "Disponibilidad:",
-    "inStock_one": "{{count}} unidad disponible",
-    "inStock_other": "{{count}} unidades disponibles",
-    "outOfStock": "Producto agotado"
+  "breadcrumb": {
+    "label": "Ruta de navegación",
+    "catalog": "Catálogo"
   },
   "rating": {
-    "label": "Calificación:",
-    "value": "{{rating}} / 5"
+    "label": "Calificación: {{rating}} de 5"
   },
-  "sections": {
-    "description": "Descripción",
-    "categories": "Categorías",
-    "specifications": "Especificaciones"
+  "priceNote": "IVA ({{rate}}) y envío se calculan al finalizar la compra.",
+  "stock": {
+    "available": "Disponible",
+    "lowStock_one": "¡Última unidad!",
+    "lowStock_other": "Últimas {{count}} unidades",
+    "outOfStock": "Agotado"
   },
-  "specifications": {
-    "id": "Identificador",
-    "currency": "Moneda"
+  "stores": "En tiendas: {{stores}}",
+  "description": "Descripción",
+  "reference": "Ref. {{sku}}",
+  "details": {
+    "title": "Detalles del producto",
+    "groups": {
+      "general": "General",
+      "materials": "Materiales",
+      "measures": "Medidas",
+      "chainAndPendant": "Cadena y colgante",
+      "watch": "Reloj",
+      "other": "Otros"
+    }
   },
   "facets": {
     "material": "Material",
@@ -49,18 +59,12 @@
     "type": "Tipo",
     "design": "Diseño"
   },
+  "related": {
+    "title": "Más de {{brand}}"
+  },
   "addedDialog": {
     "eyebrow": "LISTO PARA DISFRUTAR",
     "title": "Producto agregado",
-    "description": "Ya está en tu carrito de compras.",
     "goToCart": "Ir al carrito"
-  },
-  "cartControl": {
-    "label": "Cantidad de {{name}} en el carrito",
-    "inCart": "en el carrito",
-    "remove": "Eliminar {{name}} del carrito",
-    "decrease": "Quitar una unidad de {{name}}",
-    "increase": "Agregar una unidad de {{name}}",
-    "removedAnnouncement": "{{name}} se eliminó del carrito"
   }
 }

@@ -85,14 +85,6 @@ export const MAX_PRICE = 3_000_000;
 export const PRICE_STEP = 10_000;
 
 
-export const DEFAULT_FILTERS: ProductFilters = {
-    search: '',
-    categories: [],
-    minPrice: MIN_PRICE,
-    maxPrice: MAX_PRICE
-};
-
-
 /* =====================
    NORMALIZACIÓN
 ===================== */
