@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { FaThLarge, FaList } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import styles from './ProductsGrid.module.css';
 import type { Product } from '../../utils/Products';
-import { formatCurrency } from '../../utils/formatCurrency';
+import ProductCard, { type ProductCardLayout } from './ProductCard';
 import {
     CATALOG_PAGE_PARAM,
     formatCatalogPageParam,
@@ -18,7 +18,6 @@ interface ProductsGridProps {
 }
 
 
-type ViewMode = 'grid' | 'list';
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -33,8 +32,6 @@ type PageItem = number | typeof ELLIPSIS;
 /* =====================
    UTILIDADES
 ===================== */
-const getMainCategory = (categories: string[]): string | undefined =>
-    categories[categories.length - 1];
 
 
 const getPageNumbers = (
@@ -91,7 +88,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     const allProducts = useMemo(() => products, [products]);
 
     const [searchParams, setSearchParams] = useSearchParams();
-    const [viewMode, setViewMode] = useState<ViewMode>('grid');
+    const [viewMode, setViewMode] = useState<ProductCardLayout>('grid');
 
     const sectionRef = useRef<HTMLElement>(null);
 
@@ -196,40 +193,11 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
             <div className={styles.scrollArea}>
                 <div className={viewMode === 'grid' ? styles.grid : styles.list}>
                     {visibleProducts.map((product) => (
-                        <Link
+                        <ProductCard
                             key={product.objectID}
-                            to={`/producto/${encodeURIComponent(product.objectID)}`}
-                            className={
-                                viewMode === 'list'
-                                    ? `${styles.card} ${styles.listCard}`
-                                    : styles.card
-                            }
-                        >
-                            <div className={viewMode === 'list' ? styles.listImageWrapper : styles.imageWrapper}>
-                                <img
-                                    src={product.image_url}
-                                    alt={product.title}
-                                    className={styles.image}
-                                    loading="lazy"
-                                />
-
-                                {!product.in_stock && (
-                                    <span className={styles.outOfStock}>{t('product.outOfStock')}</span>
-                                )}
-                            </div>
-
-                            <div className={styles.cardBody}>
-                                <span className={styles.category}>
-                                    {getMainCategory(product.categories) ?? t('product.uncategorized')}
-                                </span>
-
-                                <h3 className={styles.cardTitle}>{product.title}</h3>
-
-                                <p className={styles.price}>
-                                    {formatCurrency(product.b2c.price, product.b2c.currency)}
-                                </p>
-                            </div>
-                        </Link>
+                            product={product}
+                            layout={viewMode}
+                        />
                     ))}
                 </div>
             </div>
