@@ -14,7 +14,8 @@ import { useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import CheckoutOrderReview from './CheckoutOrderReview';
 import PaymentMethodSelection from './PaymentMethodSelection';
-import { processPayment, type PaymentResult } from './paymentProcessing';
+import { useOrderPayment } from './useOrderPayment';
+import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
 import {
     DEFAULT_SAVED_CARD,
     INITIAL_NEW_PAYMENT_CARD,
@@ -46,8 +47,8 @@ export default function CheckoutEntryPage() {
         INITIAL_NEW_PAYMENT_CARD
     );
     const [paymentCardErrors, setPaymentCardErrors] = useState<PaymentCardErrors>({});
-    const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
-    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [sandboxScenario, setSandboxScenario] =
+        useState<SandboxScenario>('APPROVE');
 
     const {
         cart,
@@ -58,8 +59,27 @@ export default function CheckoutEntryPage() {
         total
     } = useCart();
 
+    const {
+        paymentResult,
+        isProcessingPayment,
+        confirmedOrderNumber,
+        payOrder,
+        clearPaymentResult,
+        discardActiveOrder
+    } = useOrderPayment();
+
+    if (confirmedOrderNumber) {
+        return <Navigate to={`/orden/${confirmedOrderNumber}`} replace />;
+    }
+
     if (cart.length === 0) {
-        return <Navigate to="/carrito" replace />;
+        return (
+            <Navigate
+                to="/carrito"
+                replace
+                state={{ checkoutBlockedByEmptyCart: true }}
+            />
+        );
     }
 
     const handleDetailsChange = (
@@ -84,6 +104,7 @@ export default function CheckoutEntryPage() {
         setFieldErrors(validationErrors);
 
         if (Object.keys(validationErrors).length === 0) {
+            discardActiveOrder();
             setCurrentStep(2);
         }
     };
@@ -106,7 +127,7 @@ export default function CheckoutEntryPage() {
     const handlePaymentMethodChange = (method: PaymentMethod) => {
         setSelectedPaymentMethod(method);
         setPaymentCardErrors({});
-        setPaymentResult(null);
+        clearPaymentResult();
     };
 
     const handlePaymentCardChange = (
@@ -127,22 +148,7 @@ export default function CheckoutEntryPage() {
         });
     };
 
-    const handlePayment = async () => {
-        if (isProcessingPayment || paymentResult === 'PAYMENT_APPROVED') {
-            return;
-        }
-
-        setIsProcessingPayment(true);
-        setPaymentResult(null);
-
-        try {
-            setPaymentResult(await processPayment());
-        } catch {
-            setPaymentResult('PAYMENT_ERROR');
-        } finally {
-            setIsProcessingPayment(false);
-        }
-    };
+    const handlePayment = () => payOrder(shippingDetails, sandboxScenario);
 
     const checkoutSteps: {
         number: number;
@@ -253,6 +259,8 @@ export default function CheckoutEntryPage() {
                                 }
                                 paymentResult={paymentResult}
                                 isProcessingPayment={isProcessingPayment}
+                                sandboxScenario={sandboxScenario}
+                                onSandboxScenarioChange={setSandboxScenario}
                                 onEditDetails={() => setCurrentStep(1)}
                                 onEditPayment={() => setCurrentStep(2)}
                                 onSubmitPayment={handlePayment}
