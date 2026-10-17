@@ -78,8 +78,7 @@
     letter-spacing: 0.12em;
 }
 
-.heading h1,
-.notFound h1 {
+.heading h1 {
     margin: 0;
     font-family: Georgia, 'Times New Roman', serif;
     font-size: 2.2rem;
@@ -113,16 +112,6 @@
     margin: 0;
     color: #f7f2e9;
     font-weight: 700;
-}
-
-.notFound {
-    padding: 48px 24px;
-    text-align: center;
-}
-
-.notFound p {
-    margin: 12px 0 0;
-    color: #aaa9ad;
 }
 
 .actions {
@@ -175,8 +164,7 @@
         padding: 48px 20px 120px;
     }
 
-    .heading h1,
-    .notFound h1 {
+    .heading h1 {
         font-size: 1.8rem;
     }
 }
