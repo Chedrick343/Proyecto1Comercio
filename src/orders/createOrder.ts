@@ -4,10 +4,6 @@ import type { Order, OrderItem, OrderTotals } from './orderTypes';
 
 const DEFAULT_CURRENCY = 'CRC';
 
-/**
- * Genera un número de orden legible: ORD-AAAAMMDD-XXXXXX.
- * La parte final es aleatoria en base 36 para evitar colisiones entre órdenes del mismo día.
- */
 export function generateOrderNumber(date: Date = new Date()): string {
     const datePart = [
         date.getFullYear(),
@@ -42,11 +38,7 @@ interface CreateOrderInput {
     customer: ShippingDetails;
 }
 
-/**
- * Construye una orden nueva en estado PENDING a partir del carrito.
- * Los montos se reciben del carrito para que la orden coincida exactamente
- * con lo que el usuario vio en el resumen de compra.
- */
+// Totals come from the cart so the order matches the summary the customer reviewed.
 export function createOrder({
     cart,
     totals,

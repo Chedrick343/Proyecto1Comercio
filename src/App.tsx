@@ -17,6 +17,7 @@ import NavBar from './components/navBar/NavBar';
 import ProductDetailPage from './components/product-detail/ProductDetailPage';
 import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
+import OrderConfirmationPage from './components/order/OrderConfirmationPage';
 
 import {
     DEFAULT_FILTERS,
@@ -173,6 +174,11 @@ export default function App() {
             <Route
                 path="/checkout"
                 element={<CheckoutEntryPage />}
+            />
+
+            <Route
+                path="/orden/:orderNumber"
+                element={<OrderConfirmationPage />}
             />
 
 

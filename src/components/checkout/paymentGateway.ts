@@ -3,11 +3,18 @@ import type {
     PaymentRequest,
     SandboxScenario
 } from '../../services/paymentSandbox/paymentSandboxTypes';
+import type { ProcessedPaymentStatus } from '../../orders/orderTypes';
 
 export type PaymentResult =
     | 'PAYMENT_APPROVED'
     | 'PAYMENT_DECLINED'
     | 'PAYMENT_ERROR';
+
+export const PAYMENT_STATUS_BY_RESULT: Record<PaymentResult, ProcessedPaymentStatus> = {
+    PAYMENT_APPROVED: 'APPROVED',
+    PAYMENT_DECLINED: 'DECLINED',
+    PAYMENT_ERROR: 'ERROR'
+};
 
 export interface PaymentOutcome {
     result: PaymentResult;

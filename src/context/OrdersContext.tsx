@@ -7,9 +7,9 @@ import {
 } from 'react';
 
 import {
-    getOrderStatusForPayment,
+    ORDER_STATUS_BY_PAYMENT_STATUS,
     type Order,
-    type PaymentStatus
+    type ProcessedPaymentStatus
 } from '../orders/orderTypes';
 
 const ORDERS_STORAGE_KEY = 'orders-v1';
@@ -31,12 +31,13 @@ type OrdersAction =
           };
       };
 
-/** Datos que el resultado del Sandbox aporta a una orden existente. */
 export interface PaymentUpdate {
-    paymentStatus: PaymentStatus;
+    paymentStatus: ProcessedPaymentStatus;
     transactionId?: string;
     paymentMessage?: string;
 }
+
+const isOrderConfirmed = (order: Order) => order.orderStatus === 'CONFIRMED';
 
 function ordersReducer(
     state: OrdersState,
@@ -44,7 +45,6 @@ function ordersReducer(
 ): OrdersState {
     switch (action.type) {
         case 'ADD_ORDER':
-            // Las órdenes más recientes quedan primero.
             return [action.payload.order, ...state];
 
         case 'UPDATE_PAYMENT': {
@@ -57,22 +57,15 @@ function ordersReducer(
             } = action.payload;
 
             return state.map((order) => {
-                // Una orden confirmada no puede volver a cambiar de estado.
-                if (
-                    order.orderNumber !== orderNumber ||
-                    order.orderStatus === 'CONFIRMED'
-                ) {
+                if (order.orderNumber !== orderNumber || isOrderConfirmed(order)) {
                     return order;
                 }
 
                 return {
                     ...order,
                     paymentStatus,
-                    orderStatus: getOrderStatusForPayment(paymentStatus),
-                    paymentAttempts:
-                        paymentStatus === 'PENDING'
-                            ? order.paymentAttempts
-                            : order.paymentAttempts + 1,
+                    orderStatus: ORDER_STATUS_BY_PAYMENT_STATUS[paymentStatus],
+                    paymentAttempts: order.paymentAttempts + 1,
                     transactionId: transactionId ?? order.transactionId,
                     paymentMessage,
                     updatedAt
@@ -121,13 +114,8 @@ function getInitialOrders(): OrdersState {
 interface OrdersContextType {
     orders: OrdersState;
 
-    /** Guarda una orden nueva (normalmente creada con createOrder). */
     addOrder: (order: Order) => void;
 
-    /**
-     * Registra el resultado del pago en la orden y actualiza su estado
-     * según getOrderStatusForPayment.
-     */
     updateOrderPayment: (
         orderNumber: string,
         update: PaymentUpdate
