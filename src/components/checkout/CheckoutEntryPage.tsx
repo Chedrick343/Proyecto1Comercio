@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
     FaCheck,
     FaClipboardCheck,
@@ -11,8 +12,9 @@ import type { IconType } from 'react-icons';
 
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
-import { useCart } from '../../context/CartContext';
+import { IVA_RATE, SHIPPING_RATE, useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { formatRate } from '../../utils/formatRate';
 import CheckoutOrderReview from './CheckoutOrderReview';
 import PaymentMethodSelection from './PaymentMethodSelection';
 import { useOrderPayment } from './useOrderPayment';
@@ -62,6 +64,8 @@ export default function CheckoutEntryPage() {
         shipping,
         total
     } = useCart();
+
+    const { t } = useTranslation(['checkout', 'common']);
 
     const {
         paymentResult,
@@ -169,12 +173,12 @@ export default function CheckoutEntryPage() {
 
     const checkoutSteps: {
         number: number;
-        label: string;
+        labelKey: 'delivery' | 'payment' | 'review';
         icon: IconType;
     }[] = [
-        { number: 1, label: 'Entrega', icon: FaTruck },
-        { number: 2, label: 'Pago', icon: FaCreditCard },
-        { number: 3, label: 'Revisión', icon: FaClipboardCheck }
+        { number: 1, labelKey: 'delivery', icon: FaTruck },
+        { number: 2, labelKey: 'payment', icon: FaCreditCard },
+        { number: 3, labelKey: 'review', icon: FaClipboardCheck }
     ];
 
     return (
@@ -187,24 +191,24 @@ export default function CheckoutEntryPage() {
                 <header className={styles.pageHeader}>
                     <div className={styles.headerCopy}>
                         <Link to="/carrito" className={styles.backLink}>
-                            ← Volver al carrito
+                            ← {t('checkout:actions.backToCart')}
                         </Link>
                         <div>
-                            <p className={styles.eyebrow}>TU COMPRA</p>
-                            <h1>Finalizar compra</h1>
+                            <p className={styles.eyebrow}>{t('common:yourPurchase')}</p>
+                            <h1>{t('checkout:title')}</h1>
                             <p className={styles.description}>
-                                Completa tus datos y revisa tu pedido de forma segura.
+                                {t('checkout:description')}
                             </p>
                         </div>
                     </div>
 
                     <div className={styles.paymentBadge}>
                         <FaCreditCard aria-hidden="true" />
-                        <span>Pago en línea</span>
+                        <span>{t('checkout:onlinePaymentBadge')}</span>
                     </div>
                 </header>
 
-                <ol className={styles.checkoutSteps} aria-label="Etapas de compra">
+                <ol className={styles.checkoutSteps} aria-label={t('checkout:steps.label')}>
                     {checkoutSteps.map((step) => (
                         <li
                             key={step.number}
@@ -230,7 +234,7 @@ export default function CheckoutEntryPage() {
                                     <step.icon aria-hidden="true" />
                                 )}
                             </span>
-                            <span className={styles.stepLabel}>{step.label}</span>
+                            <span className={styles.stepLabel}>{t(`checkout:steps.${step.labelKey}`)}</span>
                             {step.number < checkoutSteps.length && (
                                 <span
                                     className={
@@ -271,8 +275,8 @@ export default function CheckoutEntryPage() {
                                 details={shippingDetails}
                                 paymentDescription={
                                     selectedPaymentMethod === 'SAVED_CARD'
-                                        ? `${DEFAULT_SAVED_CARD.brand} terminada en ${DEFAULT_SAVED_CARD.lastFourDigits}`
-                                        : `Tarjeta terminada en ${getLastFourDigits(newPaymentCard.cardNumber)}`
+                                        ? t('checkout:payment.cardEndingIn', { ...DEFAULT_SAVED_CARD })
+                                        : t('checkout:payment.newCardEndingIn', { lastFourDigits: getLastFourDigits(newPaymentCard.cardNumber) })
                                 }
                                 paymentResult={paymentResult}
                                 isProcessingPayment={isProcessingPayment}
@@ -288,9 +292,9 @@ export default function CheckoutEntryPage() {
                     <aside className={styles.summaryColumn}>
                         <section className={styles.summaryPanel} aria-labelledby="summary-heading">
                             <div className={styles.summaryHeading}>
-                                <h2 id="summary-heading">Resumen de compra</h2>
+                                <h2 id="summary-heading">{t('common:summary.title')}</h2>
                                 <span className={styles.itemCount}>
-                                    {totalItems} {totalItems === 1 ? 'artículo' : 'artículos'}
+                                    {t('common:itemCount', { count: totalItems })}
                                 </span>
                             </div>
 
@@ -314,21 +318,21 @@ export default function CheckoutEntryPage() {
 
                             <dl className={styles.summaryRows}>
                                 <div>
-                                    <dt>Subtotal</dt>
+                                    <dt>{t('common:summary.subtotal')}</dt>
                                     <dd>{formatCurrency(subtotal)}</dd>
                                 </div>
                                 <div>
-                                    <dt>IVA (13%)</dt>
+                                    <dt>{t('common:summary.iva', { rate: formatRate(IVA_RATE) })}</dt>
                                     <dd>{formatCurrency(iva)}</dd>
                                 </div>
                                 <div>
-                                    <dt>Envío (5%)</dt>
+                                    <dt>{t('common:summary.shipping', { rate: formatRate(SHIPPING_RATE) })}</dt>
                                     <dd>{formatCurrency(shipping)}</dd>
                                 </div>
                             </dl>
 
                             <div className={styles.totalRow}>
-                                <span>Total</span>
+                                <span>{t('common:summary.total')}</span>
                                 <strong>{formatCurrency(total)}</strong>
                             </div>
                         </section>

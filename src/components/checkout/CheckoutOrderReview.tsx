@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { formatCurrency } from '../../utils/formatCurrency';
 import type { CartItem } from '../../context/CartContext';
@@ -34,37 +35,39 @@ export default function CheckoutOrderReview({
     onEditPayment,
     onSubmitPayment
 }: CheckoutOrderReviewProps) {
+    const { t } = useTranslation(['checkout', 'common']);
+
     return (
         <section className={styles.orderPanel} aria-labelledby="review-heading">
             <div className={styles.panelHeader}>
-                <h2 id="review-heading">Revisión del pedido</h2>
+                <h2 id="review-heading">{t('checkout:review.title')}</h2>
                 <button
                     className={styles.textAction}
                     type="button"
                     onClick={onEditDetails}
                 >
-                    Editar entrega
+                    {t('checkout:review.editDelivery')}
                 </button>
             </div>
 
             <dl className={styles.deliveryDetails}>
                 <div>
-                    <dt>Recibe</dt>
+                    <dt>{t('common:delivery.recipient')}</dt>
                     <dd>{details.fullName}</dd>
                 </div>
                 <div>
-                    <dt>Contacto</dt>
+                    <dt>{t('common:delivery.contact')}</dt>
                     <dd>{details.email} · {details.phone}</dd>
                 </div>
                 <div>
-                    <dt>Dirección</dt>
+                    <dt>{t('common:delivery.address')}</dt>
                     <dd>
                         {details.address}, {details.canton}, {details.province}
                     </dd>
                 </div>
                 {details.deliveryNotes.trim() && (
                     <div>
-                        <dt>Indicaciones</dt>
+                        <dt>{t('common:delivery.notes')}</dt>
                         <dd>{details.deliveryNotes}</dd>
                     </div>
                 )}
@@ -72,7 +75,7 @@ export default function CheckoutOrderReview({
 
             <div className={styles.reviewPayment}>
                 <div>
-                    <span>Método de pago</span>
+                    <span>{t('checkout:review.paymentMethod')}</span>
                     <strong>{paymentDescription}</strong>
                 </div>
                 <button
@@ -80,7 +83,7 @@ export default function CheckoutOrderReview({
                     type="button"
                     onClick={onEditPayment}
                 >
-                    Cambiar
+                    {t('checkout:review.changePayment')}
                 </button>
             </div>
 
@@ -93,14 +96,14 @@ export default function CheckoutOrderReview({
                     }
                     role={paymentResult === 'PAYMENT_APPROVED' ? 'status' : 'alert'}
                 >
-                    {getPaymentResultMessage(paymentResult)}
+                    {t(`checkout:paymentResult.${paymentResult}`)}
                 </p>
             )}
 
             <div className={styles.reviewProductsHeader}>
-                <h3>Productos</h3>
+                <h3>{t('checkout:review.products')}</h3>
                 <Link to="/carrito" className={styles.textAction}>
-                    Editar carrito
+                    {t('checkout:review.editCart')}
                 </Link>
             </div>
 
@@ -133,26 +136,24 @@ export default function CheckoutOrderReview({
                     disabled={isProcessingPayment || paymentResult === 'PAYMENT_APPROVED'}
                     onClick={onSubmitPayment}
                 >
-                    {isProcessingPayment
-                        ? 'Procesando pago...'
-                        : paymentResult === 'PAYMENT_APPROVED'
-                            ? 'Pago aprobado'
-                            : paymentResult
-                                ? 'Intentar pagar nuevamente'
-                                : 'Confirmar y pagar'}
+                    {t(`checkout:payButton.${getPayButtonState(isProcessingPayment, paymentResult)}`)}
                 </button>
             </div>
         </section>
     );
 }
 
-function getPaymentResultMessage(result: PaymentResult): string {
-    switch (result) {
-        case 'PAYMENT_APPROVED':
-            return 'El pago fue aprobado. Gracias por tu compra.';
-        case 'PAYMENT_DECLINED':
-            return 'El pago no fue aprobado. Puedes intentarlo nuevamente.';
-        case 'PAYMENT_ERROR':
-            return 'No pudimos procesar el pago. Inténtalo nuevamente en unos momentos.';
+function getPayButtonState(
+    isProcessingPayment: boolean,
+    paymentResult: PaymentResult | null
+): 'processing' | 'approved' | 'retry' | 'pay' {
+    if (isProcessingPayment) {
+        return 'processing';
     }
+
+    if (paymentResult === 'PAYMENT_APPROVED') {
+        return 'approved';
+    }
+
+    return paymentResult ? 'retry' : 'pay';
 }

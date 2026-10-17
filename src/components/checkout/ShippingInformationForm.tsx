@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { COSTA_RICAN_PROVINCES } from './checkoutTypes';
 import type {
     ShippingDetails,
@@ -20,6 +21,7 @@ export default function ShippingInformationForm({
     onDetailsChange,
     onSubmit
 }: ShippingInformationFormProps) {
+    const { t } = useTranslation('checkout');
     const fieldClassName = (field: keyof ShippingDetails) =>
         errors[field]
             ? `${styles.formControl} ${styles.formControlInvalid}`
@@ -28,19 +30,19 @@ export default function ShippingInformationForm({
     return (
         <form className={styles.formPanel} noValidate onSubmit={onSubmit}>
             <div className={styles.panelHeader}>
-                <h2 id="shipping-heading">Información de entrega</h2>
-                <span>Los campos marcados con * son obligatorios</span>
+                <h2 id="shipping-heading">{t('shipping.title')}</h2>
+                <span>{t('form.requiredHint')}</span>
             </div>
 
             {Object.keys(errors).length > 0 && (
                 <p className={styles.validationSummary} role="alert">
-                    Revisa los campos indicados antes de continuar.
+                    {t('form.validationSummary')}
                 </p>
             )}
 
             <div className={styles.formGrid}>
                 <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <label htmlFor="checkout-full-name">Nombre completo *</label>
+                    <label htmlFor="checkout-full-name">{t('shipping.fields.fullName')} *</label>
                     <input
                         id="checkout-full-name"
                         className={fieldClassName('fullName')}
@@ -53,13 +55,13 @@ export default function ShippingInformationForm({
                     />
                     {errors.fullName && (
                         <span id="checkout-full-name-error" className={styles.fieldError}>
-                            {errors.fullName}
+                            {t(`validation.${errors.fullName}`)}
                         </span>
                     )}
                 </div>
 
                 <div className={styles.formField}>
-                    <label htmlFor="checkout-email">Correo electrónico *</label>
+                    <label htmlFor="checkout-email">{t('shipping.fields.email')} *</label>
                     <input
                         id="checkout-email"
                         className={fieldClassName('email')}
@@ -72,13 +74,13 @@ export default function ShippingInformationForm({
                     />
                     {errors.email && (
                         <span id="checkout-email-error" className={styles.fieldError}>
-                            {errors.email}
+                            {t(`validation.${errors.email}`)}
                         </span>
                     )}
                 </div>
 
                 <div className={styles.formField}>
-                    <label htmlFor="checkout-phone">Teléfono *</label>
+                    <label htmlFor="checkout-phone">{t('shipping.fields.phone')} *</label>
                     <input
                         id="checkout-phone"
                         className={fieldClassName('phone')}
@@ -92,13 +94,13 @@ export default function ShippingInformationForm({
                     />
                     {errors.phone && (
                         <span id="checkout-phone-error" className={styles.fieldError}>
-                            {errors.phone}
+                            {t(`validation.${errors.phone}`)}
                         </span>
                     )}
                 </div>
 
                 <div className={styles.formField}>
-                    <label htmlFor="checkout-province">Provincia *</label>
+                    <label htmlFor="checkout-province">{t('shipping.fields.province')} *</label>
                     <select
                         id="checkout-province"
                         className={fieldClassName('province')}
@@ -107,7 +109,7 @@ export default function ShippingInformationForm({
                         aria-describedby={errors.province ? 'checkout-province-error' : undefined}
                         onChange={(event) => onDetailsChange('province', event.target.value)}
                     >
-                        <option value="">Selecciona una provincia</option>
+                        <option value="">{t('shipping.selectProvince')}</option>
                         {COSTA_RICAN_PROVINCES.map((province) => (
                             <option key={province} value={province}>
                                 {province}
@@ -116,13 +118,13 @@ export default function ShippingInformationForm({
                     </select>
                     {errors.province && (
                         <span id="checkout-province-error" className={styles.fieldError}>
-                            {errors.province}
+                            {t(`validation.${errors.province}`)}
                         </span>
                     )}
                 </div>
 
                 <div className={styles.formField}>
-                    <label htmlFor="checkout-canton">Cantón *</label>
+                    <label htmlFor="checkout-canton">{t('shipping.fields.canton')} *</label>
                     <input
                         id="checkout-canton"
                         className={fieldClassName('canton')}
@@ -135,13 +137,13 @@ export default function ShippingInformationForm({
                     />
                     {errors.canton && (
                         <span id="checkout-canton-error" className={styles.fieldError}>
-                            {errors.canton}
+                            {t(`validation.${errors.canton}`)}
                         </span>
                     )}
                 </div>
 
                 <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <label htmlFor="checkout-address">Dirección exacta *</label>
+                    <label htmlFor="checkout-address">{t('shipping.fields.address')} *</label>
                     <textarea
                         id="checkout-address"
                         className={`${fieldClassName('address')} ${styles.addressInput}`}
@@ -154,13 +156,13 @@ export default function ShippingInformationForm({
                     />
                     {errors.address && (
                         <span id="checkout-address-error" className={styles.fieldError}>
-                            {errors.address}
+                            {t(`validation.${errors.address}`)}
                         </span>
                     )}
                 </div>
 
                 <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <label htmlFor="checkout-notes">Indicaciones adicionales</label>
+                    <label htmlFor="checkout-notes">{t('shipping.fields.deliveryNotes')}</label>
                     <textarea
                         id="checkout-notes"
                         className={`${styles.formControl} ${styles.addressInput}`}
@@ -173,7 +175,7 @@ export default function ShippingInformationForm({
 
             <div className={styles.formActions}>
                 <button className={styles.primaryAction} type="submit">
-                    Revisar pedido
+                    {t('actions.reviewOrder')}
                 </button>
             </div>
         </form>
