@@ -1,6 +1,11 @@
 import type { CartItem } from '../context/CartContext';
 import type { ShippingDetails } from '../components/checkout/checkoutTypes';
-import type { Order, OrderItem, OrderTotals } from './orderTypes';
+import type {
+    Order,
+    OrderItem,
+    OrderTotals,
+    TermsAcceptance
+} from './orderTypes';
 
 const DEFAULT_CURRENCY = 'CRC';
 
@@ -36,13 +41,15 @@ interface CreateOrderInput {
     cart: CartItem[];
     totals: OrderTotals;
     customer: ShippingDetails;
+    termsAcceptance: TermsAcceptance;
 }
 
 // Totals come from the cart so the order matches the summary the customer reviewed.
 export function createOrder({
     cart,
     totals,
-    customer
+    customer,
+    termsAcceptance
 }: CreateOrderInput): Order {
     if (cart.length === 0) {
         throw new Error('No se puede crear una orden con el carrito vacío.');
@@ -57,6 +64,7 @@ export function createOrder({
         updatedAt: timestamp,
         currency: cart[0]?.currency ?? DEFAULT_CURRENCY,
         customer: { ...customer },
+        termsAcceptance: { ...termsAcceptance },
         items: cart.map(toOrderItem),
         subtotal: totals.subtotal,
         iva: totals.iva,

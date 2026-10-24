@@ -72,7 +72,11 @@
     "cardNumberInvalid": "Ingresa un número de tarjeta válido.",
     "expirationRequired": "Selecciona la fecha de vencimiento.",
     "cardExpired": "La tarjeta está vencida.",
-    "securityCodeInvalid": "Ingresa un código de seguridad válido."
+    "securityCodeInvalid": "Ingresa un código de seguridad válido.",
+    "termsRequired": "Debes aceptar los Términos y Condiciones para finalizar la compra."
+  },
+  "terms": {
+    "acceptLabel": "He leído y acepto los <termsLink>Términos y Condiciones</termsLink> de la tienda."
   },
   "review": {
     "title": "Revisión del pedido",

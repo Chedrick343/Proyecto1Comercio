@@ -1,3 +1,4 @@
+import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -7,6 +8,7 @@ import type { ShippingDetails } from './checkoutTypes';
 import type { PaymentResult } from './paymentGateway';
 import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
 import SandboxScenarioSelector from './SandboxScenarioSelector';
+import TermsAcceptanceCheckbox from './TermsAcceptanceCheckbox';
 
 import styles from './CheckoutEntryPage.module.css';
 
@@ -17,10 +19,13 @@ interface CheckoutOrderReviewProps {
     paymentResult: PaymentResult | null;
     isProcessingPayment: boolean;
     sandboxScenario: SandboxScenario;
+    hasAcceptedTerms: boolean;
+    showTermsError: boolean;
     onSandboxScenarioChange: (scenario: SandboxScenario) => void;
+    onTermsAcceptanceChange: (accepted: boolean) => void;
     onEditDetails: () => void;
     onEditPayment: () => void;
-    onSubmitPayment: () => void;
+    onSubmitPayment: (event: FormEvent<HTMLFormElement>) => void;
 }
 
 export default function CheckoutOrderReview({
@@ -30,15 +35,24 @@ export default function CheckoutOrderReview({
     paymentResult,
     isProcessingPayment,
     sandboxScenario,
+    hasAcceptedTerms,
+    showTermsError,
     onSandboxScenarioChange,
+    onTermsAcceptanceChange,
     onEditDetails,
     onEditPayment,
     onSubmitPayment
 }: CheckoutOrderReviewProps) {
     const { t } = useTranslation(['checkout', 'common']);
+    const isCheckoutLocked = isProcessingPayment || paymentResult === 'PAYMENT_APPROVED';
 
     return (
-        <section className={styles.orderPanel} aria-labelledby="review-heading">
+        <form
+            className={styles.orderPanel}
+            aria-labelledby="review-heading"
+            noValidate
+            onSubmit={onSubmitPayment}
+        >
             <div className={styles.panelHeader}>
                 <h2 id="review-heading">{t('checkout:review.title')}</h2>
                 <button
@@ -125,21 +139,27 @@ export default function CheckoutOrderReview({
 
             <SandboxScenarioSelector
                 selectedScenario={sandboxScenario}
-                disabled={isProcessingPayment || paymentResult === 'PAYMENT_APPROVED'}
+                disabled={isCheckoutLocked}
                 onScenarioChange={onSandboxScenarioChange}
+            />
+
+            <TermsAcceptanceCheckbox
+                checked={hasAcceptedTerms}
+                showError={showTermsError}
+                disabled={isCheckoutLocked}
+                onChange={onTermsAcceptanceChange}
             />
 
             <div className={styles.reviewActions}>
                 <button
                     className={styles.primaryAction}
-                    type="button"
-                    disabled={isProcessingPayment || paymentResult === 'PAYMENT_APPROVED'}
-                    onClick={onSubmitPayment}
+                    type="submit"
+                    disabled={isCheckoutLocked}
                 >
                     {t(`checkout:payButton.${getPayButtonState(isProcessingPayment, paymentResult)}`)}
                 </button>
             </div>
-        </section>
+        </form>
     );
 }
 

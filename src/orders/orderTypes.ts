@@ -23,12 +23,19 @@ export interface OrderTotals {
     total: number;
 }
 
+export interface TermsAcceptance {
+    acceptedAt: string;
+    termsVersion: string;
+}
+
 export interface Order extends OrderTotals {
     orderNumber: string;
     createdAt: string;
     updatedAt: string;
     currency: string;
     customer: ShippingDetails;
+    // Optional only because orders saved before this field existed may lack it.
+    termsAcceptance?: TermsAcceptance;
     items: OrderItem[];
     orderStatus: OrderStatus;
     paymentStatus: PaymentStatus;

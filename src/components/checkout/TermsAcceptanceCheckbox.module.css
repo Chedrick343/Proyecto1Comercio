@@ -1,0 +1,63 @@
+.termsAcceptance {
+    display: grid;
+    gap: 8px;
+    margin: 20px 0 0;
+}
+
+.option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    color: #e8e3db;
+    background-color: #202124;
+    border: 1px solid #555558;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.option input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin: 1px 0 0;
+    accent-color: #c9a246;
+    cursor: pointer;
+}
+
+.option:focus-within {
+    outline: 2px solid rgba(201, 162, 70, 0.35);
+    outline-offset: 1px;
+}
+
+.optionInvalid {
+    border-color: #c65c54;
+}
+
+.option:has(input:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.termsLink {
+    padding: 0;
+    color: #d8bd76;
+    background: none;
+    border: 0;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.termsLink:hover,
+.termsLink:focus-visible {
+    color: #f0d68f;
+}
+
+.fieldError {
+    color: #f3aaa5;
+    font-size: 0.8rem;
+}

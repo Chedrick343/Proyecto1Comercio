@@ -19,6 +19,8 @@ import CheckoutOrderReview from './CheckoutOrderReview';
 import PaymentMethodSelection from './PaymentMethodSelection';
 import { useOrderPayment } from './useOrderPayment';
 import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
+import type { TermsAcceptance } from '../../orders/orderTypes';
+import { createTermsAcceptance } from '../../orders/termsAcceptance';
 import {
     DEFAULT_SAVED_CARD,
     INITIAL_NEW_PAYMENT_CARD,
@@ -55,6 +57,8 @@ export default function CheckoutEntryPage() {
     const [paymentCardErrors, setPaymentCardErrors] = useState<PaymentCardErrors>({});
     const [sandboxScenario, setSandboxScenario] =
         useState<SandboxScenario>('APPROVE');
+    const [termsAcceptance, setTermsAcceptance] = useState<TermsAcceptance | null>(null);
+    const [showTermsError, setShowTermsError] = useState(false);
 
     const {
         cart,
@@ -169,7 +173,23 @@ export default function CheckoutEntryPage() {
         });
     };
 
-    const handlePayment = () => payOrder(shippingDetails, sandboxScenario);
+    const handleTermsAcceptanceChange = (accepted: boolean) => {
+        setTermsAcceptance(accepted ? createTermsAcceptance() : null);
+        setShowTermsError(false);
+    };
+
+    const handlePaymentSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+
+        if (!termsAcceptance) {
+            flushSync(() => setShowTermsError(true));
+            focusFirstInvalidField(form);
+            return;
+        }
+
+        payOrder(shippingDetails, termsAcceptance, sandboxScenario);
+    };
 
     const checkoutSteps: {
         number: number;
@@ -281,10 +301,13 @@ export default function CheckoutEntryPage() {
                                 paymentResult={paymentResult}
                                 isProcessingPayment={isProcessingPayment}
                                 sandboxScenario={sandboxScenario}
+                                hasAcceptedTerms={termsAcceptance !== null}
+                                showTermsError={showTermsError}
                                 onSandboxScenarioChange={setSandboxScenario}
+                                onTermsAcceptanceChange={handleTermsAcceptanceChange}
                                 onEditDetails={() => setCurrentStep(1)}
                                 onEditPayment={() => setCurrentStep(2)}
-                                onSubmitPayment={handlePayment}
+                                onSubmitPayment={handlePaymentSubmit}
                             />
                         )}
                     </div>
