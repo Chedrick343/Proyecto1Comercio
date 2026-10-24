@@ -16,7 +16,7 @@
 .links {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.75rem 2rem;
   max-width: 1000px;
   margin: 0 auto;
@@ -24,17 +24,21 @@
   border-bottom: 1px solid var(--footer-border);
 }
 
-.links a {
+/* Los enlaces ahora son botones (abren un card), pero se ven igual */
+.links button {
   position: relative;
+  background: none;
+  border: none;
+  font: inherit;
   color: var(--footer-text);
-  text-decoration: none;
   letter-spacing: 0.03em;
   padding: 0.25rem 0;
+  cursor: pointer;
   transition: color 0.25s ease;
 }
 
 /* Subrayado animado al pasar el mouse */
-.links a::after {
+.links button::after {
   content: "";
   position: absolute;
   left: 0;
@@ -47,17 +51,17 @@
   transition: transform 0.25s ease;
 }
 
-.links a:hover,
-.links a:focus-visible {
+.links button:hover,
+.links button:focus-visible {
   color: var(--footer-accent);
 }
 
-.links a:hover::after,
-.links a:focus-visible::after {
+.links button:hover::after,
+.links button:focus-visible::after {
   transform: scaleX(1);
 }
 
-.links a:focus-visible {
+.links button:focus-visible {
   outline: 2px solid var(--footer-accent);
   outline-offset: 4px;
   border-radius: 2px;
