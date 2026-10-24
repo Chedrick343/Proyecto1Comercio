@@ -17,7 +17,7 @@
       },
       "customerResponsibilities": {
         "title": "Responsabilidades del cliente",
-        "body": "  Es responsabilidad del cliente revisar y aceptar los términos y condiciones antes de realizar una compra. Además, los clientes deben asegurarse de que la información proporcionada sea correcta y actualizada, y notificar cualquier cambio en sus datos de contacto o de pago."
+        "body": "Es responsabilidad del cliente revisar y aceptar los términos y condiciones antes de realizar una compra. Además, los clientes deben asegurarse de que la información proporcionada sea correcta y actualizada, y notificar cualquier cambio en sus datos de contacto o de pago."
       },
       "storeResponsibilities": {
         "title": "Responsabilidades de la tienda",
@@ -30,7 +30,7 @@
     "sections": {
       "requestPeriod": {
         "title": "Plazo para solicitar devoluciones",
-        "body": "Para solicitar una devolución, los clientes tienen un plazo de 30 días naturales a partir de la fecha de recepción del producto. "
+        "body": "Para solicitar una devolución, los clientes tienen un plazo de 30 días naturales a partir de la fecha de recepción del producto."
       },
       "approvalConditions": {
         "title": "Condiciones para aprobar una devolución",
