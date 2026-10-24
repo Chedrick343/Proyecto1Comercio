@@ -1,0 +1,117 @@
+{
+  "modal": {
+    "eyebrow": "Políticas de {{brand}}",
+    "close": "Cerrar",
+    "understood": "Entendido"
+  },
+  "terms": {
+    "title": "Términos y Condiciones",
+    "sections": {
+      "siteUse": {
+        "title": "Condiciones de uso del sitio",
+        "body": "Para utilizar nuestro sitio web, los usuarios deben aceptar y cumplir con estos términos y condiciones. Al acceder a nuestro sitio, aceptas estar sujeto a estas condiciones, así como a nuestra política de privacidad y cualquier otra política aplicable."
+      },
+      "purchaseConditions": {
+        "title": "Condiciones generales de compra",
+        "body": "Para realizar una compra en nuestro sitio web, los clientes deben proporcionar información precisa y completa, incluyendo datos de contacto y de pago. Nos reservamos el derecho de cancelar cualquier pedido que consideremos fraudulento o que no cumpla con nuestras políticas."
+      },
+      "customerResponsibilities": {
+        "title": "Responsabilidades del cliente",
+        "body": "Es responsabilidad del cliente revisar y aceptar los términos y condiciones antes de realizar una compra. Además, los clientes deben asegurarse de que la información proporcionada sea correcta y actualizada, y notificar cualquier cambio en sus datos de contacto o de pago."
+      },
+      "storeResponsibilities": {
+        "title": "Responsabilidades de la tienda",
+        "body": "Es responsabilidad de la tienda garantizar que los productos ofrecidos cumplan con las descripciones y especificaciones proporcionadas en el sitio web. Además, nos comprometemos a procesar los pedidos de manera eficiente y a brindar soporte al cliente en caso de problemas o consultas relacionadas con las compras."
+      }
+    }
+  },
+  "returns": {
+    "title": "Política de Devoluciones",
+    "sections": {
+      "requestPeriod": {
+        "title": "Plazo para solicitar devoluciones",
+        "body": "Para solicitar una devolución, los clientes tienen un plazo de 30 días naturales a partir de la fecha de recepción del producto."
+      },
+      "approvalConditions": {
+        "title": "Condiciones para aprobar una devolución",
+        "body": "Para aceptar una devolución, el producto debe estar en su estado original, sin signos de uso y con todos los accesorios y empaques incluidos. Además, se requiere presentar el comprobante de compra o factura correspondiente."
+      },
+      "exclusions": {
+        "title": "Casos en los que no se aceptan devoluciones",
+        "body": "No se aceptarán devoluciones en los siguientes casos: productos personalizados, productos en oferta o liquidación, productos que hayan sido dañados por el cliente, y productos que no cumplan con las condiciones mencionadas anteriormente."
+      },
+      "procedure": {
+        "title": "Procedimiento para gestionar solicitudes",
+        "body": "Para gestionar una solicitud de devolución, los clientes deben ponerse en contacto con nuestro equipo de atención al cliente a través del correo electrónico support@post.com."
+      }
+    }
+  },
+  "shipping": {
+    "title": "Política de Envíos",
+    "sections": {
+      "coverage": {
+        "title": "Cobertura de entrega",
+        "body": "Hacemos envíos a todo el país, asegurando que tus productos lleguen a la puerta de tu hogar sin importar tu ubicación. Nuestro equipo de logística trabaja para garantizar entregas rápidas y seguras."
+      },
+      "deliveryTimes": {
+        "title": "Tiempos estimados de envío",
+        "body": "Los tiempos de envío varían según la ubicación del destinatario y la disponibilidad del producto. En promedio, los pedidos se procesan y envían dentro de 2 a 3 días hábiles, y la entrega puede tardar entre 5 a 7 días hábiles."
+      },
+      "costs": {
+        "title": "Costos de envío",
+        "body": "El costo de envío será calculado automáticamente durante el proceso de compra, actualmente cobramos el 5% del total de la compra como tarifa de envío."
+      },
+      "restrictions": {
+        "title": "Restricciones y condiciones especiales",
+        "body": "No realizamos envíos a zonas de difícil acceso o a direcciones que no sean residenciales. Además, algunos productos pueden tener restricciones de envío debido a su tamaño, peso o naturaleza. Por favor, revisa las condiciones específicas de cada producto antes de realizar tu compra."
+      }
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidad",
+    "sections": {
+      "collectedData": {
+        "title": "Información que recopilamos",
+        "body": "Recopilamos información personal que nos proporcionas al registrarte, realizar compras o interactuar con nuestro sitio web. Esto puede incluir tu nombre, dirección de correo electrónico, dirección de envío y detalles de pago."
+      },
+      "dataUsage": {
+        "title": "Uso de la información del cliente",
+        "body": "La información recopilada se utiliza para procesar pedidos, mejorar la experiencia del usuario, enviar actualizaciones sobre productos y promociones, y cumplir con nuestras obligaciones legales. No compartimos tu información personal con terceros sin tu consentimiento, excepto cuando sea necesario para procesar pagos o cumplir con la ley."
+      },
+      "dataProtection": {
+        "title": "Medidas de protección de datos",
+        "body": "Para proteger tu información personal, implementamos medidas de seguridad técnicas y organizativas, como el cifrado de datos y el acceso restringido a la información. Sin embargo, no podemos garantizar la seguridad absoluta de los datos transmitidos a través de Internet."
+      }
+    }
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "sections": {
+      "purchases": {
+        "tag": "Compras",
+        "title": "¿Cómo realizo una compra?",
+        "body": "Para realizar una compra, primero debes seleccionar el producto que deseas adquirir y agregarlo a tu carrito de compras. Luego, dirígete al carrito y sigue los pasos para completar la compra, proporcionando la información de envío y pago necesaria."
+      },
+      "payments": {
+        "tag": "Pagos",
+        "title": "¿Qué métodos de pago aceptan?",
+        "body": "Actualmente aceptamos tarjetas de crédito y débito. Estamos trabajando para agregar más opciones de pago en el futuro."
+      },
+      "shipping": {
+        "tag": "Envíos",
+        "title": "¿Cuánto tarda en llegar mi pedido?",
+        "body": "En promedio, tu pedido llegará en 5 a 7 días hábiles después de ser procesado."
+      },
+      "returns": {
+        "tag": "Devoluciones",
+        "title": "¿Puedo devolver un producto?",
+        "body": "Sí, puedes devolver un producto dentro de los 30 días posteriores a la compra, siempre que esté en las mismas condiciones en que fue entregado."
+      },
+      "customerSupport": {
+        "tag": "Atención al cliente",
+        "title": "¿Cómo me comunico con la tienda?",
+        "body": "Puedes contactarnos a través de nuestro correo electrónico support@post.cr o llamando al número de atención al cliente +506 1234-5678. Nuestro horario de atención es de lunes a viernes, de 9:00 a.m. a 6:00 p.m."
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IVA_RATE, SHIPPING_RATE } from '../../context/CartContext';
 import type { Order } from '../../orders/orderTypes';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { formatDateTime } from '../../utils/formatDate';
 import { formatRate } from '../../utils/formatRate';
 import { OrderStatusBadge, PaymentStatusBadge } from './OrderStatusBadge';
 
@@ -30,6 +31,16 @@ export default function OrderDetails({ order }: { order: Order }) {
                         <div>
                             <dt>{t('orders:details.transaction')}</dt>
                             <dd>{order.transactionId}</dd>
+                        </div>
+                    )}
+                    {order.termsAcceptance && (
+                        <div>
+                            <dt>{t('orders:details.terms')}</dt>
+                            <dd>
+                                {t('orders:details.termsAcceptedAt', {
+                                    date: formatDateTime(order.termsAcceptance.acceptedAt)
+                                })}
+                            </dd>
                         </div>
                     )}
                 </dl>

@@ -23,6 +23,8 @@ import AccountPage from './components/user/AccountPage';
 import ErrorState from './components/error/ErrorState';
 import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
+import Footer from './components/footer/footer';
+
 
 import {
     type ProductFilters,
@@ -84,7 +86,8 @@ function ProductCatalog() {
         allProducts.length > 0;
 
     return (
-        <main className="app">
+        <>
+        <main className="app app-with-footer">
             <Configure hitsPerPage={CATALOG_HITS_PER_PAGE} query={query} />
 
             <div className="top-bar">
@@ -140,8 +143,10 @@ function ProductCatalog() {
             </div>
 
             <NavBar />
-
         </main>
+
+        <Footer />
+        </>
     );
 }
 

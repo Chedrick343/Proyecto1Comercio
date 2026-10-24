@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useOrders } from '../../context/OrdersContext';
 import { createOrder } from '../../orders/createOrder';
-import type { Order } from '../../orders/orderTypes';
+import type { Order, TermsAcceptance } from '../../orders/orderTypes';
 import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
 import type { ShippingDetails } from './checkoutTypes';
 import {
@@ -24,7 +24,10 @@ export function useOrderPayment() {
     // Blocks double clicks that happen before the disabled button re-renders.
     const isSubmittingRef = useRef(false);
 
-    const getOrCreateOrder = (customer: ShippingDetails): Order => {
+    const getOrCreateOrder = (
+        customer: ShippingDetails,
+        termsAcceptance: TermsAcceptance
+    ): Order => {
         if (activeOrder) {
             return activeOrder;
         }
@@ -32,7 +35,8 @@ export function useOrderPayment() {
         const newOrder = createOrder({
             cart,
             totals: { subtotal, iva, shipping, total },
-            customer
+            customer,
+            termsAcceptance
         });
 
         addOrder(newOrder);
@@ -43,6 +47,7 @@ export function useOrderPayment() {
 
     const payOrder = async (
         customer: ShippingDetails,
+        termsAcceptance: TermsAcceptance,
         scenario: SandboxScenario
     ) => {
         if (isSubmittingRef.current || confirmedOrderNumber) {
@@ -54,7 +59,7 @@ export function useOrderPayment() {
         setPaymentResult(null);
 
         try {
-            const order = getOrCreateOrder(customer);
+            const order = getOrCreateOrder(customer, termsAcceptance);
 
             const paymentOutcome = await submitPayment(
                 {

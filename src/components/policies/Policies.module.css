@@ -1,0 +1,216 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+.card {
+  --card-bg: #292929;
+  --card-surface: #202124;
+  --card-text: #f7f2e9;
+  --card-muted: #b9b9b9;
+  --card-accent: #c9a246;
+  --card-border: #474747;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 720px;
+  max-height: min(85vh, 820px);
+  color: var(--card-text);
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-top: 3px solid var(--card-accent);
+  border-radius: var(--radius-md);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: popIn 0.25s ease;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.eyebrow {
+  margin-bottom: var(--space-1);
+  color: var(--card-accent);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--card-text);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.close {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--card-muted);
+  background: transparent;
+  border: 1px solid var(--card-border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.close:hover,
+.close:focus-visible {
+  color: var(--card-accent);
+  border-color: var(--card-accent);
+  outline: none;
+}
+
+.content {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.section {
+  padding: var(--space-4) var(--space-5);
+  background-color: var(--card-surface);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+}
+
+.subtitle {
+  margin: 0 0 var(--space-2);
+  padding-left: var(--space-3);
+  color: var(--card-text);
+  border-left: 3px solid var(--card-accent);
+  font-family: var(--sans);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.text {
+  margin: 0;
+  color: var(--card-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.tag {
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  padding: 2px 10px;
+  color: var(--card-accent);
+  border: 1px solid rgba(201, 162, 70, 0.45);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--card-border);
+}
+
+.primaryAction {
+  min-width: 140px;
+  padding: 11px 22px;
+  color: #1f1f1f;
+  background-color: var(--card-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.primaryAction:hover {
+  background-color: #d8bd76;
+}
+
+.primaryAction:focus-visible {
+  outline: 2px solid var(--card-accent);
+  outline-offset: 3px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* On phones the modal becomes a bottom sheet */
+@media (max-width: 600px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .card {
+    max-height: 90svh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    animation: slideUp 0.25s ease;
+  }
+
+  .header {
+    padding: var(--space-4) var(--space-4) var(--space-3);
+  }
+
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .content {
+    padding: var(--space-4);
+  }
+
+  .section {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .actions {
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  }
+
+  .primaryAction {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card {
+    animation: none;
+  }
+}
