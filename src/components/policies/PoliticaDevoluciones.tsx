@@ -7,36 +7,28 @@ export default function PoliticaDevoluciones({ isOpen, onClose }: PolicyProps) {
       <section className={styles.section}>
         <h2 className={styles.subtitle}>Plazo para solicitar devoluciones</h2>
         <p className={styles.text}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Para solicitar una devolución, los clientes tienen un plazo de 30 días naturales a partir de la fecha de recepción del producto. 
         </p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.subtitle}>Condiciones para aprobar una devolución</h2>
         <p className={styles.text}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Para aceptar una devolución, el producto debe estar en su estado original, sin signos de uso y con todos los accesorios y empaques incluidos. Además, se requiere presentar el comprobante de compra o factura correspondiente.
         </p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.subtitle}>Casos en los que no se aceptan devoluciones</h2>
         <p className={styles.text}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          No se aceptarán devoluciones en los siguientes casos: productos personalizados, productos en oferta o liquidación, productos que hayan sido dañados por el cliente, y productos que no cumplan con las condiciones mencionadas anteriormente.
         </p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.subtitle}>Procedimiento para gestionar solicitudes</h2>
         <p className={styles.text}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Para gestionar una solicitud de devolución, los clientes deben ponerse en contacto con nuestro equipo de atención al cliente a través del correo electrónico <b>support@post.com</b>.
         </p>
       </section>
     </PolicyModal>
