@@ -1,130 +1,160 @@
-/* ===== Fondo oscuro detrás del card ===== */
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  background-color: rgba(10, 10, 10, 0.6);
-  backdrop-filter: blur(3px);
+  padding: var(--space-4);
+  background-color: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(4px);
   animation: fadeIn 0.2s ease;
 }
 
-/* ===== Card flotante ===== */
 .card {
-  --card-bg: #fffdf8;
-  --card-text: #2b2b2b;
-  --card-muted: #5c5c5c;
-  --card-accent: #c9a96e;
-  --card-border: rgba(201, 169, 110, 0.35);
+  --card-bg: #292929;
+  --card-surface: #202124;
+  --card-text: #f7f2e9;
+  --card-muted: #b9b9b9;
+  --card-accent: #c9a246;
+  --card-border: #474747;
 
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 720px;
-  max-height: 85vh;
-  background-color: var(--card-bg);
+  max-height: min(85vh, 820px);
   color: var(--card-text);
+  background-color: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  border-top: 3px solid var(--card-accent);
+  border-radius: var(--radius-md);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   animation: popIn 0.25s ease;
 }
 
-/* ===== Encabezado (fijo mientras el contenido hace scroll) ===== */
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1.5rem 1.75rem 1rem;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6) var(--space-4);
   border-bottom: 1px solid var(--card-border);
 }
 
-/* h1 – título de cada sección */
+.eyebrow {
+  margin-bottom: var(--space-1);
+  color: var(--card-accent);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .title {
   margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
   color: var(--card-text);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.6rem;
+  font-weight: 500;
 }
 
 .close {
   flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
   display: grid;
   place-items: center;
-  font-size: 1.5rem;
-  line-height: 1;
+  width: 2.25rem;
+  height: 2.25rem;
   color: var(--card-muted);
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid var(--card-border);
   border-radius: 50%;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .close:hover,
 .close:focus-visible {
   color: var(--card-accent);
   border-color: var(--card-accent);
-  background-color: rgba(201, 169, 110, 0.08);
   outline: none;
 }
 
-/* ===== Contenido con scroll ===== */
 .content {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
   overflow-y: auto;
-  padding: 0.5rem 1.75rem 1.75rem;
+  overscroll-behavior: contain;
 }
 
 .section {
-  padding: 1.25rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: var(--space-4) var(--space-5);
+  background-color: var(--card-surface);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
 }
 
-.section:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-/* h2 – subtítulos */
 .subtitle {
-  margin: 0 0 0.5rem;
-  font-size: 1.15rem;
-  font-weight: 600;
+  margin: 0 0 var(--space-2);
+  padding-left: var(--space-3);
   color: var(--card-text);
-  padding-left: 0.75rem;
   border-left: 3px solid var(--card-accent);
+  font-family: var(--sans);
+  font-size: var(--font-size-md);
+  font-weight: 600;
 }
 
 .text {
   margin: 0;
+  color: var(--card-muted);
   font-size: 0.95rem;
   line-height: 1.7;
-  color: var(--card-muted);
 }
 
-/* Etiqueta de categoría (usada en Preguntas Frecuentes) */
 .tag {
   display: inline-block;
-  margin-bottom: 0.5rem;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  margin-bottom: var(--space-2);
+  padding: 2px 10px;
   color: var(--card-accent);
-  border: 1px solid var(--card-border);
-  border-radius: 999px;
+  border: 1px solid rgba(201, 162, 70, 0.45);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-/* ===== Animaciones ===== */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--card-border);
+}
+
+.primaryAction {
+  min-width: 140px;
+  padding: 11px 22px;
+  color: #1f1f1f;
+  background-color: var(--card-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.primaryAction:hover {
+  background-color: #d8bd76;
+}
+
+.primaryAction:focus-visible {
+  outline: 2px solid var(--card-accent);
+  outline-offset: 3px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -135,29 +165,52 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ===== Móvil ===== */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* On phones the modal becomes a bottom sheet */
 @media (max-width: 600px) {
   .overlay {
-    padding: 0.5rem;
+    align-items: flex-end;
+    padding: 0;
   }
 
   .card {
-    max-height: 92vh;
+    max-height: 90svh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    animation: slideUp 0.25s ease;
   }
 
   .header {
-    padding: 1.25rem 1.25rem 0.75rem;
+    padding: var(--space-4) var(--space-4) var(--space-3);
   }
 
   .title {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
   }
 
   .content {
-    padding: 0.25rem 1.25rem 1.25rem;
+    padding: var(--space-4);
   }
 
-  .subtitle {
-    font-size: 1.05rem;
+  .section {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .actions {
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  }
+
+  .primaryAction {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card {
+    animation: none;
   }
 }

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-import TerminosCondiciones from '../policies/TerminosCondiciones';
+import PolicyDocument from '../policies/PolicyDocument';
 
 import styles from './TermsAcceptanceCheckbox.module.css';
 
@@ -62,7 +62,7 @@ export default function TermsAcceptanceCheckbox({
                 </span>
             )}
 
-            <TerminosCondiciones isOpen={isTermsOpen} onClose={closeTerms} />
+            <PolicyDocument policy="terms" isOpen={isTermsOpen} onClose={closeTerms} />
         </div>
     );
 }

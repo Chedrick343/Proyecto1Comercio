@@ -5,12 +5,13 @@ import checkout from './locales/es/checkout.json';
 import common from './locales/es/common.json';
 import errors from './locales/es/errors.json';
 import orders from './locales/es/orders.json';
+import policies from './locales/es/policies.json';
 import product from './locales/es/product.json';
 
 export const DEFAULT_LANGUAGE = 'es';
 
 export const resources = {
-    es: { account, cart, catalog, checkout, common, errors, orders, product }
+    es: { account, cart, catalog, checkout, common, errors, orders, policies, product }
 } as const;
 
 export const NAMESPACES = Object.keys(resources[DEFAULT_LANGUAGE]) as Array<

@@ -86,7 +86,8 @@ function ProductCatalog() {
         allProducts.length > 0;
 
     return (
-        <main className="app">
+        <>
+        <main className="app app-with-footer">
             <Configure hitsPerPage={CATALOG_HITS_PER_PAGE} query={query} />
 
             <div className="top-bar">
@@ -142,9 +143,10 @@ function ProductCatalog() {
             </div>
 
             <NavBar />
-            <Footer />
-
         </main>
+
+        <Footer />
+        </>
     );
 }
 

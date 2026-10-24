@@ -29,6 +29,11 @@
     "shipping": "Envío ({{rate}})",
     "total": "Total"
   },
+  "footer": {
+    "tagline": "Compra con confianza: envíos a todo Costa Rica, pagos seguros y políticas claras.",
+    "policiesTitle": "Información de compra",
+    "copyright": "© {{year}} {{brand}}. Todos los derechos reservados."
+  },
   "delivery": {
     "recipient": "Recibe",
     "contact": "Contacto",
