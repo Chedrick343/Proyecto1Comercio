@@ -32,7 +32,7 @@ export default function Footer() {
           ))}
         </nav>
         <p className={styles.copyright}>
-          &copy; {year} My App. Todos los derechos reservados.
+          &copy; {year} POST. Todos los derechos reservados.
         </p>
       </footer>
 

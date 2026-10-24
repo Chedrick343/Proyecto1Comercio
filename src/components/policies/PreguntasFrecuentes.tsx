@@ -40,7 +40,7 @@ export default function PreguntasFrecuentes({ isOpen, onClose }: PolicyProps) {
         <span className={styles.tag}>Atención al cliente</span>
         <h2 className={styles.subtitle}>¿Cómo me comunico con la tienda?</h2>
         <p className={styles.text}>
-          Puedes contactarnos a través de nuestro correo electrónico <b>example@post.cr</b> o llamando al número de atención al cliente <b>+506 1234-5678</b>. Nuestro horario de atención es de lunes a viernes, de 9:00 a.m. a 6:00 p.m.
+          Puedes contactarnos a través de nuestro correo electrónico <b>support@post.cr</b> o llamando al número de atención al cliente <b>+506 1234-5678</b>. Nuestro horario de atención es de lunes a viernes, de 9:00 a.m. a 6:00 p.m.
         </p>
       </section>
     </PolicyModal>
