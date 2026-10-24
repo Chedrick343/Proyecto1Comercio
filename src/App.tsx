@@ -23,6 +23,8 @@ import AccountPage from './components/user/AccountPage';
 import ErrorState from './components/error/ErrorState';
 import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
+import Footer from './components/footer/footer';
+
 
 import {
     type ProductFilters,
@@ -140,6 +142,7 @@ function ProductCatalog() {
             </div>
 
             <NavBar />
+            <Footer />
 
         </main>
     );
