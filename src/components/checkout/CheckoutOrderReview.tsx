@@ -137,17 +137,17 @@ export default function CheckoutOrderReview({
                 ))}
             </ul>
 
-            <SandboxScenarioSelector
-                selectedScenario={sandboxScenario}
-                disabled={isCheckoutLocked}
-                onScenarioChange={onSandboxScenarioChange}
-            />
-
             <TermsAcceptanceCheckbox
                 checked={hasAcceptedTerms}
                 showError={showTermsError}
                 disabled={isCheckoutLocked}
                 onChange={onTermsAcceptanceChange}
+            />
+
+            <SandboxScenarioSelector
+                selectedScenario={sandboxScenario}
+                disabled={isCheckoutLocked}
+                onScenarioChange={onSandboxScenarioChange}
             />
 
             <div className={styles.reviewActions}>
