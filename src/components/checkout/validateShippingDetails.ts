@@ -1,8 +1,19 @@
+/**
+ * @fileoverview Validación del formulario de envío del checkout.
+ */
+
 import type {
     ShippingDetails,
     ShippingFieldErrors
 } from './checkoutTypes';
 
+/**
+ * Valida los datos de envío. Todos los campos son obligatorios excepto las
+ * indicaciones; el teléfono debe tener entre 8 y 15 dígitos.
+ *
+ * @param details Datos de envío a validar.
+ * @return Los errores por campo; un objeto vacío si todo es válido.
+ */
 export function validateShippingDetails(
     details: ShippingDetails
 ): ShippingFieldErrors {

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página del checkout: envío, método de pago y revisión de la orden.
+ */
+
 import { useEffect, useState, type FormEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { Link, Navigate } from 'react-router-dom';
@@ -41,8 +45,21 @@ import { focusFirstInvalidField } from './focusFirstInvalidField';
 
 import styles from './CheckoutEntryPage.module.css';
 
+/**
+ * Indica si un objeto de errores de validación contiene algún error.
+ *
+ * @param errors Errores por campo.
+ * @return Verdadero si hay al menos un error.
+ */
 const hasErrors = (errors: object) => Object.keys(errors).length > 0;
 
+/**
+ * Guía la compra en tres pasos: datos de envío, método de pago y revisión
+ * con pago. Redirige al carrito si está vacío y a la confirmación cuando
+ * el pago se aprueba.
+ *
+ * @return La página del checkout o una redirección.
+ */
 export default function CheckoutEntryPage() {
     const [currentStep, setCurrentStep] = useState(1);
     const [shippingDetails, setShippingDetails] = useState<ShippingDetails>(
@@ -98,6 +115,12 @@ export default function CheckoutEntryPage() {
         );
     }
 
+    /**
+     * Actualiza un campo de envío y quita su error de validación.
+     *
+     * @param field Campo modificado.
+     * @param value Nuevo valor.
+     */
     const handleDetailsChange = (
         field: keyof ShippingDetails,
         value: string
@@ -113,6 +136,12 @@ export default function CheckoutEntryPage() {
         });
     };
 
+    /**
+     * Valida los datos de envío y, si son correctos, avanza al paso de pago.
+     * Descarta la orden activa porque sus datos de cliente pudieron cambiar.
+     *
+     * @param event Evento de envío del formulario.
+     */
     const handleShippingSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -130,6 +159,11 @@ export default function CheckoutEntryPage() {
         setCurrentStep(2);
     };
 
+    /**
+     * Valida la tarjeta nueva, si se eligió, y avanza al paso de revisión.
+     *
+     * @param event Evento de envío del formulario.
+     */
     const handlePaymentMethodSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -149,12 +183,23 @@ export default function CheckoutEntryPage() {
         setCurrentStep(3);
     };
 
+    /**
+     * Cambia el método de pago y limpia los errores y el último resultado.
+     *
+     * @param method Método de pago elegido.
+     */
     const handlePaymentMethodChange = (method: PaymentMethod) => {
         setSelectedPaymentMethod(method);
         setPaymentCardErrors({});
         clearPaymentResult();
     };
 
+    /**
+     * Actualiza un campo de la tarjeta nueva y quita su error de validación.
+     *
+     * @param field Campo modificado.
+     * @param value Nuevo valor.
+     */
     const handlePaymentCardChange = (
         field: keyof NewPaymentCard,
         value: string
@@ -173,11 +218,21 @@ export default function CheckoutEntryPage() {
         });
     };
 
+    /**
+     * Registra o retira la aceptación de los términos.
+     *
+     * @param accepted Indica si la casilla quedó marcada.
+     */
     const handleTermsAcceptanceChange = (accepted: boolean) => {
         setTermsAcceptance(accepted ? createTermsAcceptance() : null);
         setShowTermsError(false);
     };
 
+    /**
+     * Paga la orden si se aceptaron los términos; si no, muestra el error.
+     *
+     * @param event Evento de envío del formulario.
+     */
     const handlePaymentSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const form = event.currentTarget;

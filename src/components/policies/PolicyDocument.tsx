@@ -1,12 +1,25 @@
+/**
+ * @fileoverview Política completa mostrada dentro de un modal.
+ */
+
 import { useTranslation } from 'react-i18next';
 import PolicyModal, { type PolicyProps } from './PolicyModal';
 import PolicySection from './PolicySection';
 import type { PolicyKey } from './policyKeys';
 
+/** Propiedades de PolicyDocument. */
 interface PolicyDocumentProps extends PolicyProps {
+  /** Política a mostrar. */
   policy: PolicyKey;
 }
 
+/**
+ * Muestra en un modal todas las secciones de una política, tomadas de las
+ * traducciones.
+ *
+ * @param props Propiedades del componente.
+ * @return El modal con la política.
+ */
 export default function PolicyDocument({ policy, isOpen, onClose }: PolicyDocumentProps) {
   const { t } = useTranslation('policies');
   const sections = t(`${policy}.sections`, { returnObjects: true });

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Punto de entrada de la aplicación: monta React con el enrutador y los
+ * proveedores globales (carrito, órdenes y vista previa del carrito).
+ */
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

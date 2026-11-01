@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Barra de búsqueda del catálogo.
+ */
+
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { FaSearch, FaTimes } from 'react-icons/fa';
@@ -11,16 +15,29 @@ import {
 import { useViewTransitionNavigate } from '../navigation/useViewTransitionNavigate';
 import styles from './SearchBar.module.css';
 
+/** Espera tras la última tecla antes de buscar en modo "live". */
 const SEARCH_DEBOUNCE_MS = 250;
 
-// "live" updates the catalog while typing; "submit" only searches on Enter or the button
-// and takes the user to the catalog (used outside the catalog, e.g. the product page).
+/**
+ * Comportamiento de la búsqueda. "live" actualiza el catálogo mientras se
+ * escribe; "submit" solo busca con Enter o el botón y lleva al catálogo
+ * (se usa fuera del catálogo, por ejemplo en la página de producto).
+ */
 export type SearchBarMode = 'live' | 'submit';
 
+/** Propiedades de SearchBar. */
 interface SearchBarProps {
+    /** Comportamiento de la búsqueda; por defecto, "live". */
     mode?: SearchBarMode;
 }
 
+/**
+ * Muestra la barra de búsqueda. El texto buscado se guarda en la URL y se
+ * enfoca automáticamente cuando la navegación lo solicita.
+ *
+ * @param props Propiedades del componente.
+ * @return El formulario de búsqueda.
+ */
 export default function SearchBar({ mode = 'live' }: SearchBarProps) {
     const { t } = useTranslation('catalog');
     const [searchParams, setSearchParams] = useSearchParams();
@@ -46,6 +63,11 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
         }
     }, [shouldFocusSearch, location.key]);
 
+    /**
+     * Reemplaza la búsqueda en la URL sin agregar una entrada al historial.
+     *
+     * @param nextQuery Texto a buscar.
+     */
     const updateCatalogQuery = (nextQuery: string) => {
         setSearchParams(
             (currentParams) => withCatalogQuery(currentParams, nextQuery),
@@ -69,6 +91,12 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
         return () => window.clearTimeout(timeoutId);
     }, [isLiveSearch, inputValue, query, setSearchParams]);
 
+    /**
+     * Ejecuta la búsqueda: en modo "live" actualiza la URL; en modo "submit"
+     * navega al catálogo con la búsqueda.
+     *
+     * @param event Evento de envío del formulario.
+     */
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         // Closes the on-screen keyboard on mobile after searching.
@@ -82,6 +110,7 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
         navigateWithTransition(getCatalogSearchPath(inputValue));
     };
 
+    /** Borra el texto buscado y devuelve el foco al campo. */
     const clearSearch = () => {
         setInputValue('');
         inputRef.current?.focus();

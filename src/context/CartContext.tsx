@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Estado global del carrito de compras y cálculo de sus totales.
+ */
+
 import {
     createContext,
     useContext,
@@ -8,12 +12,17 @@ import {
 
 import type { Product } from '../utils/Products';
 
+/** Clave de localStorage donde se guarda el carrito. */
 const CART_STORAGE_KEY = 'shopping-cart-v2';
 
+/** Tasa de envío aplicada sobre el subtotal. */
 export const SHIPPING_RATE = 0.05;
+/** Tasa del impuesto al valor agregado (IVA) aplicada sobre el subtotal. */
 export const IVA_RATE = 0.13;
 
+/** Producto agregado al carrito. */
 export interface CartItem {
+    /** Identificador del producto (objectID de Algolia). */
     id: string;
     name: string;
     price: number;
@@ -22,8 +31,10 @@ export interface CartItem {
     quantity: number;
 }
 
+/** Contenido del carrito. */
 type CartState = CartItem[];
 
+/** Acciones que modifican el carrito. */
 type CartAction =
     | {
           type: 'ADD_PRODUCT';
@@ -55,6 +66,14 @@ type CartAction =
       };
 
 
+/**
+ * Calcula el nuevo estado del carrito a partir de una acción. Agregar un
+ * producto existente suma la cantidad, y disminuir nunca baja de 1.
+ *
+ * @param state Estado actual del carrito.
+ * @param action Acción a aplicar.
+ * @return El nuevo estado del carrito.
+ */
 function cartReducer(
     state: CartState,
     action: CartAction
@@ -123,6 +142,12 @@ function cartReducer(
     }
 }
 
+/**
+ * Recupera el carrito guardado en localStorage.
+ *
+ * @return Los productos válidos guardados, o un carrito vacío si no hay
+ *     datos o están dañados.
+ */
 function getInitialCart(): CartState {
     try {
         const storedCart = localStorage.getItem(CART_STORAGE_KEY);
@@ -147,6 +172,12 @@ function getInitialCart(): CartState {
         return [];
     }
 }
+/**
+ * Verifica que un valor recuperado tenga la forma de un producto del carrito.
+ *
+ * @param item Valor a verificar.
+ * @return Verdadero si el valor es un producto del carrito válido.
+ */
 const isValidCartItem = (item: unknown): item is CartItem =>
     typeof item === 'object' &&
     item !== null &&
@@ -154,6 +185,7 @@ const isValidCartItem = (item: unknown): item is CartItem =>
     typeof (item as CartItem).name === 'string' &&
     typeof (item as CartItem).price === 'number' &&
     typeof (item as CartItem).quantity === 'number';
+/** Valor que expone el contexto del carrito. */
 interface CartContextType {
     cart: CartState;
 
@@ -170,25 +202,37 @@ interface CartContextType {
 
     clearCart: () => void;
 
+    /** Suma de las cantidades de todos los productos. */
     totalItems: number;
 
+    /** Total de los productos antes de impuestos y envío. */
     subtotal: number;
 
     iva: number;
 
     shipping: number;
 
+    /** Subtotal más IVA y envío. */
     total: number;
 }
 
+/** Contexto del carrito; es undefined fuera de CartProvider. */
 const CartContext = createContext<CartContextType | undefined>(
     undefined
 );
 
+/** Propiedades de CartProvider. */
 interface CartProviderProps {
     children: ReactNode;
 }
 
+/**
+ * Proveedor que mantiene el estado del carrito y lo persiste en localStorage.
+ *
+ * @param props Propiedades del componente.
+ * @param props.children Componentes que tendrán acceso al contexto.
+ * @return El proveedor del contexto envolviendo a sus hijos.
+ */
 export function CartProvider({
     children
 }: CartProviderProps) {
@@ -283,6 +327,12 @@ export function CartProvider({
     );
 }
 
+/**
+ * Da acceso al carrito y a sus operaciones.
+ *
+ * @return El valor del contexto del carrito.
+ * @throws {Error} Si se usa fuera de CartProvider.
+ */
 export function useCart() {
     const context = useContext(CartContext);
 

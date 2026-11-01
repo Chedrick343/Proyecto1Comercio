@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Hook que coordina la creación de la orden y su pago en el checkout.
+ */
+
 import { useRef, useState } from 'react';
 
 import { useCart } from '../../context/CartContext';
@@ -12,6 +16,13 @@ import {
     type PaymentResult
 } from './paymentGateway';
 
+/**
+ * Crea la orden en el primer intento de pago y la reutiliza en los
+ * reintentos. Si el pago se aprueba, confirma la orden y vacía el carrito.
+ *
+ * @return El estado del pago y las acciones para pagar, limpiar el
+ *     resultado o descartar la orden activa.
+ */
 export function useOrderPayment() {
     const { cart, subtotal, iva, shipping, total, clearCart } = useCart();
     const { addOrder, updateOrderPayment } = useOrders();
@@ -21,9 +32,16 @@ export function useOrderPayment() {
     const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-    // Blocks double clicks that happen before the disabled button re-renders.
+    /** Bloquea los dobles clics que ocurren antes de que el botón se deshabilite. */
     const isSubmittingRef = useRef(false);
 
+    /**
+     * Devuelve la orden activa, o la crea y registra si aún no existe.
+     *
+     * @param customer Datos de envío del cliente.
+     * @param termsAcceptance Constancia de aceptación de términos.
+     * @return La orden a pagar.
+     */
     const getOrCreateOrder = (
         customer: ShippingDetails,
         termsAcceptance: TermsAcceptance
@@ -45,6 +63,13 @@ export function useOrderPayment() {
         return newOrder;
     };
 
+    /**
+     * Paga la orden. Se ignora si ya hay un pago en curso o la orden ya fue confirmada.
+     *
+     * @param customer Datos de envío del cliente.
+     * @param termsAcceptance Constancia de aceptación de términos.
+     * @param scenario Escenario que debe reproducir la pasarela simulada.
+     */
     const payOrder = async (
         customer: ShippingDetails,
         termsAcceptance: TermsAcceptance,
@@ -91,8 +116,13 @@ export function useOrderPayment() {
         }
     };
 
+    /** Oculta el resultado del último intento de pago. */
     const clearPaymentResult = () => setPaymentResult(null);
 
+    /**
+     * Olvida la orden activa para que el próximo pago cree una nueva (por
+     * ejemplo, cuando el cliente modifica sus datos tras un intento fallido).
+     */
     const discardActiveOrder = () => {
         setActiveOrder(null);
         setPaymentResult(null);

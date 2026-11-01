@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Encabezado de la tienda con el logotipo y los accesos a cuenta y carrito.
+ */
+
 import type { ReactNode } from 'react';
 import Logo from '../logo/logo';
 import { Link, useLocation } from 'react-router-dom';
@@ -9,6 +13,12 @@ import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPrev
 
 import styles from './Header.module.css';
 
+/**
+ * Botón del carrito. Abre la vista previa del carrito, salvo en las páginas
+ * que ya lo muestran, donde es un enlace a la página del carrito.
+ *
+ * @return El botón o enlace del carrito con la cantidad de productos.
+ */
 function CartButton() {
     const { t } = useTranslation();
     const { totalItems } = useCart();
@@ -56,6 +66,11 @@ function CartButton() {
     );
 }
 
+/**
+ * Enlace a la página de la cuenta.
+ *
+ * @return El enlace a la cuenta.
+ */
 function AccountButton() {
     const { t } = useTranslation();
 
@@ -77,10 +92,18 @@ function AccountButton() {
     );
 }
 
+/** Propiedades de Header. */
 interface HeaderProps {
+    /** Contenido adicional bajo el logotipo, como la barra de búsqueda. */
     children?: ReactNode;
 }
 
+/**
+ * Muestra el encabezado de la tienda.
+ *
+ * @param props Propiedades del componente.
+ * @return El encabezado.
+ */
 export default function Header({ children }: HeaderProps) {
     return (
         <header className={styles.header}>

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Confirmación que aparece al agregar un producto al carrito.
+ */
+
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,17 +11,28 @@ import type { Product } from '../../utils/Products';
 
 import styles from './AddedToCartDialog.module.css';
 
+/** Propiedades de AddedToCartDialog. */
 interface AddedToCartDialogProps {
+    /** Producto que se agregó. */
     product: Product;
+    /** Indica si el diálogo está abierto. */
     isOpen: boolean;
+    /** Se llama cuando el diálogo se cierra. */
     onClose: () => void;
 }
 
+/**
+ * Confirma que el producto se agregó y ofrece seguir comprando o ir al
+ * carrito. El <dialog> nativo atrapa el foco y se cierra con Escape; React
+ * solo refleja su estado de apertura.
+ *
+ * @param props Propiedades del componente.
+ * @return El diálogo de confirmación.
+ */
 export default function AddedToCartDialog({ product, isOpen, onClose }: AddedToCartDialogProps) {
     const { t } = useTranslation(['product', 'common']);
     const dialogRef = useRef<HTMLDialogElement>(null);
 
-    // The native <dialog> traps focus and closes with Escape; React only mirrors its open state.
     useEffect(() => {
         const dialog = dialogRef.current;
 
@@ -28,6 +43,7 @@ export default function AddedToCartDialog({ product, isOpen, onClose }: AddedToC
         }
     }, [isOpen]);
 
+    /** Cierra el diálogo; el evento close notifica a onClose. */
     const closeDialog = () => dialogRef.current?.close();
 
     return (

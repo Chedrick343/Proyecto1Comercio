@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página de confirmación y detalle de una orden.
+ */
+
 import { Link, useParams } from 'react-router-dom';
 import { FaCheckCircle, FaReceipt } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +16,14 @@ import ErrorState from '../error/ErrorState';
 
 import styles from './OrderConfirmationPage.module.css';
 
+/**
+ * Muestra el encabezado de la orden. Si está confirmada, celebra la compra
+ * e indica el correo de confirmación.
+ *
+ * @param props Propiedades del componente.
+ * @param props.order Orden a mostrar.
+ * @return El encabezado con el número y la fecha de la orden.
+ */
 function OrderHeading({ order }: { order: Order }) {
     const { t } = useTranslation('orders');
     const isConfirmed = order.orderStatus === 'CONFIRMED';
@@ -50,6 +62,13 @@ function OrderHeading({ order }: { order: Order }) {
     );
 }
 
+/**
+ * Indica que no existe una orden con el número solicitado.
+ *
+ * @param props Propiedades del componente.
+ * @param props.orderNumber Número de orden buscado.
+ * @return El mensaje de error.
+ */
 function OrderNotFound({ orderNumber }: { orderNumber: string }) {
     const { t } = useTranslation('orders');
 
@@ -62,6 +81,11 @@ function OrderNotFound({ orderNumber }: { orderNumber: string }) {
     );
 }
 
+/**
+ * Muestra la orden indicada en la URL, o un error si no existe.
+ *
+ * @return La página de la orden.
+ */
 export default function OrderConfirmationPage() {
     const { t } = useTranslation(['orders', 'common']);
     const { orderNumber = '' } = useParams();

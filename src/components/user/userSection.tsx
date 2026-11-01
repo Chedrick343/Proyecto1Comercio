@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Perfil y menú de la cuenta del cliente.
+ */
+
 import { Link } from 'react-router-dom';
 import {
     FaCog,
@@ -15,6 +19,7 @@ import { useOrders } from '../../context/OrdersContext';
 
 import styles from './userSection.module.css';
 
+/** Opción del menú de la cuenta; coincide con su clave de traducción. */
 export type AccountMenuItemId =
     | 'orders'
     | 'settings'
@@ -23,13 +28,17 @@ export type AccountMenuItemId =
     | 'help'
     | 'logout';
 
+/** Opción del menú con su ícono y destino. */
 interface AccountMenuItem {
     id: AccountMenuItemId;
     icon: IconType;
+    /** Ruta destino; las opciones sin ruta aún no están disponibles. */
     path?: string;
+    /** Estilo especial de la opción. */
     tone?: 'premium' | 'danger';
 }
 
+/** Opciones del menú, en el orden en que se muestran. */
 const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
     { id: 'orders', icon: GoArchive, path: '/cuenta/pedidos' },
     { id: 'settings', icon: FaCog },
@@ -39,6 +48,13 @@ const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
     { id: 'logout', icon: FaPowerOff, tone: 'danger' }
 ];
 
+/**
+ * Construye las clases de una opción del menú.
+ *
+ * @param item Opción del menú.
+ * @param isActive Indica si es la opción de la página actual.
+ * @return Las clases de la opción.
+ */
 function getMenuItemClassName(item: AccountMenuItem, isActive: boolean) {
     return [
         styles.menuItem,
@@ -49,6 +65,14 @@ function getMenuItemClassName(item: AccountMenuItem, isActive: boolean) {
         .join(' ');
 }
 
+/**
+ * Muestra el ícono y el nombre de una opción, y avisa si aún no está
+ * disponible.
+ *
+ * @param props Propiedades del componente.
+ * @param props.item Opción del menú.
+ * @return El contenido de la opción.
+ */
 function MenuItemContent({ item }: { item: AccountMenuItem }) {
     const { t } = useTranslation('account');
 
@@ -61,10 +85,19 @@ function MenuItemContent({ item }: { item: AccountMenuItem }) {
     );
 }
 
+/** Propiedades de UserSection. */
 interface UserSectionProps {
+    /** Opción del menú que corresponde a la página actual. */
     activeItemId?: AccountMenuItemId;
 }
 
+/**
+ * Muestra el perfil del cliente (nombre de su última orden y cantidad de
+ * pedidos) y el menú de la cuenta.
+ *
+ * @param props Propiedades del componente.
+ * @return El perfil y el menú.
+ */
 export default function UserSection({ activeItemId }: UserSectionProps) {
     const { orders } = useOrders();
     const { t } = useTranslation('account');

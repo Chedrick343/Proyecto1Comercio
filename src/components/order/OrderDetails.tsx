@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Detalle completo de una orden.
+ */
+
 import { useTranslation } from 'react-i18next';
 
 import { IVA_RATE, SHIPPING_RATE } from '../../context/CartContext';
@@ -9,6 +13,14 @@ import { OrderStatusBadge, PaymentStatusBadge } from './OrderStatusBadge';
 
 import styles from './OrderDetails.module.css';
 
+/**
+ * Muestra el estado de la orden y del pago, los datos de entrega, los
+ * productos y los totales.
+ *
+ * @param props Propiedades del componente.
+ * @param props.order Orden a mostrar.
+ * @return El detalle de la orden.
+ */
 export default function OrderDetails({ order }: { order: Order }) {
     const { t } = useTranslation(['orders', 'common']);
     const { customer } = order;

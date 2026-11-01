@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Paso del checkout para elegir el método de pago.
+ */
+
 import type { FormEvent } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -11,22 +15,36 @@ import type {
 } from './paymentCard';
 import styles from './CheckoutEntryPage.module.css';
 
+/** Propiedades de PaymentMethodSelection. */
 interface PaymentMethodSelectionProps {
     selectedMethod: PaymentMethod;
     savedCard: SavedPaymentCard;
+    /** Datos ingresados para la tarjeta nueva. */
     newCard: NewPaymentCard;
+    /** Errores de validación de la tarjeta nueva. */
     errors: PaymentCardErrors;
     onMethodChange: (method: PaymentMethod) => void;
+    /** Se llama cuando cambia un campo de la tarjeta nueva. */
     onCardChange: (field: keyof NewPaymentCard, value: string) => void;
+    /** Vuelve al paso de datos de envío. */
     onBack: () => void;
+    /** Se llama al enviar el formulario para continuar. */
     onContinue: (event: FormEvent<HTMLFormElement>) => void;
 }
 
+/** Años de vencimiento seleccionables: el actual y los diez siguientes. */
 const expirationYears = Array.from(
     { length: 11 },
     (_, yearOffset) => String(new Date().getFullYear() + yearOffset)
 );
 
+/**
+ * Permite pagar con la tarjeta guardada o ingresar una tarjeta nueva, con
+ * una vista previa de la tarjeta elegida.
+ *
+ * @param props Propiedades del componente.
+ * @return El formulario de método de pago.
+ */
 export default function PaymentMethodSelection({
     selectedMethod,
     savedCard,

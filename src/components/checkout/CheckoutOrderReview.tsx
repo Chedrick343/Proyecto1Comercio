@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Último paso del checkout: revisión de la orden y pago.
+ */
+
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,22 +16,38 @@ import TermsAcceptanceCheckbox from './TermsAcceptanceCheckbox';
 
 import styles from './CheckoutEntryPage.module.css';
 
+/** Propiedades de CheckoutOrderReview. */
 interface CheckoutOrderReviewProps {
     cart: CartItem[];
     details: ShippingDetails;
+    /** Descripción del método de pago elegido. */
     paymentDescription: string;
+    /** Resultado del último intento de pago, o null si no hay. */
     paymentResult: PaymentResult | null;
     isProcessingPayment: boolean;
+    /** Escenario que simulará la pasarela de pago. */
     sandboxScenario: SandboxScenario;
     hasAcceptedTerms: boolean;
+    /** Muestra el error de términos no aceptados. */
     showTermsError: boolean;
     onSandboxScenarioChange: (scenario: SandboxScenario) => void;
     onTermsAcceptanceChange: (accepted: boolean) => void;
+    /** Vuelve al paso de datos de envío. */
     onEditDetails: () => void;
+    /** Vuelve al paso de método de pago. */
     onEditPayment: () => void;
+    /** Se llama al enviar el formulario de pago. */
     onSubmitPayment: (event: FormEvent<HTMLFormElement>) => void;
 }
 
+/**
+ * Muestra los productos, los datos de entrega y el método de pago para
+ * revisarlos, junto con la aceptación de términos, el selector de escenario
+ * de la pasarela simulada y el botón de pago.
+ *
+ * @param props Propiedades del componente.
+ * @return El formulario de revisión y pago.
+ */
 export default function CheckoutOrderReview({
     cart,
     details,
@@ -163,6 +183,13 @@ export default function CheckoutOrderReview({
     );
 }
 
+/**
+ * Determina el estado del botón de pago.
+ *
+ * @param isProcessingPayment Indica si hay un pago en curso.
+ * @param paymentResult Resultado del último intento de pago.
+ * @return La clave de traducción del texto del botón.
+ */
 function getPayButtonState(
     isProcessingPayment: boolean,
     paymentResult: PaymentResult | null

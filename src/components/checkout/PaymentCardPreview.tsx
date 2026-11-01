@@ -1,17 +1,29 @@
+/**
+ * @fileoverview Representación visual de una tarjeta de pago.
+ */
+
 import { FaWifi } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 
 import { getMaskedCardNumber } from './paymentCard';
 import styles from './CheckoutEntryPage.module.css';
 
+/** Propiedades de PaymentCardPreview. */
 interface PaymentCardPreviewProps {
     cardholder: string;
     lastFourDigits: string;
     expirationMonth: string;
     expirationYear: string;
+    /** Descripción accesible de la tarjeta. */
     label: string;
 }
 
+/**
+ * Dibuja una tarjeta con el titular, el número enmascarado y el vencimiento.
+ *
+ * @param props Propiedades del componente.
+ * @return La tarjeta, expuesta como imagen accesible.
+ */
 export default function PaymentCardPreview({
     cardholder,
     lastFourDigits,

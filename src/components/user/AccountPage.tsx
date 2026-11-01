@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página de la cuenta del cliente.
+ */
+
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -8,17 +12,29 @@ import UserSection from './userSection';
 
 import styles from './AccountPage.module.css';
 
+/**
+ * Vista de la cuenta. En pantallas pequeñas se muestra solo el menú o solo
+ * el historial de órdenes; en pantallas grandes, ambos.
+ */
 export type AccountView = 'menu' | 'orders';
 
+/** Clase de diseño de cada vista. */
 const LAYOUT_CLASS_BY_VIEW: Record<AccountView, string> = {
     menu: styles.showingMenu,
     orders: styles.showingOrders
 };
 
+/** Propiedades de AccountPage. */
 interface AccountPageProps {
     view: AccountView;
 }
 
+/**
+ * Muestra el menú de la cuenta y el historial de órdenes.
+ *
+ * @param props Propiedades del componente.
+ * @return La página de la cuenta.
+ */
 export default function AccountPage({ view }: AccountPageProps) {
     const { t } = useTranslation('account');
 
