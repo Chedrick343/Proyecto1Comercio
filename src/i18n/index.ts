@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Inicializa i18next con los recursos de traducción de la aplicación.
+ * Se importa una sola vez desde main.tsx por su efecto secundario.
+ */
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 

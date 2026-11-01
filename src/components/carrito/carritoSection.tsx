@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página del carrito de compras.
+ */
+
 import {
     FaMinus,
     FaPlus,
@@ -14,6 +18,13 @@ import { formatRate } from '../../utils/formatRate';
 
 import styles from './carritoSection.module.css';
 
+/**
+ * Muestra los productos del carrito con controles de cantidad y el resumen
+ * de la compra. Si el carrito está vacío, lo indica y avisa cuando se llegó
+ * aquí porque el checkout se bloqueó por falta de productos.
+ *
+ * @return La sección del carrito.
+ */
 export default function CarritoSection() {
     const {
         cart,

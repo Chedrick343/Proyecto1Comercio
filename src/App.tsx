@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Componente raíz: define las rutas de la tienda y el catálogo de productos.
+ */
+
 import { useEffect, useMemo } from 'react';
 import { Route, Routes, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -42,10 +46,19 @@ import {
     withCatalogFilters
 } from './catalog/catalogSearchParams';
 
-// Filtering and pagination happen on the client, so the whole index is requested.
+/**
+ * Resultados solicitados a Algolia. El filtrado y la paginación ocurren en
+ * el cliente, así que se pide el índice completo.
+ */
 const CATALOG_HITS_PER_PAGE = 1000;
 
 
+/**
+ * Muestra el catálogo: busca en Algolia según el texto de la URL y aplica
+ * en el cliente los filtros de categoría y precio.
+ *
+ * @return La página del catálogo con su estado de carga o error.
+ */
 function ProductCatalog() {
     const { t } = useTranslation(['catalog', 'errors', 'common']);
     const { items } = useHits();
@@ -61,6 +74,11 @@ function ProductCatalog() {
 
     const filters = useMemo(() => readCatalogFilters(searchParams), [searchParams]);
 
+    /**
+     * Guarda los nuevos filtros en la URL.
+     *
+     * @param nextFilters Filtros a aplicar.
+     */
     const handleFiltersChange = (nextFilters: ProductFilters) => {
         setSearchParams(
             (currentParams) => withCatalogFilters(currentParams, nextFilters),
@@ -151,6 +169,12 @@ function ProductCatalog() {
 }
 
 
+/**
+ * Define las rutas de la tienda. Si Algolia no está configurado, muestra
+ * una página de tienda no disponible.
+ *
+ * @return Las rutas de la aplicación o la página de error.
+ */
 export default function App() {
     const { t } = useTranslation('errors');
 

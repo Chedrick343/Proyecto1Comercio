@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Panel lateral con la vista previa del carrito.
+ */
+
 import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,11 +13,22 @@ import { formatRate } from '../../utils/formatRate';
 
 import styles from './CartPreview.module.css';
 
+/** Propiedades de CartPreview. */
 interface CartPreviewProps {
+    /** Indica si el panel está abierto. */
     isOpen: boolean;
+    /** Se llama cuando el panel se cierra. */
     onClose: () => void;
 }
 
+/**
+ * Muestra un producto del carrito con controles para cambiar su cantidad.
+ * Disminuir cuando queda una unidad elimina el producto.
+ *
+ * @param props Propiedades del componente.
+ * @param props.item Producto del carrito.
+ * @return La fila del producto.
+ */
 function CartPreviewItem({ item }: { item: CartItem }) {
     const { t } = useTranslation('cart');
     const { increaseQuantity, decreaseQuantity, removeProduct } = useCart();
@@ -57,6 +72,14 @@ function CartPreviewItem({ item }: { item: CartItem }) {
     );
 }
 
+/**
+ * Muestra el carrito en un panel lateral sobre la página, usando el
+ * elemento <dialog> nativo. Se cierra al navegar, con Escape o al hacer
+ * clic fuera del panel.
+ *
+ * @param props Propiedades del componente.
+ * @return El panel de vista previa.
+ */
 export default function CartPreview({ isOpen, onClose }: CartPreviewProps) {
     const { t } = useTranslation(['cart', 'common', 'product']);
     const { cart, totalItems, subtotal } = useCart();
@@ -78,6 +101,7 @@ export default function CartPreview({ isOpen, onClose }: CartPreviewProps) {
         dialogRef.current?.close();
     }, [location.key]);
 
+    /** Cierra el panel; el evento close del diálogo notifica a onClose. */
     const closePreview = () => dialogRef.current?.close();
     const isEmpty = cart.length === 0;
 

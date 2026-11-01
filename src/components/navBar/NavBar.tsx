@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Barra de navegación inferior para pantallas móviles.
+ */
+
 import styles from './NavBar.module.css';
 
 import { FaHome, FaSearch, FaShoppingCart, FaUser } from 'react-icons/fa';
@@ -11,16 +15,21 @@ import { FOCUS_SEARCH_STATE } from '../search-bar/searchFocus';
 import CartBadge from '../cart-badge/CartBadge';
 import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
 
+/** Opción de la barra de navegación. */
 type NavOption = 'home' | 'search' | 'account' | 'cart';
 
+/** Opción de la barra con su ícono y destino. */
 interface NavItem {
     id: NavOption;
     Icon: IconType;
     path: string;
+    /** Estado de navegación que se envía al destino. */
     state?: unknown;
+    /** Muestra la opción sin permitir seleccionarla. */
     disabled?: boolean;
 }
 
+/** Opciones de la barra, en el orden en que se muestran. */
 const NAV_ITEMS: NavItem[] = [
     { id: 'search', Icon: FaSearch, path: '/', state: FOCUS_SEARCH_STATE },
     { id: 'account', Icon: FaUser, path: '/cuenta' },
@@ -28,6 +37,7 @@ const NAV_ITEMS: NavItem[] = [
     { id: 'home', Icon: FaHome, path: '/', disabled: true }
 ];
 
+/** Opción que se marca como activa según el inicio de la ruta. */
 const SELECTED_OPTION_BY_PATH_PREFIX: [string, NavOption][] = [
     ['/producto', 'search'],
     ['/carrito', 'cart'],
@@ -36,6 +46,12 @@ const SELECTED_OPTION_BY_PATH_PREFIX: [string, NavOption][] = [
     ['/orden', 'account']
 ];
 
+/**
+ * Determina qué opción de la barra corresponde a la ruta actual.
+ *
+ * @param pathname Ruta actual.
+ * @return La opción activa, o null si ninguna corresponde.
+ */
 function getSelectedOption(pathname: string): NavOption | null {
     if (pathname === '/') {
         return 'search';
@@ -48,6 +64,12 @@ function getSelectedOption(pathname: string): NavOption | null {
     return match ? match[1] : null;
 }
 
+/**
+ * Muestra la barra de navegación inferior. La opción del carrito abre la
+ * vista previa cuando está disponible.
+ *
+ * @return La barra de navegación.
+ */
 export default function NavBar() {
     const { t } = useTranslation();
     const { pathname } = useLocation();

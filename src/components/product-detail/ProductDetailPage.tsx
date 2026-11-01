@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página de detalle de un producto.
+ */
+
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +20,14 @@ import { useProduct } from './useProduct';
 
 import styles from './ProductDetailPage.module.css';
 
+/**
+ * Muestra la ruta de navegación: el catálogo (con la búsqueda recordada)
+ * y la categoría principal del producto.
+ *
+ * @param props Propiedades del componente.
+ * @param props.product Producto que se está viendo.
+ * @return La ruta de navegación.
+ */
 function Breadcrumb({ product }: { product: Product }) {
     const { t } = useTranslation('product');
     const location = useLocation();
@@ -39,6 +51,13 @@ function Breadcrumb({ product }: { product: Product }) {
     );
 }
 
+/**
+ * Muestra la imagen principal del producto.
+ *
+ * @param props Propiedades del componente.
+ * @param props.product Producto que se está viendo.
+ * @return La imagen del producto.
+ */
 function ProductImage({ product }: { product: Product }) {
     const { t } = useTranslation('product');
 
@@ -52,6 +71,12 @@ function ProductImage({ product }: { product: Product }) {
     );
 }
 
+/**
+ * Carga el producto indicado en la URL y muestra su información,
+ * especificaciones y productos relacionados, o un error si no se pudo cargar.
+ *
+ * @return La página del producto.
+ */
 export default function ProductDetailPage() {
     const { t } = useTranslation(['product', 'errors', 'common']);
     const { productId } = useParams<{ productId: string }>();

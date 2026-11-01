@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Especificaciones del producto agrupadas por tema.
+ */
+
 import { useTranslation } from 'react-i18next';
 
 import { groupSpecifications } from '../../product/productSpecifications';
@@ -6,6 +10,13 @@ import { useFacetFormatter } from './useFacetFormatter';
 
 import styles from './ProductDetailPage.module.css';
 
+/**
+ * Muestra las facetas del producto organizadas en grupos.
+ *
+ * @param props Propiedades del componente.
+ * @param props.facets Facetas del producto.
+ * @return Las especificaciones, o null si el producto no tiene facetas.
+ */
 export default function ProductSpecifications({ facets }: { facets: Product['facets'] }) {
     const { t } = useTranslation('product');
     const { getFacetLabel, formatFacetValue } = useFacetFormatter();

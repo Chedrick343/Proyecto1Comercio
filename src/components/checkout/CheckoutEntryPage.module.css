@@ -29,26 +29,20 @@
     gap: 18px;
 }
 
-.backLink,
-.editCartLink {
+.backLink {
+    align-self: flex-start;
     color: #d8bd76;
+    font-size: 0.9rem;
     text-decoration: none;
 }
 
-.backLink {
-    align-self: flex-start;
-    font-size: 0.9rem;
-}
-
 .backLink:hover,
-.editCartLink:hover,
 .textAction:hover {
     color: #f0d68e;
     text-decoration: underline;
 }
 
 .backLink:focus-visible,
-.editCartLink:focus-visible,
 .textAction:focus-visible,
 .primaryAction:focus-visible,
 .secondaryAction:focus-visible {

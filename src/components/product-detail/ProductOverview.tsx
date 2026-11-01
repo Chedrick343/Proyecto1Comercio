@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Resumen principal del producto: precio, disponibilidad y compra.
+ */
+
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,12 +16,21 @@ import StarRating from './StarRating';
 
 import styles from './ProductDetailPage.module.css';
 
+/** Clase de estilo de cada nivel de disponibilidad. */
 const STOCK_STATUS_CLASS = {
     available: styles.stockAvailable,
     lowStock: styles.stockLow,
     outOfStock: styles.stockOut
 };
 
+/**
+ * Muestra marca, nombre, calificación, precio, disponibilidad y tiendas
+ * con stock, junto con el control para agregar al carrito.
+ *
+ * @param props Propiedades del componente.
+ * @param props.product Producto a mostrar.
+ * @return El resumen del producto.
+ */
 export default function ProductOverview({ product }: { product: Product }) {
     const { t } = useTranslation('product');
     const [isAddedDialogOpen, setIsAddedDialogOpen] = useState(false);

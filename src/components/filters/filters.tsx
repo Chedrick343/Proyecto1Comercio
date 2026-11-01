@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Panel de filtros del catálogo por categoría y rango de precio.
+ */
+
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,13 +17,24 @@ import {
 } from '../../utils/Products';
 
 
+/** Propiedades de Filters. */
 interface FiltersProps {
+    /** Productos de los que se obtienen las categorías disponibles. */
     products: Product[];
+    /** Filtros aplicados actualmente. */
     filters: ProductFilters;
+    /** Se llama con los nuevos filtros cuando el usuario los cambia. */
     onFiltersChange: (filters: ProductFilters) => void;
 }
 
 
+/**
+ * Muestra un panel desplegable con las categorías y el rango de precio. Las
+ * categorías se aplican al marcarlas; el precio, al presionar el botón.
+ *
+ * @param props Propiedades del componente.
+ * @return El panel de filtros.
+ */
 export default function Filters({
     products,
     filters,
@@ -29,19 +44,13 @@ export default function Filters({
     const { t } = useTranslation('catalog');
     const [filtersOpen, setFiltersOpen] = useState(false);
 
-    const { selectedCategories } = {
-        selectedCategories: filters.categories
-    };
+    const selectedCategories = filters.categories;
 
-    /* =====================
-       PRECIO EN BORRADOR
-       (solo se aplica al presionar el botón)
-    ===================== */
-
+    // El rango de precio es un borrador que solo se aplica al presionar el botón.
     const [draftMinPrice, setDraftMinPrice] = useState(filters.minPrice);
     const [draftMaxPrice, setDraftMaxPrice] = useState(filters.maxPrice);
 
-    // Si los filtros aplicados cambian desde fuera (ej. "Clear filters"),
+    // Si los filtros aplicados cambian desde fuera (por ejemplo, al limpiarlos),
     // sincronizamos el borrador para que no quede desfasado.
     useEffect(() => {
         setDraftMinPrice(filters.minPrice);
@@ -53,10 +62,7 @@ export default function Filters({
         draftMaxPrice !== filters.maxPrice;
 
 
-    /* =====================
-       CATEGORÍAS
-    ===================== */
-
+    /** Categorías presentes en los productos, sin repetir y en orden alfabético. */
     const categories = useMemo(() => {
         const uniqueCategories = new Set<string>();
 
@@ -69,6 +75,11 @@ export default function Filters({
         return Array.from(uniqueCategories).sort();
     }, [products]);
 
+    /**
+     * Marca o desmarca una categoría y aplica el cambio.
+     *
+     * @param category Categoría seleccionada.
+     */
     const handleCategoryChange = (category: string) => {
         const nextCategories = selectedCategories.includes(category)
             ? selectedCategories.filter((item) => item !== category)
@@ -81,22 +92,29 @@ export default function Filters({
     };
 
 
-    /* =====================
-       PRECIO (borrador local)
-    ===================== */
-
+    /**
+     * Actualiza el precio mínimo del borrador si no supera al máximo.
+     *
+     * @param value Nuevo precio mínimo.
+     */
     const handleDraftMinPriceChange = (value: number) => {
         if (value <= draftMaxPrice) {
             setDraftMinPrice(value);
         }
     };
 
+    /**
+     * Actualiza el precio máximo del borrador si no es menor que el mínimo.
+     *
+     * @param value Nuevo precio máximo.
+     */
     const handleDraftMaxPriceChange = (value: number) => {
         if (value >= draftMinPrice) {
             setDraftMaxPrice(value);
         }
     };
 
+    /** Aplica el rango de precio del borrador. */
     const handleApplyPrice = () => {
         onFiltersChange({
             ...filters,
@@ -106,10 +124,7 @@ export default function Filters({
     };
 
 
-    /* =====================
-       LIMPIAR FILTROS
-    ===================== */
-
+    /** Quita todas las categorías y restablece el rango de precio completo. */
     const handleClearFilters = () => {
         onFiltersChange({
             ...filters,
