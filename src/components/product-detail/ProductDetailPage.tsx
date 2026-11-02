@@ -12,7 +12,7 @@ import ErrorState from '../error/ErrorState';
 import errorStateStyles from '../error/ErrorState.module.css';
 import { getCatalogReturnPath } from '../../catalog/catalogReturn';
 import { getCatalogCategoryPath } from '../../catalog/catalogSearchParams';
-import type { Product } from '../../utils/Products';
+import { getMainCategory, type Product } from '../../utils/Products';
 import ProductOverview from './ProductOverview';
 import ProductSpecifications from './ProductSpecifications';
 import RelatedProducts from './RelatedProducts';
@@ -31,7 +31,7 @@ import styles from './ProductDetailPage.module.css';
 function Breadcrumb({ product }: { product: Product }) {
     const { t } = useTranslation('product');
     const location = useLocation();
-    const category = product.categories[product.categories.length - 1];
+    const category = getMainCategory(product);
 
     return (
         <nav className={styles.breadcrumb} aria-label={t('breadcrumb.label')}>
