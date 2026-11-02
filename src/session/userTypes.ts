@@ -44,6 +44,14 @@ export const isUserRole = (value: unknown): value is UserRole =>
 export const getFirstName = (user: User): string => user.name.trim().split(/\s+/)[0];
 
 /**
+ * Indica si quien usa la tienda es el administrador.
+ *
+ * @param user Usuario con sesión iniciada, o null si es un invitado.
+ * @return Verdadero si el usuario tiene el rol ADMIN.
+ */
+export const isAdmin = (user: User | null): boolean => user?.role === 'ADMIN';
+
+/**
  * Verifica si un valor es un objeto no nulo.
  *
  * @param value Valor a verificar.

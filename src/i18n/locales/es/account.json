@@ -6,6 +6,7 @@
   "comingSoon": "Próximamente",
   "menu": {
     "label": "Opciones de la cuenta",
+    "admin": "Panel administrativo",
     "orders": "Mis pedidos",
     "settings": "Configuración de la cuenta",
     "privacy": "Privacidad",

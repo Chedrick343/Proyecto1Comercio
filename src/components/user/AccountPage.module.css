@@ -8,7 +8,7 @@
 .pageHeader,
 .accountLayout {
     width: 100%;
-    max-width: var(--page-max-width);
+    max-width: var(--page-max-width-wide);
     margin-right: auto;
     margin-left: auto;
 }
@@ -33,7 +33,7 @@
 
 .accountLayout {
     display: grid;
-    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    grid-template-columns: minmax(250px, 280px) minmax(0, 1fr);
     align-items: start;
     gap: 24px;
 }
@@ -63,11 +63,6 @@
 @media (max-width: 860px) {
     .accountLayout {
         grid-template-columns: minmax(0, 1fr);
-        max-width: 560px;
-    }
-
-    .pageHeader {
-        max-width: 560px;
     }
 
     .sidebar {
@@ -75,11 +70,11 @@
     }
 
     .showingMenu .content,
-    .showingOrders .sidebar {
+    .showingContent .sidebar {
         display: none;
     }
 
-    .showingOrders .backLink {
+    .showingContent .backLink {
         display: inline-block;
     }
 }
