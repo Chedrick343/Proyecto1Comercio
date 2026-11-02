@@ -42,7 +42,7 @@ import {
 } from './checkoutTypes';
 import { validateShippingDetails } from './validateShippingDetails';
 import { focusFirstInvalidField } from './focusFirstInvalidField';
-import { useTrackCheckoutStart } from '../../analytics/useTrackCheckoutStart';
+import { useTrackCheckoutStart } from '../../activity/useTrackCheckoutStart';
 
 import styles from './CheckoutEntryPage.module.css';
 

@@ -17,7 +17,7 @@ import ProductOverview from './ProductOverview';
 import ProductSpecifications from './ProductSpecifications';
 import RelatedProducts from './RelatedProducts';
 import { useProduct } from './useProduct';
-import { useTrackProductView } from '../../analytics/useTrackProductView';
+import { useTrackProductView } from '../../activity/useTrackProductView';
 
 import styles from './ProductDetailPage.module.css';
 

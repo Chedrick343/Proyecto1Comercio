@@ -6,7 +6,7 @@ import { useState, type FormEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { toUserSubject } from '../../analytics/eventPayloads';
+import { toUserSubject } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
 import { useSession } from '../../context/SessionContext';
 import {
