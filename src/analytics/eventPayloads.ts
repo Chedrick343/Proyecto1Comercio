@@ -2,6 +2,9 @@
  * @fileoverview Construcción de eventos y de la información que guardan.
  */
 
+import type { CartItem } from '../context/CartContext';
+import { getCartCurrency } from '../orders/createOrder';
+import type { Order } from '../orders/orderTypes';
 import type { User } from '../session/userTypes';
 import { getMainCategory, type Product } from '../utils/Products';
 import type {
@@ -26,6 +29,44 @@ export const toProductSnapshot = (product: Product): ProductSnapshot => ({
     imageUrl: product.image_url,
     price: product.b2c.price,
     currency: product.b2c.currency
+});
+
+/**
+ * Suma las unidades de una lista de productos.
+ *
+ * @param items Productos con su cantidad.
+ * @return El total de unidades.
+ */
+const countUnits = (items: { quantity: number }[]): number =>
+    items.reduce((total, item) => total + item.quantity, 0);
+
+/**
+ * Resume el carrito al entrar al checkout.
+ *
+ * @param cart Productos del carrito.
+ * @param total Total a pagar, con impuestos y envío.
+ * @return La información del evento CHECKOUT_START.
+ */
+export const toCheckoutStartPayload = (
+    cart: CartItem[],
+    total: number
+): AnalyticsEventPayloads['CHECKOUT_START'] => ({
+    itemCount: countUnits(cart),
+    total,
+    currency: getCartCurrency(cart)
+});
+
+/**
+ * Resume una orden pagada.
+ *
+ * @param order Orden con el pago aprobado.
+ * @return La información del evento PURCHASE.
+ */
+export const toPurchasePayload = (order: Order): AnalyticsEventPayloads['PURCHASE'] => ({
+    orderNumber: order.orderNumber,
+    itemCount: countUnits(order.items),
+    total: order.total,
+    currency: order.currency
 });
 
 /**
