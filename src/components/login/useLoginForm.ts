@@ -6,6 +6,8 @@ import { useState, type FormEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { toUserSubject } from '../../analytics/eventPayloads';
+import { useAnalytics } from '../../context/AnalyticsContext';
 import { useSession } from '../../context/SessionContext';
 import {
     authenticate,
@@ -33,6 +35,7 @@ const EMPTY_CREDENTIALS: LoginCredentials = { email: '', password: '' };
  */
 export function useLoginForm() {
     const { startSession } = useSession();
+    const { track } = useAnalytics();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -87,6 +90,8 @@ export function useLoginForm() {
         try {
             const user = await authenticate(credentials);
             startSession(user);
+            // The active subject is still the guest until the session update renders.
+            track('LOGIN', { role: user.role }, toUserSubject(user));
             navigate(getLoginRedirectPath(location.state), { replace: true });
         } catch (error) {
             if (!(error instanceof AuthError)) {
