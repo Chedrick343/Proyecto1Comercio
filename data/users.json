@@ -1,0 +1,34 @@
+[
+  {
+    "objectID": "cliente@post.cr",
+    "name": "Ana Rodríguez Vargas",
+    "email": "cliente@post.cr",
+    "role": "B2C",
+    "passwordHash": "c6b4d8430caa6d749df4a92b257f5b67e1037ec50c42c2fff75d0adb1674da16"
+  },
+  {
+    "objectID": "compras@joyeriaaurora.cr",
+    "name": "Carlos Méndez Solano",
+    "email": "compras@joyeriaaurora.cr",
+    "role": "B2B",
+    "company": {
+      "name": "Joyería Aurora S.A.",
+      "taxId": "3-101-458721"
+    },
+    "passwordHash": "3291c877972bd724bc65928c41f3c05a6a33063ce8ee58f14292b74a82c31651"
+  },
+  {
+    "objectID": "admin@post.cr",
+    "name": "Laura Jiménez Mora",
+    "email": "admin@post.cr",
+    "role": "ADMIN",
+    "passwordHash": "04445e6487736590d1ef50186b414e737e0164683cbbec64e00e73c000fd3bef"
+  },
+  {
+    "objectID": "sinrol@post.cr",
+    "name": "Usuario Sin Rol",
+    "email": "sinrol@post.cr",
+    "role": "SOPORTE",
+    "passwordHash": "ae28fcfcaa92fde9be5a22b52fb887b7bb32c017e5d97da5b506a93a3219ef2b"
+  }
+]

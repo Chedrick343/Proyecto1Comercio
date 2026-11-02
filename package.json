@@ -10,7 +10,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "seed-algolia": "node --env-file=.env.local scripts/seed-algolia.mjs"
+    "seed-algolia": "node --env-file=.env.local scripts/seed-algolia.mjs",
+    "seed-users": "node --env-file=.env.local scripts/seed-users.mjs"
   },
   "dependencies": {
     "algoliasearch": "^5.59.0",
