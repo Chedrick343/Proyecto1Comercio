@@ -114,6 +114,15 @@ export function getCatalogCategoryPath(category: string): string {
 }
 
 /**
+ * Indica si el catálogo está en su vista inicial. Funciona porque la página
+ * 1 y los filtros por defecto no se escriben en la URL.
+ *
+ * @param params Parámetros de la URL.
+ * @return Verdadero si no hay búsqueda, filtros ni página seleccionada.
+ */
+export const isCatalogHome = (params: URLSearchParams): boolean => params.size === 0;
+
+/**
  * Lee el texto de búsqueda desde la URL.
  *
  * @param params Parámetros de la URL.

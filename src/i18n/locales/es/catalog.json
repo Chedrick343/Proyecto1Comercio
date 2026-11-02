@@ -4,7 +4,14 @@
     "placeholder": "¿Qué estás buscando?",
     "label": "Buscar productos",
     "submit": "Buscar",
-    "clear": "Limpiar búsqueda"
+    "clear": "Limpiar búsqueda",
+    "history": {
+      "keepExploring": "Seguir explorando",
+      "viewedCount_one": "{{count}} visto",
+      "viewedCount_other": "{{count}} vistos",
+      "recentSearches": "Búsquedas recientes",
+      "remove": "Quitar «{{query}}» del historial"
+    }
   },
   "filters": {
     "toggle": "Filtros",
@@ -29,6 +36,17 @@
   "product": {
     "outOfStock": "Agotado",
     "uncategorized": "Sin categoría"
+  },
+  "personalization": {
+    "recommended": {
+      "title": "Recomendado para ti",
+      "basedOn": "Según tu interés en {{categories}}"
+    },
+    "recentlyViewed": "Vistos recientemente",
+    "carousel": {
+      "previous": "Ver productos anteriores de {{title}}",
+      "next": "Ver más productos de {{title}}"
+    }
   },
   "pagination": {
     "label": "Paginación de productos",

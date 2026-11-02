@@ -31,6 +31,7 @@ import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
 import Footer from './components/footer/footer';
 import { useTrackSearch } from './activity/useTrackSearch';
+import CatalogPersonalization from './components/personalization/CatalogPersonalization';
 
 
 import {
@@ -44,6 +45,7 @@ import {
     searchClient
 } from './utils/algolia';
 import {
+    isCatalogHome,
     readCatalogFilters,
     readCatalogQuery,
     withCatalogFilters
@@ -164,6 +166,11 @@ function ProductCatalog() {
                 </div>
 
             </div>
+
+            <CatalogPersonalization
+                catalog={allProducts}
+                showRecommendations={isCatalogHome(searchParams) && hasVisibleResults}
+            />
 
             <NavBar />
         </main>

@@ -1,0 +1,245 @@
+.carousel {
+    --visible-cards: 5;
+    --card-gap: var(--space-4);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+/* The gold segment under the title matches the store's accent and separates the sections */
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid #3a3a3a;
+    background: linear-gradient(#c9a246, #c9a246) left bottom / 72px 2px no-repeat border-box;
+}
+
+.title {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    color: var(--text-h);
+}
+
+.description {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: #a8a8a8;
+}
+
+.viewport {
+    position: relative;
+}
+
+/* Scrolls one page at a time with the arrows; the scrollbar stays hidden */
+.track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - (var(--visible-cards) - 1) * var(--card-gap)) / var(--visible-cards));
+    gap: var(--card-gap);
+    margin: 0;
+    padding: var(--space-1) 0 var(--space-2);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+    display: none;
+}
+
+.arrow {
+    position: absolute;
+    top: 38%;
+    z-index: 1;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    padding: 0;
+    color: #f1f1f1;
+    cursor: pointer;
+    background-color: rgba(22, 23, 28, 0.88);
+    border: 1px solid #4d4d4d;
+    border-radius: 50%;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: translateY(-50%);
+    transition: color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.previousArrow {
+    left: -20px;
+}
+
+.nextArrow {
+    right: -20px;
+}
+
+@media (hover: hover) {
+    .arrow:not(:disabled):hover {
+        color: #c9a246;
+        border-color: #c9a246;
+    }
+}
+
+.arrow:focus-visible {
+    outline: 2px solid #c9a246;
+    outline-offset: 2px;
+}
+
+.arrow:disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #2b2b2b;
+    border: 1px solid #4d4d4d;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    scroll-snap-align: start;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+    .card:hover {
+        border-color: #c9a246;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card:hover .image {
+        transform: scale(1.04);
+    }
+}
+
+.card:has(.cardLink:focus-visible) {
+    outline: 2px solid #c9a246;
+    outline-offset: -2px;
+}
+
+.imageWrapper {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background-color: #ffffff;
+}
+
+.image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.cardBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+}
+
+.category {
+    align-self: flex-start;
+    max-width: 100%;
+    padding: 3px 8px;
+    overflow: hidden;
+    font-size: 11px;
+    color: #b9b9b9;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: #4a4a4a;
+    border-radius: var(--radius-pill);
+}
+
+.cardTitle {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: #f1f1f1;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.cardLink {
+    color: inherit;
+    text-decoration: none;
+}
+
+.cardLink:focus-visible {
+    outline: none;
+}
+
+.cardLink::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+}
+
+.brand {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #8f8f8f;
+    text-transform: uppercase;
+}
+
+.price {
+    margin: auto 0 0;
+    padding-top: var(--space-1);
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+@media (max-width: 1100px) {
+    .carousel {
+        --visible-cards: 4;
+    }
+}
+
+@media (max-width: 860px) {
+    .carousel {
+        --visible-cards: 3;
+        --card-gap: var(--space-3);
+    }
+
+    .previousArrow {
+        left: -12px;
+    }
+
+    .nextArrow {
+        right: -12px;
+    }
+}
+
+/* On phones the next card peeks in to invite swiping, so the arrows aren't needed */
+@media (max-width: 599px) {
+    .carousel {
+        --visible-cards: 2.3;
+    }
+
+    .arrow {
+        display: none;
+    }
+}

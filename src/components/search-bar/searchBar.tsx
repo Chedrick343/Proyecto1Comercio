@@ -2,11 +2,21 @@
  * @fileoverview Barra de búsqueda del catálogo.
  */
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import {
+    useEffect,
+    useId,
+    useRef,
+    useState,
+    type FocusEvent,
+    type FormEvent,
+    type KeyboardEvent
+} from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
+import { useUserHistory } from '../../activity/useUserHistory';
 import { isSearchFocusRequested } from './searchFocus';
+import SearchHistoryPanel from './SearchHistoryPanel';
 import {
     getCatalogSearchPath,
     readCatalogQuery,
@@ -33,7 +43,8 @@ interface SearchBarProps {
 
 /**
  * Muestra la barra de búsqueda. El texto buscado se guarda en la URL y se
- * enfoca automáticamente cuando la navegación lo solicita.
+ * enfoca automáticamente cuando la navegación lo solicita. Al enfocarla
+ * vacía, despliega el historial de búsqueda del usuario.
  *
  * @param props Propiedades del componente.
  * @return El formulario de búsqueda.
@@ -50,6 +61,13 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const location = useLocation();
     const shouldFocusSearch = isSearchFocusRequested(location.state);
+
+    const { recentSearches, exploredCategories, removeRecentSearch } = useUserHistory();
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const historyPanelId = useId();
+    const hasHistory = recentSearches.length > 0 || exploredCategories.length > 0;
+    // Like other stores, the history only shows while the field is empty; typing hides it.
+    const showHistory = isHistoryOpen && hasHistory && inputValue.trim() === '';
 
     // Keeps the input in sync when the URL changes from outside (e.g. back button).
     if (query !== lastSyncedQuery) {
@@ -99,6 +117,7 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
      */
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setIsHistoryOpen(false);
         // Closes the on-screen keyboard on mobile after searching.
         inputRef.current?.blur();
 
@@ -120,9 +139,47 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
         }
     };
 
+    /** Cierra el historial tras elegir una búsqueda o categoría. */
+    const handleHistorySelect = () => {
+        setIsHistoryOpen(false);
+        inputRef.current?.blur();
+    };
+
+    /**
+     * Cierra el historial cuando el foco sale del formulario.
+     *
+     * @param event Evento de pérdida de foco.
+     */
+    const handleFormBlur = (event: FocusEvent<HTMLFormElement>) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setIsHistoryOpen(false);
+        }
+    };
+
+    /**
+     * Cierra el historial con Escape, sin borrar lo escrito.
+     *
+     * @param event Evento del teclado.
+     */
+    const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Escape' && showHistory) {
+            event.preventDefault();
+            setIsHistoryOpen(false);
+        }
+    };
+
     return (
-        <form className={styles.searchBar} role="search" onSubmit={handleSubmit}>
-            <div className={styles.searchGroup}>
+        <form
+            className={styles.searchBar}
+            role="search"
+            onSubmit={handleSubmit}
+            onBlur={handleFormBlur}
+        >
+            <div
+                className={
+                    showHistory ? `${styles.searchGroup} ${styles.searchGroupOpen}` : styles.searchGroup
+                }
+            >
                 <div className={styles.searchField}>
                     <input
                         ref={inputRef}
@@ -134,6 +191,10 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
                         autoComplete="off"
                         value={inputValue}
                         onChange={(event) => setInputValue(event.target.value)}
+                        onFocus={() => setIsHistoryOpen(true)}
+                        onClick={() => setIsHistoryOpen(true)}
+                        onKeyDown={handleInputKeyDown}
+                        aria-controls={showHistory ? historyPanelId : undefined}
                     />
                     {inputValue && (
                         <button
@@ -152,6 +213,16 @@ export default function SearchBar({ mode = 'live' }: SearchBarProps) {
                     <FaSearch aria-hidden="true" />
                     <span className={styles.submitLabel}>{t('search.submit')}</span>
                 </button>
+
+                {showHistory && (
+                    <SearchHistoryPanel
+                        id={historyPanelId}
+                        recentSearches={recentSearches}
+                        exploredCategories={exploredCategories}
+                        onSelect={handleHistorySelect}
+                        onRemoveSearch={removeRecentSearch}
+                    />
+                )}
             </div>
         </form>
     );
