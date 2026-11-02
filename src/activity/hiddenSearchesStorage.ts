@@ -3,7 +3,6 @@
  * usuario o invitado quitó de su historial.
  */
 
-import type { AnalyticsSubject } from './analyticsTypes';
 import type { HiddenSearch } from './userHistory';
 
 /** Clave de localStorage donde se guardan las búsquedas ocultas. */
@@ -11,14 +10,6 @@ const HIDDEN_SEARCHES_STORAGE_KEY = 'hidden-searches-v1';
 
 /** Búsquedas ocultas de cada sujeto, indexadas por getSubjectKey. */
 export type HiddenSearchesBySubject = Record<string, HiddenSearch[]>;
-
-/**
- * Obtiene la clave con la que se guardan los datos de un sujeto.
- *
- * @param subject Usuario o invitado.
- * @return Una clave con el formato tipo:id.
- */
-export const getSubjectKey = (subject: AnalyticsSubject): string => `${subject.type}:${subject.id}`;
 
 /**
  * Verifica que un valor recuperado tenga la forma de una búsqueda oculta.

@@ -8,20 +8,22 @@ import { useTranslation } from 'react-i18next';
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
 import Orders from '../Orders/Orders';
+import AdminPanel from '../admin/AdminPanel';
 import UserSection from './userSection';
 
 import styles from './AccountPage.module.css';
 
 /**
  * Vista de la cuenta. En pantallas pequeñas se muestra solo el menú o solo
- * el historial de órdenes; en pantallas grandes, ambos.
+ * el contenido elegido; en pantallas grandes, ambos.
  */
-export type AccountView = 'menu' | 'orders';
+export type AccountView = 'menu' | 'orders' | 'admin';
 
 /** Clase de diseño de cada vista. */
 const LAYOUT_CLASS_BY_VIEW: Record<AccountView, string> = {
     menu: styles.showingMenu,
-    orders: styles.showingOrders
+    orders: styles.showingContent,
+    admin: styles.showingContent
 };
 
 /** Propiedades de AccountPage. */
@@ -30,13 +32,16 @@ interface AccountPageProps {
 }
 
 /**
- * Muestra el menú de la cuenta y el historial de órdenes.
+ * Muestra el menú de la cuenta junto al historial de órdenes o, en la vista
+ * del administrador, junto al panel administrativo. Todas las vistas usan el
+ * mismo diseño, así que el menú no se mueve al cambiar entre ellas.
  *
  * @param props Propiedades del componente.
  * @return La página de la cuenta.
  */
 export default function AccountPage({ view }: AccountPageProps) {
     const { t } = useTranslation('account');
+    const isAdminView = view === 'admin';
 
     return (
         <main className="app">
@@ -52,14 +57,14 @@ export default function AccountPage({ view }: AccountPageProps) {
 
                 <div className={`${styles.accountLayout} ${LAYOUT_CLASS_BY_VIEW[view]}`}>
                     <aside className={styles.sidebar}>
-                        <UserSection activeItemId="orders" />
+                        <UserSection activeItemId={isAdminView ? 'admin' : 'orders'} />
                     </aside>
 
                     <div className={styles.content}>
                         <Link to="/cuenta" className={styles.backLink}>
                             ← {t('backToAccount')}
                         </Link>
-                        <Orders />
+                        {isAdminView ? <AdminPanel /> : <Orders />}
                     </div>
                 </div>
             </section>

@@ -1,6 +1,7 @@
 /**
  * @fileoverview Estado global de la analítica: registra eventos y expone los
- * del usuario o invitado activo.
+ * del usuario o invitado activo, además de todos los guardados para el panel
+ * administrativo.
  */
 
 import {
@@ -40,6 +41,9 @@ interface AnalyticsContextType {
     /** Eventos del sujeto activo, del más antiguo al más reciente. */
     events: AnalyticsEvent[];
 
+    /** Eventos de todos los usuarios e invitados, del más antiguo al más reciente. */
+    allEvents: AnalyticsEvent[];
+
     /**
      * Registra un evento. Por defecto se asocia al sujeto activo; cuando la
      * propia acción cambia de sujeto (por ejemplo, LOGIN), se indica el nuevo.
@@ -49,6 +53,9 @@ interface AnalyticsContextType {
         payload: AnalyticsEventPayloads[T],
         subject?: AnalyticsSubject
     ) => void;
+
+    /** Borra los eventos de todos los usuarios e invitados. */
+    clearAllEvents: () => void;
 }
 
 /** Contexto de analítica; es undefined fuera de AnalyticsProvider. */
@@ -94,14 +101,16 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
         [activeSubject]
     );
 
+    const clearAllEvents = useCallback(() => setAllEvents([]), []);
+
     const events = useMemo(
         () => allEvents.filter((event) => isSameSubject(event.subject, activeSubject)),
         [allEvents, activeSubject]
     );
 
     const value = useMemo(
-        () => ({ activeSubject, events, track }),
-        [activeSubject, events, track]
+        () => ({ activeSubject, events, allEvents, track, clearAllEvents }),
+        [activeSubject, events, allEvents, track, clearAllEvents]
     );
 
     return (
@@ -112,8 +121,8 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
 }
 
 /**
- * Da acceso a los eventos del sujeto activo y a la función para registrar
- * eventos nuevos.
+ * Da acceso a los eventos registrados y a las funciones para registrar
+ * eventos nuevos o borrarlos.
  *
  * @return El valor del contexto de analítica.
  * @throws {Error} Si se usa fuera de AnalyticsProvider.

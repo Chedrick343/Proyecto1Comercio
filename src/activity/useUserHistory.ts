@@ -5,11 +5,8 @@
 import { useMemo, useState } from 'react';
 
 import { useAnalytics } from '../context/AnalyticsContext';
-import {
-    getSubjectKey,
-    readHiddenSearches,
-    writeHiddenSearches
-} from './hiddenSearchesStorage';
+import { getSubjectKey } from './eventPayloads';
+import { readHiddenSearches, writeHiddenSearches } from './hiddenSearchesStorage';
 import {
     excludeHiddenSearches,
     getExploredCategories,

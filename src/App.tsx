@@ -24,6 +24,7 @@ import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 import OrderConfirmationPage from './components/order/OrderConfirmationPage';
 import AccountPage from './components/user/AccountPage';
+import { ADMIN_PATH } from './components/admin/adminRoutes';
 import LoginPage from './components/login/LoginPage';
 import { LOGIN_PATH } from './components/login/loginRedirect';
 import ErrorState from './components/error/ErrorState';
@@ -265,6 +266,11 @@ export default function App() {
             <Route
                 path="/cuenta/pedidos"
                 element={<AccountPage view="orders" />}
+            />
+
+            <Route
+                path={ADMIN_PATH}
+                element={<AccountPage view="admin" />}
             />
 
             <Route

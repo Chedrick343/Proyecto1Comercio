@@ -1,0 +1,25 @@
+.avatar {
+    display: grid;
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    color: #e4c56f;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    background-color: #1f2025;
+    border: 1px solid #c9a246;
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+.guestAvatar {
+    color: #aaa9ad;
+    border-color: #555558;
+}
+
+.groupAvatar {
+    color: #252525;
+    background: linear-gradient(135deg, #f0d68a 0%, #c9a246 100%);
+    border: 0;
+}

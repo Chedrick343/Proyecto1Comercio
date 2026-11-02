@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
+    FaChartBar,
     FaCog,
     FaUser,
     FaUserShield,
@@ -19,6 +20,8 @@ import { useTranslation } from 'react-i18next';
 
 import { useOrders } from '../../context/OrdersContext';
 import { useSession } from '../../context/SessionContext';
+import { isAdmin } from '../../session/userTypes';
+import { ADMIN_PATH } from '../admin/adminRoutes';
 import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
 import LogoutConfirmDialog from './LogoutConfirmDialog';
 
@@ -26,6 +29,7 @@ import styles from './userSection.module.css';
 
 /** Opción del menú de la cuenta; coincide con su clave de traducción. */
 export type AccountMenuItemId =
+    | 'admin'
     | 'orders'
     | 'settings'
     | 'privacy'
@@ -55,6 +59,9 @@ const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
     { id: 'premium', icon: FaGem, tone: 'premium' },
     { id: 'help', icon: FaQuestionCircle }
 ];
+
+/** Opción del panel administrativo; solo se muestra al rol ADMIN, al inicio del menú. */
+const ADMIN_MENU_ITEM: AccountMenuItem = { id: 'admin', icon: FaChartBar, path: ADMIN_PATH };
 
 /**
  * Construye las clases de una opción del menú.
@@ -201,13 +208,18 @@ interface UserSectionProps {
  */
 export default function UserSection({ activeItemId }: UserSectionProps) {
     const { t } = useTranslation('account');
+    const { currentUser } = useSession();
+
+    const menuItems = isAdmin(currentUser)
+        ? [ADMIN_MENU_ITEM, ...ACCOUNT_MENU_ITEMS]
+        : ACCOUNT_MENU_ITEMS;
 
     return (
         <div className={styles.userSection}>
             <Profile />
 
             <nav className={styles.menu} aria-label={t('menu.label')}>
-                {ACCOUNT_MENU_ITEMS.map((item) => {
+                {menuItems.map((item) => {
                     const isActive = item.id === activeItemId;
 
                     return item.path ? (
