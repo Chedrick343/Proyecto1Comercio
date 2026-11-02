@@ -1,0 +1,64 @@
+.showcase {
+    display: none;
+}
+
+/* The panel takes only 30% of the width, so sizes scale with the viewport */
+@media (min-width: 1024px) {
+    .showcase {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-7) var(--space-5);
+        background:
+            radial-gradient(circle at 50% 42%, rgba(201, 162, 70, 0.14), transparent 55%),
+            linear-gradient(180deg, #1f2025 0%, #16171c 100%);
+        border-left: 1px solid #2c2c30;
+    }
+
+    .medallion {
+        width: clamp(112px, 9vw, 148px);
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(201, 162, 70, 0.5);
+        border-radius: 50%;
+        background-color: rgba(22, 23, 28, 0.6);
+        box-shadow:
+            0 0 0 8px rgba(201, 162, 70, 0.06),
+            0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .mark {
+        width: 58%;
+        height: 58%;
+        color: #c9a246;
+    }
+
+    .brand {
+        margin-top: var(--space-5);
+        color: var(--text-h);
+        font-family: var(--heading);
+        font-size: clamp(1.5rem, 1rem + 0.8vw, 2rem);
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        line-height: 1;
+    }
+
+    .divider {
+        width: 40px;
+        height: 1px;
+        margin: var(--space-4) 0;
+        background-color: #c9a246;
+    }
+
+    .tagline {
+        max-width: 240px;
+        color: #aaa9ad;
+        font-family: var(--heading);
+        font-size: var(--font-size-md);
+        font-style: italic;
+        text-align: center;
+    }
+}

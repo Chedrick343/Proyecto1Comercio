@@ -24,6 +24,8 @@ import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 import OrderConfirmationPage from './components/order/OrderConfirmationPage';
 import AccountPage from './components/user/AccountPage';
+import LoginPage from './components/login/LoginPage';
+import { LOGIN_PATH } from './components/login/loginRedirect';
 import ErrorState from './components/error/ErrorState';
 import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
@@ -239,6 +241,11 @@ export default function App() {
             />
 
             {/*CUENTA*/}
+
+            <Route
+                path={LOGIN_PATH}
+                element={<LoginPage />}
+            />
 
             <Route
                 path="/cuenta"
