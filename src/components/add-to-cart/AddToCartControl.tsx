@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaCartPlus, FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
 
-import { toProductSnapshot } from '../../analytics/eventPayloads';
+import { toProductSnapshot } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
 import type { Product } from '../../utils/Products';

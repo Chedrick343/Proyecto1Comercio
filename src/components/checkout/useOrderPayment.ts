@@ -4,7 +4,7 @@
 
 import { useRef, useState } from 'react';
 
-import { toPurchasePayload } from '../../analytics/eventPayloads';
+import { toPurchasePayload } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
 import { useOrders } from '../../context/OrdersContext';

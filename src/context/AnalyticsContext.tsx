@@ -17,18 +17,18 @@ import {
     MAX_STORED_EVENTS,
     readStoredEvents,
     writeStoredEvents
-} from '../analytics/analyticsStorage';
+} from '../activity/analyticsStorage';
 import type {
     AnalyticsEvent,
     AnalyticsEventPayloads,
     AnalyticsEventType,
     AnalyticsSubject
-} from '../analytics/analyticsTypes';
+} from '../activity/analyticsTypes';
 import {
     createAnalyticsEvent,
     isSameSubject,
     toUserSubject
-} from '../analytics/eventPayloads';
+} from '../activity/eventPayloads';
 import { getGuestSessionId } from '../session/guestSession';
 import { useSession } from './SessionContext';
 

@@ -30,7 +30,7 @@ import ErrorState from './components/error/ErrorState';
 import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
 import Footer from './components/footer/footer';
-import { useTrackSearch } from './analytics/useTrackSearch';
+import { useTrackSearch } from './activity/useTrackSearch';
 
 
 import {
