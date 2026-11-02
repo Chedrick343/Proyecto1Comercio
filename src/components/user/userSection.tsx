@@ -2,20 +2,25 @@
  * @fileoverview Perfil y menú de la cuenta del cliente.
  */
 
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     FaCog,
     FaUser,
     FaUserShield,
     FaGem,
     FaPowerOff,
-    FaQuestionCircle
+    FaQuestionCircle,
+    FaSignInAlt
 } from 'react-icons/fa';
 import { GoArchive } from 'react-icons/go';
 import type { IconType } from 'react-icons';
 import { useTranslation } from 'react-i18next';
 
 import { useOrders } from '../../context/OrdersContext';
+import { useSession } from '../../context/SessionContext';
+import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
+import LogoutConfirmDialog from './LogoutConfirmDialog';
 
 import styles from './userSection.module.css';
 
@@ -25,8 +30,10 @@ export type AccountMenuItemId =
     | 'settings'
     | 'privacy'
     | 'premium'
-    | 'help'
-    | 'logout';
+    | 'help';
+
+/** Estilo especial de una opción del menú. */
+type MenuItemTone = 'premium' | 'danger';
 
 /** Opción del menú con su ícono y destino. */
 interface AccountMenuItem {
@@ -34,31 +41,32 @@ interface AccountMenuItem {
     icon: IconType;
     /** Ruta destino; las opciones sin ruta aún no están disponibles. */
     path?: string;
-    /** Estilo especial de la opción. */
-    tone?: 'premium' | 'danger';
+    tone?: MenuItemTone;
 }
 
-/** Opciones del menú, en el orden en que se muestran. */
+/**
+ * Opciones del menú, en el orden en que se muestran. La opción de iniciar o
+ * cerrar sesión se agrega al final según el estado de la sesión.
+ */
 const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
     { id: 'orders', icon: GoArchive, path: '/cuenta/pedidos' },
     { id: 'settings', icon: FaCog },
     { id: 'privacy', icon: FaUserShield },
     { id: 'premium', icon: FaGem, tone: 'premium' },
-    { id: 'help', icon: FaQuestionCircle },
-    { id: 'logout', icon: FaPowerOff, tone: 'danger' }
+    { id: 'help', icon: FaQuestionCircle }
 ];
 
 /**
  * Construye las clases de una opción del menú.
  *
- * @param item Opción del menú.
+ * @param tone Estilo especial de la opción, si tiene.
  * @param isActive Indica si es la opción de la página actual.
  * @return Las clases de la opción.
  */
-function getMenuItemClassName(item: AccountMenuItem, isActive: boolean) {
+function getMenuItemClassName(tone: MenuItemTone | undefined, isActive: boolean) {
     return [
         styles.menuItem,
-        item.tone && styles[item.tone],
+        tone && styles[tone],
         isActive && styles.menuItemActive
     ]
         .filter(Boolean)
@@ -85,6 +93,100 @@ function MenuItemContent({ item }: { item: AccountMenuItem }) {
     );
 }
 
+/**
+ * Muestra los datos de quien usa la tienda: con sesión iniciada, su nombre,
+ * rol y empresa; como invitado, solo la cantidad de pedidos.
+ *
+ * @return El perfil.
+ */
+function Profile() {
+    const { t } = useTranslation(['account', 'auth']);
+    const { currentUser } = useSession();
+    const { orders } = useOrders();
+
+    return (
+        <div className={styles.profile}>
+            <div className={styles.avatar}>
+                <FaUser aria-hidden="true" />
+            </div>
+
+            <div className={styles.profileText}>
+                <h2 className={styles.username}>{currentUser?.name ?? t('account:guestName')}</h2>
+
+                {currentUser && (
+                    <span className={styles.roleBadge}>{t(`auth:roles.${currentUser.role}`)}</span>
+                )}
+
+                {currentUser?.company && (
+                    <p className={styles.profileDetail}>
+                        {t('auth:session.company', { name: currentUser.company.name })}
+                    </p>
+                )}
+
+                <p className={styles.profileDetail}>
+                    {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
+                </p>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * Opción final del menú: pide confirmar el cierre de sesión y luego lleva al
+ * catálogo o, como invitado, lleva al inicio de sesión.
+ *
+ * @return El botón para cerrar sesión con su confirmación, o el enlace para
+ *     iniciar sesión.
+ */
+function SessionMenuItem() {
+    const { t } = useTranslation('account');
+    const { currentUser, endSession } = useSession();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+
+    /** Cierra la sesión y sale de la cuenta, que ya no pertenece a nadie. */
+    const handleLogout = () => {
+        setIsLogoutDialogOpen(false);
+        endSession();
+        navigate('/', { replace: true });
+    };
+
+    if (!currentUser) {
+        return (
+            <Link
+                to={LOGIN_PATH}
+                state={createLoginRedirectState(location)}
+                className={getMenuItemClassName(undefined, false)}
+            >
+                <FaSignInAlt className={styles.icon} aria-hidden="true" />
+                <span className={styles.menuLabel}>{t('menu.login')}</span>
+            </Link>
+        );
+    }
+
+    return (
+        <>
+            <button
+                type="button"
+                className={getMenuItemClassName('danger', false)}
+                aria-haspopup="dialog"
+                onClick={() => setIsLogoutDialogOpen(true)}
+            >
+                <FaPowerOff className={styles.icon} aria-hidden="true" />
+                <span className={styles.menuLabel}>{t('menu.logout')}</span>
+            </button>
+
+            <LogoutConfirmDialog
+                userName={currentUser.name}
+                isOpen={isLogoutDialogOpen}
+                onClose={() => setIsLogoutDialogOpen(false)}
+                onConfirm={handleLogout}
+            />
+        </>
+    );
+}
+
 /** Propiedades de UserSection. */
 interface UserSectionProps {
     /** Opción del menú que corresponde a la página actual. */
@@ -92,31 +194,17 @@ interface UserSectionProps {
 }
 
 /**
- * Muestra el perfil del cliente (nombre de su última orden y cantidad de
- * pedidos) y el menú de la cuenta.
+ * Muestra el perfil del usuario y el menú de la cuenta.
  *
  * @param props Propiedades del componente.
  * @return El perfil y el menú.
  */
 export default function UserSection({ activeItemId }: UserSectionProps) {
-    const { orders } = useOrders();
     const { t } = useTranslation('account');
-    const customerName = orders[0]?.customer.fullName || t('guestName');
 
     return (
         <div className={styles.userSection}>
-            <div className={styles.profile}>
-                <div className={styles.avatar}>
-                    <FaUser aria-hidden="true" />
-                </div>
-
-                <div className={styles.profileText}>
-                    <h2 className={styles.username}>{customerName}</h2>
-                    <p className={styles.orderCount}>
-                        {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
-                    </p>
-                </div>
-            </div>
+            <Profile />
 
             <nav className={styles.menu} aria-label={t('menu.label')}>
                 {ACCOUNT_MENU_ITEMS.map((item) => {
@@ -126,7 +214,7 @@ export default function UserSection({ activeItemId }: UserSectionProps) {
                         <Link
                             key={item.id}
                             to={item.path}
-                            className={getMenuItemClassName(item, isActive)}
+                            className={getMenuItemClassName(item.tone, isActive)}
                             aria-current={isActive ? 'page' : undefined}
                         >
                             <MenuItemContent item={item} />
@@ -135,13 +223,15 @@ export default function UserSection({ activeItemId }: UserSectionProps) {
                         <button
                             key={item.id}
                             type="button"
-                            className={getMenuItemClassName(item, false)}
+                            className={getMenuItemClassName(item.tone, false)}
                             disabled
                         >
                             <MenuItemContent item={item} />
                         </button>
                     );
                 })}
+
+                <SessionMenuItem />
             </nav>
         </div>
     );

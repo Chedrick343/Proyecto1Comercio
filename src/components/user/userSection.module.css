@@ -39,7 +39,19 @@
     overflow-wrap: anywhere;
 }
 
-.orderCount {
+.roleBadge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 3px 10px;
+    border: 1px solid #c9a246;
+    border-radius: 999px;
+    color: #e4c56f;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.profileDetail {
     margin: 4px 0 0;
     color: #aaa9ad;
     font-size: 0.86rem;

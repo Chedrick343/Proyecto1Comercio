@@ -1,5 +1,5 @@
 /**
- * @fileoverview Acceso a los productos almacenados en Algolia.
+ * @fileoverview Acceso a los índices de Algolia: productos y usuarios.
  */
 
 import { liteClient } from 'algoliasearch/lite';
@@ -11,6 +11,8 @@ const applicationId = import.meta.env.VITE_ALGOLIA_APPLICATION_ID;
 const searchApiKey = import.meta.env.VITE_ALGOLIA_SEARCH_API_KEY;
 /** Nombre del índice de productos en Algolia. */
 export const indexName = import.meta.env.VITE_ALGOLIA_INDEX_NAME;
+/** Nombre del índice de usuarios en Algolia. */
+export const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME;
 
 /** Cliente de búsqueda, o null si faltan las variables de entorno. */
 export const searchClient = applicationId && searchApiKey
@@ -111,25 +113,62 @@ export class ProductLoadError extends Error {
     }
 }
 
+/** Causa por la que falló una consulta a Algolia. */
+export type AlgoliaRequestErrorCode = 'network' | 'unavailable';
+
+/** Error lanzado cuando no se puede consultar Algolia. */
+export class AlgoliaRequestError extends Error {
+    /** Causa del error. */
+    readonly code: AlgoliaRequestErrorCode;
+
+    /** @param code Causa del error. */
+    constructor(code: AlgoliaRequestErrorCode) {
+        super(code);
+        this.name = 'AlgoliaRequestError';
+        this.code = code;
+    }
+}
+
 /**
- * Solicita un producto a la API REST de Algolia.
+ * Indica si una respuesta 404 de Algolia se debe a que el índice no existe.
+ * Algolia responde "Index '...' does not exist" en ese caso, y "ObjectID does
+ * not exist" cuando solo falta el registro.
  *
- * @param productId Identificador del producto.
- * @return La respuesta HTTP de Algolia.
- * @throws {ProductLoadError} Con código "unavailable" si Algolia no está
- *     configurado, o "network" si no se pudo contactar.
+ * @param response Respuesta 404 de Algolia.
+ * @return Verdadero si el índice consultado no existe.
  */
-async function fetchProductHit(productId: string): Promise<Response> {
-    if (!applicationId || !searchApiKey || !indexName) {
-        console.error(
-            'Faltan VITE_ALGOLIA_APPLICATION_ID, VITE_ALGOLIA_SEARCH_API_KEY o VITE_ALGOLIA_INDEX_NAME.'
-        );
-        throw new ProductLoadError('unavailable');
+async function isMissingIndexResponse(response: Response): Promise<boolean> {
+    const body: unknown = await response.json().catch(() => null);
+    const message = (body as { message?: unknown } | null)?.message;
+
+    return typeof message === 'string' && message.startsWith('Index ');
+}
+
+/**
+ * Obtiene un registro de un índice de Algolia por su objectID, usando la
+ * API REST.
+ *
+ * @param targetIndexName Índice a consultar.
+ * @param objectID Identificador del registro.
+ * @return El registro tal como lo devuelve Algolia, o null si no existe.
+ * @throws {AlgoliaRequestError} Con código "unavailable" si Algolia no está
+ *     configurado, el índice no existe o Algolia responde con error, o
+ *     "network" si no se pudo contactar.
+ */
+export async function getAlgoliaObject(
+    targetIndexName: string | undefined,
+    objectID: string
+): Promise<unknown> {
+    if (!applicationId || !searchApiKey || !targetIndexName) {
+        console.error('Falta configurar Algolia: aplicación, clave de búsqueda o nombre del índice.');
+        throw new AlgoliaRequestError('unavailable');
     }
 
+    let response: Response;
+
     try {
-        return await fetch(
-            `https://${applicationId}-dsn.algolia.net/1/indexes/${encodeURIComponent(indexName)}/${encodeURIComponent(productId)}`,
+        response = await fetch(
+            `https://${applicationId}-dsn.algolia.net/1/indexes/${encodeURIComponent(targetIndexName)}/${encodeURIComponent(objectID)}`,
             {
                 headers: {
                     'X-Algolia-Application-Id': applicationId,
@@ -139,8 +178,24 @@ async function fetchProductHit(productId: string): Promise<Response> {
         );
     } catch (networkError) {
         console.error('No se pudo contactar a Algolia:', networkError);
-        throw new ProductLoadError('network');
+        throw new AlgoliaRequestError('network');
     }
+
+    if (response.status === 404) {
+        if (await isMissingIndexResponse(response)) {
+            console.error(`El índice "${targetIndexName}" no existe en Algolia.`);
+            throw new AlgoliaRequestError('unavailable');
+        }
+
+        return null;
+    }
+
+    if (!response.ok) {
+        console.error(`Algolia respondió con HTTP ${response.status}.`);
+        throw new AlgoliaRequestError('unavailable');
+    }
+
+    return response.json();
 }
 
 /**
@@ -152,17 +207,17 @@ async function fetchProductHit(productId: string): Promise<Response> {
  *     o Algolia no está disponible.
  */
 export async function getProductById(productId: string): Promise<Product> {
-    const response = await fetchProductHit(productId);
+    let hit: unknown;
 
-    if (response.status === 404) {
+    try {
+        hit = await getAlgoliaObject(indexName, productId);
+    } catch (error) {
+        throw error instanceof AlgoliaRequestError ? new ProductLoadError(error.code) : error;
+    }
+
+    if (hit === null) {
         throw new ProductLoadError('notFound');
     }
 
-    if (!response.ok) {
-        console.error(`Algolia respondió con HTTP ${response.status}.`);
-        throw new ProductLoadError('unavailable');
-    }
-
-    const hit: unknown = await response.json();
     return normalizeAlgoliaProduct(hit);
 }

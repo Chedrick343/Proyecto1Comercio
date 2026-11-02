@@ -2,6 +2,7 @@
  * @fileoverview Validación del formulario de envío del checkout.
  */
 
+import { isValidEmail } from '../../utils/isValidEmail';
 import type {
     ShippingDetails,
     ShippingFieldErrors
@@ -25,7 +26,7 @@ export function validateShippingDetails(
 
     if (!details.email.trim()) {
         errors.email = 'emailRequired';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email.trim())) {
+    } else if (!isValidEmail(details.email)) {
         errors.email = 'emailInvalid';
     }
 
