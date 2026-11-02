@@ -18,6 +18,7 @@ import ProductSpecifications from './ProductSpecifications';
 import RelatedProducts from './RelatedProducts';
 import { useProduct } from './useProduct';
 import { useTrackProductView } from '../../activity/useTrackProductView';
+import RecentlyViewedCarousel from '../personalization/RecentlyViewedCarousel';
 
 import styles from './ProductDetailPage.module.css';
 
@@ -121,6 +122,11 @@ export default function ProductDetailPage() {
 
                     <ProductSpecifications facets={product.facets} />
                     <RelatedProducts product={product} />
+
+                    <RecentlyViewedCarousel
+                        currentProductId={product.objectID}
+                        className={styles.relatedSection}
+                    />
                 </div>
             )}
 
