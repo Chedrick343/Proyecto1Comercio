@@ -15,7 +15,12 @@
 }
 
 
+/* isolation lets the history panel sit behind the field and button without dropping below the page */
 .searchGroup {
+    --search-bar-height: 46px;
+
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: stretch;
 }
@@ -31,7 +36,7 @@
 .searchInput {
     flex: 1;
     min-width: 0;
-    height: 46px;
+    height: var(--search-bar-height);
 
     padding: 0 46px 0 18px;
 
@@ -55,6 +60,11 @@
 
 .searchInput:focus {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+/* The history panel's frame already outlines the bar, so the focus ring would double it */
+.searchGroupOpen .searchInput {
+    box-shadow: none;
 }
 
 .searchInput::-webkit-search-cancel-button {
