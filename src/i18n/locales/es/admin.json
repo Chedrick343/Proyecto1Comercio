@@ -1,0 +1,130 @@
+{
+  "access": {
+    "signInTitle": "Inicia sesión como administrador",
+    "signInDescription": "El panel administrativo solo está disponible para el administrador de la tienda.",
+    "signIn": "Iniciar sesión",
+    "deniedTitle": "Acceso restringido",
+    "deniedDescription": "Tu cuenta no tiene permisos para ver el panel administrativo.",
+    "goToCatalog": "Ir al catálogo"
+  },
+  "usage": {
+    "title": "Métricas de uso",
+    "description": "Calculadas con la actividad registrada en este navegador: usuarios con sesión e invitados.",
+    "filterLabel": "Actividad de",
+    "allSubjects": "Todos los usuarios e invitados",
+    "subjectSearch": {
+      "label": "Buscar usuario o invitado",
+      "placeholder": "Buscar por correo o invitado",
+      "groups": {
+        "users": "Usuarios registrados",
+        "guests": "Invitados"
+      },
+      "noResults": "No hay coincidencias para «{{query}}».",
+      "moreResults_one": "Mostrando {{shown}} de {{count}}. Escribe para afinar la búsqueda.",
+      "moreResults_other": "Mostrando {{shown}} de {{count}}. Escribe para afinar la búsqueda."
+    },
+    "eventCount_one": "{{count}} evento",
+    "eventCount_other": "{{count}} eventos",
+    "guest": "Invitado {{id}}",
+    "userWithRole": "{{email}} ({{role}})",
+    "clear": "Limpiar datos",
+    "empty": "Todavía no hay actividad registrada. Navega por la tienda, busca productos o compra algo y vuelve aquí.",
+    "tiles": {
+      "label": "Resumen",
+      "productViews": "Productos visualizados",
+      "viewedProducts_one": "{{count}} producto distinto",
+      "viewedProducts_other": "{{count}} productos distintos",
+      "searches": "Búsquedas realizadas",
+      "searchedTerms_one": "{{count}} término distinto",
+      "searchedTerms_other": "{{count}} términos distintos",
+      "cartUnits": "Productos agregados al carrito",
+      "cartAdditions_one": "Unidades sumadas en {{count}} adición",
+      "cartAdditions_other": "Unidades sumadas en {{count}} adiciones",
+      "purchases": "Compras realizadas",
+      "sales": "{{amount}} en ventas",
+      "noSales": "Sin ventas todavía"
+    },
+    "categoryInterest": {
+      "title": "Interés por categoría",
+      "description": "Vistas y productos agregados al carrito de cada categoría. Se ordenan por interés: cada vista suma 1 y cada producto agregado al carrito suma 3.",
+      "descriptionSingle": "Vistas y productos agregados al carrito de cada categoría, ordenadas por interés (vista = 1, carrito = 3). Las 3 primeras son las que usa la tienda para recomendarle productos.",
+      "empty": "Aún no se ha visto ningún producto con categoría.",
+      "series": {
+        "views": "Vistas",
+        "cartAdditions": "Agregados al carrito"
+      },
+      "summary": "Gráfico de barras por categoría: {{list}}",
+      "summaryItem": "{{category}}, {{views}} vistas y {{cartAdditions}} agregados al carrito"
+    },
+    "funnel": {
+      "title": "Embudo de compra",
+      "description": "Usuarios e invitados distintos que llegaron a cada paso, de ver un producto a comprarlo.",
+      "people_one": "{{count}} persona",
+      "people_other": "{{count}} personas",
+      "continued": "{{rate}} siguió desde el paso anterior",
+      "moreThanPrevious": "Llegaron más personas que al paso anterior"
+    },
+    "journey": {
+      "title": "Recorrido de compra",
+      "description": "Hasta qué paso llegó {{name}}, de ver un producto a comprarlo.",
+      "reached_one": "{{count}} vez · {{time}}",
+      "reached_other": "{{count}} veces · primera vez: {{time}}",
+      "notReached": "Sin completar"
+    },
+    "conversion": {
+      "title": "Conversión",
+      "sales": "Ventas",
+      "averageTicket": "Ticket promedio"
+    },
+    "mostViewed": {
+      "title": "Productos más vistos",
+      "description": "Veces que se abrió el detalle de cada producto.",
+      "empty": "Aún no se ha visto ningún producto."
+    },
+    "topSearches": {
+      "title": "Búsquedas más frecuentes",
+      "description": "Veces que se buscó cada texto, sin distinguir mayúsculas.",
+      "empty": "Aún no se ha buscado nada."
+    },
+    "subjects": {
+      "title": "Actividad por usuario",
+      "description": "Eventos registrados por cada usuario o invitado.",
+      "empty": "Aún no hay usuarios con actividad.",
+      "logins_one": "{{count}} inicio de sesión registrado",
+      "logins_other": "{{count}} inicios de sesión registrados",
+      "more_one": "Y {{count}} más",
+      "more_other": "Y {{count}} más"
+    },
+    "latest": {
+      "title": "Últimos eventos",
+      "date": "Fecha",
+      "event": "Evento",
+      "subject": "Usuario",
+      "detail": "Detalle"
+    },
+    "eventTypes": {
+      "LOGIN": "Inicio de sesión",
+      "SEARCH": "Búsqueda",
+      "PRODUCT_VIEW": "Vista de producto",
+      "ADD_TO_CART": "Agregado al carrito",
+      "CHECKOUT_START": "Inicio del checkout",
+      "PURCHASE": "Compra"
+    },
+    "details": {
+      "search_one": "«{{query}}» · {{count}} resultado",
+      "search_other": "«{{query}}» · {{count}} resultados",
+      "addToCart": "{{title}} × {{quantity}}",
+      "checkoutStart_one": "{{count}} artículo · {{total}}",
+      "checkoutStart_other": "{{count}} artículos · {{total}}",
+      "purchase": "{{orderNumber}} · {{total}}"
+    },
+    "clearDialog": {
+      "eyebrow": "LIMPIAR DATOS",
+      "title": "¿Borrar toda la actividad?",
+      "description_one": "Se borrará el único evento guardado en este navegador. También se vaciarán los historiales y recomendaciones. Esta acción no se puede deshacer.",
+      "description_other": "Se borrarán los {{count}} eventos guardados en este navegador, de todos los usuarios e invitados. También se vaciarán sus historiales y recomendaciones. Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Borrar actividad"
+    }
+  }
+}

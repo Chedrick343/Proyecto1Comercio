@@ -1,0 +1,238 @@
+.dashboard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+}
+
+/* The controls always sit on their own row under the heading, at every width */
+.toolbar {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-2);
+}
+
+.heading {
+    margin: 0;
+    color: #f7f3eb;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: var(--font-size-xl);
+}
+
+.description {
+    margin: var(--space-1) 0 0;
+    color: #8f8e93;
+    font-size: var(--font-size-sm);
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+}
+
+.clearButton {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+    color: #f3aaa5;
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    background-color: transparent;
+    border: 1px solid #5c3533;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clearButton:hover:not(:disabled) {
+    background-color: #2f2020;
+}
+
+.clearButton:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.clearButton:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+/* =====================
+   TARJETAS
+===================== */
+
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+}
+
+.tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-5);
+    background-color: #212124;
+    border: 1px solid #313134;
+    border-radius: 14px;
+}
+
+.tileLabel {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+    color: #aaa9ad;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.tileIcon {
+    display: grid;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    color: #c9a246;
+    font-size: 0.85rem;
+    background-color: #2c2c30;
+    border-radius: 50%;
+}
+
+.tileValue {
+    margin: var(--space-2) 0 0;
+    color: #f7f2e9;
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.tileDetail {
+    margin: var(--space-1) 0 0;
+    color: #8f8e93;
+    font-size: var(--font-size-xs);
+}
+
+/* =====================
+   PANELES
+===================== */
+
+.overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(280px, 1fr);
+    gap: var(--space-4);
+}
+
+.rankings {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.note {
+    margin: auto 0 0;
+    padding-top: var(--space-3);
+    color: #8f8e93;
+    font-size: var(--font-size-xs);
+    border-top: 1px solid #313134;
+}
+
+.noteLine {
+    display: block;
+    margin-bottom: var(--space-1);
+    color: #c9c7cc;
+    font-weight: 600;
+}
+
+.productLink {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.productLink:hover {
+    color: #e4c56f;
+}
+
+.productLink:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.thumbnail {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 2px;
+    object-fit: contain;
+    background-color: #ffffff;
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+}
+
+.truncate {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.empty {
+    margin: 0;
+    padding: var(--space-6) var(--space-5);
+    color: #8f8e93;
+    text-align: center;
+    background-color: #212124;
+    border: 1px dashed #3a3a3d;
+    border-radius: 14px;
+}
+
+@media (max-width: 1200px) {
+    .tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .overview {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rankings {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 860px) {
+    .rankings {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 599px) {
+    .tiles {
+        gap: var(--space-3);
+    }
+
+    .tile {
+        padding: var(--space-4);
+    }
+
+    .tileValue {
+        font-size: 1.875rem;
+    }
+
+    .controls {
+        width: 100%;
+    }
+}

@@ -1,0 +1,62 @@
+.steps {
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.step {
+    display: grid;
+    gap: 6px;
+}
+
+.stepHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.stepLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: #e8e3db;
+    font-size: var(--font-size-sm);
+}
+
+.stepIcon {
+    flex-shrink: 0;
+    width: 13px;
+    color: #8f8e93;
+}
+
+.stepValue {
+    color: #f7f2e9;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Bars share a left baseline so their lengths can be compared */
+.track {
+    height: 10px;
+    overflow: hidden;
+    background-color: #2c2c30;
+    border-radius: var(--radius-pill);
+}
+
+.bar {
+    height: 100%;
+    background-color: #c9a246;
+    border-radius: var(--radius-pill);
+}
+
+.rate {
+    color: #8f8e93;
+    font-size: var(--font-size-xs);
+}
