@@ -68,6 +68,16 @@ export interface Product {
 }
 
 
+/**
+ * Obtiene la categoría más específica de un producto.
+ *
+ * @param product Producto, con sus categorías de la más general a la más específica.
+ * @return La última categoría, o undefined si no tiene.
+ */
+export const getMainCategory = (product: Product): string | undefined =>
+    product.categories[product.categories.length - 1];
+
+
 /** Criterios para filtrar el catálogo. */
 export interface ProductFilters {
     search: string;

@@ -6,7 +6,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import AddToCartControl from '../add-to-cart/AddToCartControl';
-import type { Product } from '../../utils/Products';
+import { getMainCategory, type Product } from '../../utils/Products';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { getCatalogReturnState } from '../../catalog/catalogReturn';
 
@@ -14,15 +14,6 @@ import styles from './ProductsGrid.module.css';
 
 /** Disposición de la tarjeta: en cuadrícula o en lista. */
 export type ProductCardLayout = 'grid' | 'list';
-
-/**
- * Obtiene la categoría más específica de un producto.
- *
- * @param categories Categorías del producto, de la más general a la más específica.
- * @return La última categoría, o undefined si no tiene.
- */
-const getMainCategory = (categories: string[]): string | undefined =>
-    categories[categories.length - 1];
 
 /** Propiedades de ProductCard. */
 interface ProductCardProps {
@@ -59,7 +50,7 @@ export default function ProductCard({ product, layout }: ProductCardProps) {
 
             <div className={styles.cardBody}>
                 <span className={styles.category}>
-                    {getMainCategory(product.categories) ?? t('product.uncategorized')}
+                    {getMainCategory(product) ??t('product.uncategorized')}
                 </span>
 
                 <h3 className={styles.cardTitle}>
