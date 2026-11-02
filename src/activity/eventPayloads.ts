@@ -114,3 +114,12 @@ export function createAnalyticsEvent<T extends AnalyticsEventType>(
  */
 export const isSameSubject = (first: AnalyticsSubject, second: AnalyticsSubject): boolean =>
     first.type === second.type && first.id === second.id;
+
+/**
+ * Obtiene la clave que identifica a un sujeto, por ejemplo para guardar sus
+ * datos o elegirlo en una lista.
+ *
+ * @param subject Usuario o invitado.
+ * @return Una clave con el formato tipo:id.
+ */
+export const getSubjectKey = (subject: AnalyticsSubject): string => `${subject.type}:${subject.id}`;
