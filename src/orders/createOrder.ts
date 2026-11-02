@@ -15,6 +15,15 @@ import type {
 const DEFAULT_CURRENCY = 'CRC';
 
 /**
+ * Obtiene la moneda en la que se cobra el carrito.
+ *
+ * @param cart Productos del carrito.
+ * @return La moneda del primer producto, o la moneda por defecto si está vacío.
+ */
+export const getCartCurrency = (cart: CartItem[]): string =>
+    cart[0]?.currency ?? DEFAULT_CURRENCY;
+
+/**
  * Genera un número de orden con la fecha y un sufijo aleatorio.
  *
  * @param date Fecha de la orden; por defecto, el momento actual.
@@ -87,7 +96,7 @@ export function createOrder({
         orderNumber: generateOrderNumber(now),
         createdAt: timestamp,
         updatedAt: timestamp,
-        currency: cart[0]?.currency ?? DEFAULT_CURRENCY,
+        currency: getCartCurrency(cart),
         customer: { ...customer },
         termsAcceptance: { ...termsAcceptance },
         items: cart.map(toOrderItem),

@@ -30,6 +30,7 @@ import ErrorState from './components/error/ErrorState';
 import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
 import Footer from './components/footer/footer';
+import { useTrackSearch } from './analytics/useTrackSearch';
 
 
 import {
@@ -101,6 +102,8 @@ function ProductCatalog() {
     const isLoading =
         status === 'loading' ||
         status === 'stalled';
+
+    useTrackSearch(query, products.length, status === 'idle');
 
     const hasVisibleResults =
         allProducts.length > 0;

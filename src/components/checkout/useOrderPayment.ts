@@ -4,6 +4,8 @@
 
 import { useRef, useState } from 'react';
 
+import { toPurchasePayload } from '../../analytics/eventPayloads';
+import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
 import { useOrders } from '../../context/OrdersContext';
 import { createOrder } from '../../orders/createOrder';
@@ -26,6 +28,7 @@ import {
 export function useOrderPayment() {
     const { cart, subtotal, iva, shipping, total, clearCart } = useCart();
     const { addOrder, updateOrderPayment } = useOrders();
+    const { track } = useAnalytics();
 
     const [activeOrder, setActiveOrder] = useState<Order | null>(null);
     const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
@@ -105,6 +108,7 @@ export function useOrderPayment() {
 
             if (paymentOutcome.result === 'PAYMENT_APPROVED') {
                 setConfirmedOrderNumber(order.orderNumber);
+                track('PURCHASE', toPurchasePayload(order));
                 clearCart();
             }
         } catch (error) {

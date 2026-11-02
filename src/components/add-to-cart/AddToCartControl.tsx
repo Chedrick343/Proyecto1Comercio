@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaCartPlus, FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
 
+import { toProductSnapshot } from '../../analytics/eventPayloads';
+import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
 import type { Product } from '../../utils/Products';
 
@@ -39,6 +41,7 @@ export default function AddToCartControl({
 }: AddToCartControlProps) {
     const { t } = useTranslation('product');
     const { cart, addProduct, increaseQuantity, decreaseQuantity, removeProduct } = useCart();
+    const { track } = useAnalytics();
     const [announcement, setAnnouncement] = useState('');
     // Counts only the units added during this visit; reloading or navigating resets it,
     // while the cart keeps its full quantity.
@@ -58,9 +61,14 @@ export default function AddToCartControl({
         .filter(Boolean)
         .join(' ');
 
+    /** Registra que se agregó una unidad del producto al carrito. */
+    const trackUnitAdded = () =>
+        track('ADD_TO_CART', { ...toProductSnapshot(product), quantity: 1 });
+
     /** Agrega una unidad del producto al carrito. */
     const handleAdd = () => {
         addProduct(product, 1);
+        trackUnitAdded();
         setAddedInThisVisit(1);
         setAnnouncement(t('addedAnnouncement', { name }));
         onAdded?.();
@@ -69,6 +77,7 @@ export default function AddToCartControl({
     /** Suma una unidad del producto en el carrito. */
     const handleIncrease = () => {
         increaseQuantity(productId);
+        trackUnitAdded();
         setAddedInThisVisit(displayedQuantity + 1);
     };
 
