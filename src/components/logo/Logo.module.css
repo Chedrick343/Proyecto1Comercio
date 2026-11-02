@@ -4,8 +4,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 10px;
     background-color: #666;
     text-decoration: none;
+}
+
+/* On the gray mobile bar a lighter gold keeps enough contrast */
+.mark {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    color: #f0d68e;
 }
 
 .logo {
@@ -24,6 +33,12 @@
         height: auto;
         justify-content: flex-start;
         background-color: transparent;
+    }
+
+    .mark {
+        width: 36px;
+        height: 36px;
+        color: #c9a246;
     }
 
     .logo {
