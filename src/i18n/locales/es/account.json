@@ -11,6 +11,14 @@
     "privacy": "Privacidad",
     "premium": "Prueba POST Premium",
     "help": "Centro de ayuda",
+    "login": "Iniciar sesión",
     "logout": "Cerrar sesión"
+  },
+  "logoutDialog": {
+    "eyebrow": "CERRAR SESIÓN",
+    "title": "¿Quieres cerrar sesión?",
+    "description": "Saldrás de la cuenta de {{name}}. Podrás seguir explorando la tienda como invitado.",
+    "cancel": "Cancelar",
+    "confirm": "Cerrar sesión"
   }
 }

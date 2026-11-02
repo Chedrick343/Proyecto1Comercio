@@ -5,11 +5,14 @@
 import type { ReactNode } from 'react';
 import Logo from '../logo/logo';
 import { Link, useLocation } from 'react-router-dom';
-import { FaShoppingCart, FaUser } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaUserCircle } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
+import { useSession } from '../../context/SessionContext';
+import { getFirstName } from '../../session/userTypes';
 import CartBadge from '../cart-badge/CartBadge';
 import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
+import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
 
 import styles from './Header.module.css';
 
@@ -67,26 +70,37 @@ function CartButton() {
 }
 
 /**
- * Enlace a la página de la cuenta.
+ * Acceso a la cuenta. Con sesión iniciada muestra el nombre del usuario (el
+ * rol solo se anuncia a lectores de pantalla) y enlaza a su cuenta; como
+ * invitado, enlaza al inicio de sesión.
  *
- * @return El enlace a la cuenta.
+ * @return El enlace a la cuenta o al inicio de sesión.
  */
 function AccountButton() {
-    const { t } = useTranslation();
+    const { t } = useTranslation(['common', 'auth']);
+    const { currentUser } = useSession();
+    const location = useLocation();
+    const className = `${styles.headerButton} ${styles.accountButton}`;
+
+    if (!currentUser) {
+        return (
+            <Link to={LOGIN_PATH} state={createLoginRedirectState(location)} className={className}>
+                <FaUser className={styles.headerIcon} aria-hidden="true" />
+                <span className={styles.headerLabel}>{t('auth:session.signIn')}</span>
+            </Link>
+        );
+    }
+
+    const accountLabel = t('auth:session.accountOf', {
+        name: currentUser.name,
+        role: t(`auth:roles.${currentUser.role}`)
+    });
 
     return (
-        <Link
-            to="/cuenta"
-            className={`${styles.headerButton} ${styles.accountButton}`}
-            aria-label={t('nav.account')}
-        >
-            <FaUser
-                className={styles.headerIcon}
-                aria-hidden="true"
-            />
-
-            <span className={styles.headerLabel}>
-                {t('nav.account')}
+        <Link to="/cuenta" className={className} aria-label={accountLabel} title={accountLabel}>
+            <FaUserCircle className={styles.headerIcon} aria-hidden="true" />
+            <span className={`${styles.headerLabel} ${styles.accountName}`}>
+                {getFirstName(currentUser)}
             </span>
         </Link>
     );
