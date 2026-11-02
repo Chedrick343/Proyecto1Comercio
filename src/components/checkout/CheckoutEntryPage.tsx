@@ -42,6 +42,7 @@ import {
 } from './checkoutTypes';
 import { validateShippingDetails } from './validateShippingDetails';
 import { focusFirstInvalidField } from './focusFirstInvalidField';
+import { useTrackCheckoutStart } from '../../analytics/useTrackCheckoutStart';
 
 import styles from './CheckoutEntryPage.module.css';
 
@@ -96,6 +97,8 @@ export default function CheckoutEntryPage() {
         clearPaymentResult,
         discardActiveOrder
     } = useOrderPayment();
+
+    useTrackCheckoutStart(cart, total);
 
     useEffect(() => {
         window.scrollTo({ top: 0 });

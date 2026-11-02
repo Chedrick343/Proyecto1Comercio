@@ -17,6 +17,7 @@ import ProductOverview from './ProductOverview';
 import ProductSpecifications from './ProductSpecifications';
 import RelatedProducts from './RelatedProducts';
 import { useProduct } from './useProduct';
+import { useTrackProductView } from '../../analytics/useTrackProductView';
 
 import styles from './ProductDetailPage.module.css';
 
@@ -81,6 +82,7 @@ export default function ProductDetailPage() {
     const { t } = useTranslation(['product', 'errors', 'common']);
     const { productId } = useParams<{ productId: string }>();
     const { product, errorCode, isLoading } = useProduct(productId);
+    useTrackProductView(product);
 
     return (
         <main className="app">
