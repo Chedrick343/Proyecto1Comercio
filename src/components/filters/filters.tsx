@@ -2,8 +2,9 @@
  * @fileoverview Panel de filtros del catálogo por categoría y rango de precio.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaCheck, FaChevronDown, FaSlidersH } from 'react-icons/fa';
 
 import styles from './filters.module.css';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -16,6 +17,15 @@ import {
     type ProductFilters
 } from '../../utils/Products';
 
+
+/**
+ * Calcula la posición de un precio dentro del rango permitido.
+ *
+ * @param price Precio a ubicar.
+ * @return El porcentaje del recorrido entre MIN_PRICE y MAX_PRICE.
+ */
+const getPricePercent = (price: number) =>
+    ((price - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
 
 /** Propiedades de Filters. */
 interface FiltersProps {
@@ -30,7 +40,8 @@ interface FiltersProps {
 
 /**
  * Muestra un panel desplegable con las categorías y el rango de precio. Las
- * categorías se aplican al marcarlas; el precio, al presionar el botón.
+ * categorías se aplican al marcarlas; el precio, que se elige con un control
+ * de dos extremos, al presionar el botón.
  *
  * @param props Propiedades del componente.
  * @return El panel de filtros.
@@ -61,19 +72,28 @@ export default function Filters({
         draftMinPrice !== filters.minPrice ||
         draftMaxPrice !== filters.maxPrice;
 
+    const hasActiveFilters =
+        selectedCategories.length > 0 ||
+        filters.minPrice !== MIN_PRICE ||
+        filters.maxPrice !== MAX_PRICE;
 
-    /** Categorías presentes en los productos, sin repetir y en orden alfabético. */
+
+    /** Categorías presentes en los productos, en orden alfabético, con su cantidad de productos. */
     const categories = useMemo(() => {
-        const uniqueCategories = new Set<string>();
+        const productCounts = new Map<string, number>();
 
         products.forEach((product) => {
             product.categories.forEach((category) => {
-                uniqueCategories.add(category);
+                productCounts.set(category, (productCounts.get(category) ?? 0) + 1);
             });
         });
 
-        return Array.from(uniqueCategories).sort();
+        return Array.from(productCounts, ([name, count]) => ({ name, count }))
+            .sort((a, b) => a.name.localeCompare(b.name));
     }, [products]);
+
+    const minPercent = getPricePercent(draftMinPrice);
+    const maxPercent = getPricePercent(draftMaxPrice);
 
     /**
      * Marca o desmarca una categoría y aplica el cambio.
@@ -93,25 +113,21 @@ export default function Filters({
 
 
     /**
-     * Actualiza el precio mínimo del borrador si no supera al máximo.
+     * Actualiza el precio mínimo del borrador sin dejar que supere al máximo.
      *
      * @param value Nuevo precio mínimo.
      */
     const handleDraftMinPriceChange = (value: number) => {
-        if (value <= draftMaxPrice) {
-            setDraftMinPrice(value);
-        }
+        setDraftMinPrice(Math.min(value, draftMaxPrice));
     };
 
     /**
-     * Actualiza el precio máximo del borrador si no es menor que el mínimo.
+     * Actualiza el precio máximo del borrador sin dejar que sea menor que el mínimo.
      *
      * @param value Nuevo precio máximo.
      */
     const handleDraftMaxPriceChange = (value: number) => {
-        if (value >= draftMinPrice) {
-            setDraftMaxPrice(value);
-        }
+        setDraftMaxPrice(Math.max(value, draftMinPrice));
     };
 
     /** Aplica el rango de precio del borrador. */
@@ -144,13 +160,16 @@ export default function Filters({
 
             <button
                 type="button"
-                className={styles.filtersButton}
+                className={`${styles.filtersButton} ${filtersOpen ? styles.filtersButtonOpen : ''}`}
                 onClick={() => setFiltersOpen(!filtersOpen)}
                 aria-expanded={filtersOpen}
             >
-                {t('filters.toggle')}
-                {selectedCategories.length > 0 && ` (${selectedCategories.length})`}
-                <span>{filtersOpen ? '▲' : '▼'}</span>
+                <FaSlidersH className={styles.buttonIcon} aria-hidden="true" />
+                <span className={styles.buttonLabel}>{t('filters.toggle')}</span>
+                {selectedCategories.length > 0 && (
+                    <span className={styles.countBadge}>{selectedCategories.length}</span>
+                )}
+                <FaChevronDown className={styles.chevron} aria-hidden="true" />
             </button>
 
             <div
@@ -159,29 +178,46 @@ export default function Filters({
                 }`}
             >
 
-                {/* CATEGORÍAS (sin cambios, aplican al instante) */}
+                <div className={styles.panelHeader}>
+                    <h2 className={styles.panelTitle}>
+                        <FaSlidersH className={styles.panelTitleIcon} aria-hidden="true" />
+                        {t('filters.toggle')}
+                    </h2>
+
+                    <button
+                        type="button"
+                        className={styles.clearButton}
+                        onClick={handleClearFilters}
+                        disabled={!hasActiveFilters}
+                    >
+                        {t('filters.clear')}
+                    </button>
+                </div>
 
                 <div className={styles.filterSection}>
-                    <h2 className={styles.filterTitle}>{t('filters.categories')}</h2>
+                    <h3 className={styles.filterTitle}>{t('filters.categories')}</h3>
 
                     <div className={styles.categoriesList}>
-                        {categories.map((category) => (
-                            <label key={category} className={styles.categoryOption}>
+                        {categories.map(({ name, count }) => (
+                            <label key={name} className={styles.categoryOption}>
                                 <input
                                     type="checkbox"
-                                    checked={selectedCategories.includes(category)}
-                                    onChange={() => handleCategoryChange(category)}
+                                    className={styles.checkboxInput}
+                                    checked={selectedCategories.includes(name)}
+                                    onChange={() => handleCategoryChange(name)}
                                 />
-                                <span>{category}</span>
+                                <span className={styles.checkbox} aria-hidden="true">
+                                    <FaCheck />
+                                </span>
+                                <span className={styles.categoryName}>{name}</span>
+                                <span className={styles.categoryCount}>{count}</span>
                             </label>
                         ))}
                     </div>
                 </div>
 
-                {/* RANGO DE PRECIO (borrador + botón Apply) */}
-
                 <div className={styles.filterSection}>
-                    <h2 className={styles.filterTitle}>{t('filters.priceRange')}</h2>
+                    <h3 className={styles.filterTitle}>{t('filters.priceRange')}</h3>
 
                     <div className={styles.priceValues}>
                         <div className={styles.priceBox}>
@@ -195,8 +231,16 @@ export default function Filters({
                         </div>
                     </div>
 
-                    <div className={styles.sliderContainer}>
-                        <label htmlFor="filter-min-price" className={styles.sliderLabel}>
+                    <div
+                        className={styles.rangeSlider}
+                        style={{
+                            '--range-start': `${minPercent}%`,
+                            '--range-end': `${maxPercent}%`
+                        } as CSSProperties}
+                    >
+                        <div className={styles.rangeTrack} aria-hidden="true" />
+
+                        <label htmlFor="filter-min-price" className={styles.visuallyHidden}>
                             {t('filters.minimumPrice')}
                         </label>
                         <input
@@ -206,15 +250,16 @@ export default function Filters({
                             max={MAX_PRICE}
                             step={PRICE_STEP}
                             value={draftMinPrice}
+                            aria-valuetext={formatCurrency(draftMinPrice)}
                             onChange={(event) =>
                                 handleDraftMinPriceChange(Number(event.target.value))
                             }
-                            className={styles.priceSlider}
+                            className={`${styles.priceSlider} ${
+                                minPercent > 50 ? styles.priceSliderOnTop : ''
+                            }`}
                         />
-                    </div>
 
-                    <div className={styles.sliderContainer}>
-                        <label htmlFor="filter-max-price" className={styles.sliderLabel}>
+                        <label htmlFor="filter-max-price" className={styles.visuallyHidden}>
                             {t('filters.maximumPrice')}
                         </label>
                         <input
@@ -224,6 +269,7 @@ export default function Filters({
                             max={MAX_PRICE}
                             step={PRICE_STEP}
                             value={draftMaxPrice}
+                            aria-valuetext={formatCurrency(draftMaxPrice)}
                             onChange={(event) =>
                                 handleDraftMaxPriceChange(Number(event.target.value))
                             }
@@ -245,14 +291,6 @@ export default function Filters({
                         {t('filters.applyPrice')}
                     </button>
                 </div>
-
-                <button
-                    type="button"
-                    className={styles.clearButton}
-                    onClick={handleClearFilters}
-                >
-                    {t('filters.clear')}
-                </button>
 
             </div>
 
