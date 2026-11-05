@@ -1,5 +1,6 @@
 /**
- * @fileoverview Hook que coordina la creación de la orden y su pago en el checkout.
+ * @fileoverview Hook que coordina la creación de la orden, su validación, su
+ * pago y su confirmación en el checkout.
  */
 
 import { useRef, useState } from 'react';
@@ -9,34 +10,69 @@ import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
 import { useOrders } from '../../context/OrdersContext';
 import { createOrder } from '../../orders/createOrder';
+import {
+    confirmOrder,
+    failOrder,
+    recordPaymentAttempt,
+    refundOrderPayment
+} from '../../orders/orderStateMachine';
 import type { Order, TermsAcceptance } from '../../orders/orderTypes';
+import {
+    reserveOrderInventory,
+    validateOrderForPayment,
+    type OrderScenario
+} from '../../services/orderSandbox/orderSandboxService';
 import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
 import type { ShippingDetails } from './checkoutTypes';
 import {
     PAYMENT_STATUS_BY_RESULT,
     submitPayment,
+    submitRefund,
     type PaymentResult
 } from './paymentGateway';
 
+/** Etapa del proceso de compra que está en curso. */
+export type CheckoutStage = 'validating' | 'paying' | 'confirming' | 'refunding';
+
+/** Escenarios que deben reproducir los servicios simulados. */
+export interface SandboxScenarios {
+    payment: SandboxScenario;
+    order: OrderScenario;
+}
+
 /**
  * Crea la orden en el primer intento de pago y la reutiliza en los
- * reintentos. Si el pago se aprueba, confirma la orden y vacía el carrito.
+ * reintentos. Cada intento valida la orden, la cobra y, si el pago se
+ * aprueba, reserva el inventario para confirmarla. Si la orden falla después
+ * de cobrarse, solicita el reembolso.
  *
- * @return El estado del pago y las acciones para pagar, limpiar el
- *     resultado o descartar la orden activa.
+ * @return El estado del proceso y las acciones para pagar, limpiar el
+ *     resultado, descartar la orden activa o empezar una orden nueva.
  */
 export function useOrderPayment() {
     const { cart, subtotal, iva, shipping, total, clearCart } = useCart();
-    const { addOrder, updateOrderPayment } = useOrders();
+    const { addOrder, saveOrder } = useOrders();
     const { track } = useAnalytics();
 
     const [activeOrder, setActiveOrder] = useState<Order | null>(null);
     const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
     const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
-    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [processingStage, setProcessingStage] = useState<CheckoutStage | null>(null);
 
     /** Bloquea los dobles clics que ocurren antes de que el botón se deshabilite. */
     const isSubmittingRef = useRef(false);
+
+    const failedOrder = activeOrder?.orderStatus === 'FAILED' ? activeOrder : null;
+
+    /**
+     * Guarda una nueva versión de la orden activa.
+     *
+     * @param order Orden actualizada.
+     */
+    const updateActiveOrder = (order: Order) => {
+        saveOrder(order);
+        setActiveOrder(order);
+    };
 
     /**
      * Devuelve la orden activa, o la crea y registra si aún no existe.
@@ -67,27 +103,72 @@ export function useOrderPayment() {
     };
 
     /**
-     * Paga la orden. Se ignora si ya hay un pago en curso o la orden ya fue confirmada.
+     * Reserva el inventario de una orden pagada y la confirma. Si la reserva
+     * falla, marca la orden como fallida y reembolsa el pago.
+     *
+     * @param paidOrder Orden con el pago aprobado.
+     * @param orderScenario Escenario del servicio de órdenes.
+     */
+    const confirmPaidOrder = async (paidOrder: Order, orderScenario: OrderScenario) => {
+        setProcessingStage('confirming');
+
+        if (await reserveOrderInventory(paidOrder, orderScenario)) {
+            const confirmedOrder = confirmOrder(paidOrder);
+
+            updateActiveOrder(confirmedOrder);
+            setConfirmedOrderNumber(confirmedOrder.orderNumber);
+            track('PURCHASE', toPurchasePayload(confirmedOrder));
+            clearCart();
+            return;
+        }
+
+        const unconfirmedOrder = failOrder(paidOrder, 'CONFIRMATION_ERROR');
+
+        setProcessingStage('refunding');
+
+        const isRefunded = await submitRefund({
+            transactionId: unconfirmedOrder.transactionId ?? '',
+            orderId: unconfirmedOrder.orderNumber,
+            amount: unconfirmedOrder.total,
+            currency: unconfirmedOrder.currency
+        });
+
+        // The failure is saved only after the refund attempt so the notice never shows a stale payment state.
+        updateActiveOrder(isRefunded ? refundOrderPayment(unconfirmedOrder) : unconfirmedOrder);
+    };
+
+    /**
+     * Valida, cobra y confirma la orden. Se ignora si ya hay un proceso en
+     * curso o si la orden ya terminó (confirmada o fallida).
      *
      * @param customer Datos de envío del cliente.
      * @param termsAcceptance Constancia de aceptación de términos.
-     * @param scenario Escenario que debe reproducir la pasarela simulada.
+     * @param scenarios Escenarios que deben reproducir los servicios simulados.
      */
     const payOrder = async (
         customer: ShippingDetails,
         termsAcceptance: TermsAcceptance,
-        scenario: SandboxScenario
+        scenarios: SandboxScenarios
     ) => {
-        if (isSubmittingRef.current || confirmedOrderNumber) {
+        if (isSubmittingRef.current || confirmedOrderNumber || failedOrder) {
             return;
         }
 
         isSubmittingRef.current = true;
-        setIsProcessingPayment(true);
+        setProcessingStage('validating');
         setPaymentResult(null);
 
         try {
             const order = getOrCreateOrder(customer, termsAcceptance);
+
+            const validationFailure = await validateOrderForPayment(order, scenarios.order);
+
+            if (validationFailure) {
+                updateActiveOrder(failOrder(order, validationFailure));
+                return;
+            }
+
+            setProcessingStage('paying');
 
             const paymentOutcome = await submitPayment(
                 {
@@ -95,28 +176,27 @@ export function useOrderPayment() {
                     amount: order.total,
                     currency: order.currency
                 },
-                scenario
+                scenarios.payment
             );
 
-            updateOrderPayment(order.orderNumber, {
+            const paidOrder = recordPaymentAttempt(order, {
                 paymentStatus: PAYMENT_STATUS_BY_RESULT[paymentOutcome.result],
                 transactionId: paymentOutcome.transactionId,
                 paymentMessage: paymentOutcome.providerMessage
             });
 
+            updateActiveOrder(paidOrder);
             setPaymentResult(paymentOutcome.result);
 
             if (paymentOutcome.result === 'PAYMENT_APPROVED') {
-                setConfirmedOrderNumber(order.orderNumber);
-                track('PURCHASE', toPurchasePayload(order));
-                clearCart();
+                await confirmPaidOrder(paidOrder, scenarios.order);
             }
         } catch (error) {
             console.error('No se pudo completar el pago de la orden:', error);
             setPaymentResult('PAYMENT_ERROR');
         } finally {
             isSubmittingRef.current = false;
-            setIsProcessingPayment(false);
+            setProcessingStage(null);
         }
     };
 
@@ -125,7 +205,7 @@ export function useOrderPayment() {
 
     /**
      * Olvida la orden activa para que el próximo pago cree una nueva (por
-     * ejemplo, cuando el cliente modifica sus datos tras un intento fallido).
+     * ejemplo, cuando el cliente modifica sus datos o la orden anterior falló).
      */
     const discardActiveOrder = () => {
         setActiveOrder(null);
@@ -134,7 +214,10 @@ export function useOrderPayment() {
 
     return {
         paymentResult,
-        isProcessingPayment,
+        processingStage,
+        isProcessingPayment: processingStage !== null,
+        paymentAttempts: activeOrder?.paymentAttempts ?? 0,
+        failedOrder,
         confirmedOrderNumber,
         payOrder,
         clearPaymentResult,
