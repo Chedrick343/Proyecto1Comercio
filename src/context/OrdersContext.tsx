@@ -10,11 +10,8 @@ import {
     type ReactNode
 } from 'react';
 
-import {
-    ORDER_STATUS_BY_PAYMENT_STATUS,
-    type Order,
-    type ProcessedPaymentStatus
-} from '../orders/orderTypes';
+import { isValidOrderChange } from '../orders/orderStateMachine';
+import type { Order } from '../orders/orderTypes';
 
 /** Clave de localStorage donde se guardan las órdenes. */
 const ORDERS_STORAGE_KEY = 'orders-v1';
@@ -31,31 +28,16 @@ type OrdersAction =
           };
       }
     | {
-          type: 'UPDATE_PAYMENT';
-          payload: PaymentUpdate & {
-              orderNumber: string;
-              updatedAt: string;
+          type: 'SAVE_ORDER';
+          payload: {
+              order: Order;
           };
       };
 
-/** Resultado de un intento de pago que se registra en una orden. */
-export interface PaymentUpdate {
-    paymentStatus: ProcessedPaymentStatus;
-    transactionId?: string;
-    paymentMessage?: string;
-}
-
 /**
- * Indica si una orden ya fue confirmada.
- *
- * @param order Orden a revisar.
- * @return Verdadero si la orden está en estado CONFIRMED.
- */
-const isOrderConfirmed = (order: Order) => order.orderStatus === 'CONFIRMED';
-
-/**
- * Calcula el nuevo estado de las órdenes a partir de una acción. Las órdenes
- * confirmadas no se modifican al registrar nuevos pagos.
+ * Calcula el nuevo estado de las órdenes a partir de una acción. Al guardar
+ * una orden existente se ignoran los cambios de estado que las reglas de
+ * transición no permiten, como modificar una orden ya confirmada.
  *
  * @param state Estado actual de las órdenes.
  * @param action Acción a aplicar.
@@ -69,29 +51,20 @@ function ordersReducer(
         case 'ADD_ORDER':
             return [action.payload.order, ...state];
 
-        case 'UPDATE_PAYMENT': {
-            const {
-                orderNumber,
-                paymentStatus,
-                transactionId,
-                paymentMessage,
-                updatedAt
-            } = action.payload;
+        case 'SAVE_ORDER': {
+            const { order: savedOrder } = action.payload;
 
             return state.map((order) => {
-                if (order.orderNumber !== orderNumber || isOrderConfirmed(order)) {
+                if (order.orderNumber !== savedOrder.orderNumber) {
                     return order;
                 }
 
-                return {
-                    ...order,
-                    paymentStatus,
-                    orderStatus: ORDER_STATUS_BY_PAYMENT_STATUS[paymentStatus],
-                    paymentAttempts: order.paymentAttempts + 1,
-                    transactionId: transactionId ?? order.transactionId,
-                    paymentMessage,
-                    updatedAt
-                };
+                if (!isValidOrderChange(order, savedOrder)) {
+                    console.error('Cambio de estado no permitido en la orden:', order.orderNumber);
+                    return order;
+                }
+
+                return savedOrder;
             });
         }
 
@@ -163,11 +136,8 @@ interface OrdersContextType {
 
     addOrder: (order: Order) => void;
 
-    /** Registra el resultado de un intento de pago en la orden indicada. */
-    updateOrderPayment: (
-        orderNumber: string,
-        update: PaymentUpdate
-    ) => void;
+    /** Reemplaza una orden registrada por su versión actualizada. */
+    saveOrder: (order: Order) => void;
 
     getOrderByNumber: (orderNumber: string) => Order | undefined;
 }
@@ -219,17 +189,10 @@ export function OrdersProvider({
         });
     };
 
-    const updateOrderPayment = (
-        orderNumber: string,
-        update: PaymentUpdate
-    ) => {
+    const saveOrder = (order: Order) => {
         dispatch({
-            type: 'UPDATE_PAYMENT',
-            payload: {
-                ...update,
-                orderNumber,
-                updatedAt: new Date().toISOString()
-            }
+            type: 'SAVE_ORDER',
+            payload: { order }
         });
     };
 
@@ -241,7 +204,7 @@ export function OrdersProvider({
             value={{
                 orders,
                 addOrder,
-                updateOrderPayment,
+                saveOrder,
                 getOrderByNumber
             }}
         >

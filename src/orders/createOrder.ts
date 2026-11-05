@@ -10,6 +10,7 @@ import type {
     OrderTotals,
     TermsAcceptance
 } from './orderTypes';
+import { withCreatedEntry } from './orderStateMachine';
 
 /** Moneda usada cuando el carrito no indica ninguna. */
 const DEFAULT_CURRENCY = 'CRC';
@@ -76,7 +77,8 @@ interface CreateOrderInput {
  * que la orden coincida con el resumen que revisó el cliente.
  *
  * @param input Carrito, totales, datos de envío y aceptación de términos.
- * @return La nueva orden en estado PENDING y sin intentos de pago.
+ * @return La nueva orden en estado PENDING, sin intentos de pago y con el
+ *     evento CREATED en su historial.
  * @throws {Error} Si el carrito está vacío.
  */
 export function createOrder({
@@ -92,7 +94,7 @@ export function createOrder({
     const now = new Date();
     const timestamp = now.toISOString();
 
-    return {
+    return withCreatedEntry({
         orderNumber: generateOrderNumber(now),
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -107,5 +109,5 @@ export function createOrder({
         orderStatus: 'PENDING',
         paymentStatus: 'PENDING',
         paymentAttempts: 0
-    };
+    });
 }
