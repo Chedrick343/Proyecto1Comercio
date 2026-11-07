@@ -12,6 +12,7 @@
     border-radius: 10px;
 }
 
+.historyPanel,
 .productsPanel {
     grid-column: 1 / -1;
 }

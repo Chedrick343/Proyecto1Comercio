@@ -9,7 +9,7 @@ import type { OrderStatus, PaymentStatus } from '../../orders/orderTypes';
 import styles from './OrderStatusBadge.module.css';
 
 /** Color de la etiqueta según la gravedad del estado. */
-type StatusTone = 'success' | 'warning' | 'danger';
+type StatusTone = 'success' | 'warning' | 'danger' | 'neutral';
 
 /** Color de cada estado de orden. */
 const ORDER_STATUS_TONES: Record<OrderStatus, StatusTone> = {
@@ -23,7 +23,9 @@ const PAYMENT_STATUS_TONES: Record<PaymentStatus, StatusTone> = {
     APPROVED: 'success',
     PENDING: 'warning',
     DECLINED: 'danger',
-    ERROR: 'danger'
+    ERROR: 'danger',
+    REFUNDED: 'neutral',
+    CANCELLED: 'neutral'
 };
 
 /**
