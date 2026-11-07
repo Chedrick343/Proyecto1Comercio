@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página para rutas inexistentes.
+ */
+
 import { Link } from 'react-router-dom';
 import { FaCompass } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +12,11 @@ import ErrorState from './ErrorState';
 
 import styles from './ErrorState.module.css';
 
+/**
+ * Muestra la página 404 con un enlace de regreso al catálogo.
+ *
+ * @return La página de error.
+ */
 export default function NotFoundPage() {
     const { t } = useTranslation('errors');
 

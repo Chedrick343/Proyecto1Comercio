@@ -1,0 +1,76 @@
+.chart {
+    position: relative;
+}
+
+/* Taken out of the flow so the SVG width never stretches the layout; this lets the chart shrink on resize */
+.canvas {
+    position: absolute;
+    inset: 0;
+}
+
+.empty {
+    margin: 0;
+    color: #8f8e93;
+    font-size: var(--font-size-sm);
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: calc(var(--space-2) * -1) 0 0;
+    padding: 0;
+    color: #c9c7cc;
+    font-size: var(--font-size-xs);
+    list-style: none;
+}
+
+.legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.swatch {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.tooltip {
+    min-width: 170px;
+    padding: var(--space-3);
+    color: #e8e3db;
+    font-size: var(--font-size-xs);
+    background-color: #2a2a2e;
+    border: 1px solid #3f3f43;
+    border-radius: var(--radius-md);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.tooltipTitle {
+    margin: 0;
+    color: #f7f2e9;
+    font-weight: 700;
+}
+
+.tooltipList {
+    display: grid;
+    gap: 6px;
+    margin: var(--space-2) 0 0;
+    padding: var(--space-2) 0 0;
+    list-style: none;
+    border-top: 1px solid #3f3f43;
+}
+
+.tooltipList li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.tooltipList span:nth-child(2) {
+    flex: 1;
+}

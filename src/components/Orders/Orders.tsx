@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Historial de órdenes del cliente.
+ */
+
 import { Link } from 'react-router-dom';
 import { FaChevronRight } from 'react-icons/fa';
 import { GoArchive } from 'react-icons/go';
@@ -11,11 +15,26 @@ import { OrderStatusBadge, PaymentStatusBadge } from '../order/OrderStatusBadge'
 
 import styles from './Orders.module.css';
 
+/** Cantidad máxima de miniaturas de productos por orden. */
 const MAX_VISIBLE_THUMBNAILS = 2;
 
+/**
+ * Cuenta las unidades de una orden.
+ *
+ * @param order Orden a contar.
+ * @return La suma de las cantidades de sus productos.
+ */
 const countItems = (order: Order) =>
     order.items.reduce((total, item) => total + item.quantity, 0);
 
+/**
+ * Muestra miniaturas de los primeros productos de una orden y cuántos más
+ * contiene.
+ *
+ * @param props Propiedades del componente.
+ * @param props.order Orden a mostrar.
+ * @return Las miniaturas, ocultas para lectores de pantalla.
+ */
 function OrderThumbnails({ order }: { order: Order }) {
     const visibleItems = order.items.slice(0, MAX_VISIBLE_THUMBNAILS);
     const hiddenItemCount = order.items.length - visibleItems.length;
@@ -32,6 +51,13 @@ function OrderThumbnails({ order }: { order: Order }) {
     );
 }
 
+/**
+ * Muestra el resumen de una orden como enlace a su detalle.
+ *
+ * @param props Propiedades del componente.
+ * @param props.order Orden a mostrar.
+ * @return La tarjeta de la orden.
+ */
 function OrderCard({ order }: { order: Order }) {
     const { t } = useTranslation('common');
     const itemCount = countItems(order);
@@ -60,6 +86,11 @@ function OrderCard({ order }: { order: Order }) {
     );
 }
 
+/**
+ * Indica que todavía no hay órdenes e invita a explorar el catálogo.
+ *
+ * @return El mensaje de historial vacío.
+ */
 function EmptyOrders() {
     const { t } = useTranslation('orders');
 
@@ -75,6 +106,11 @@ function EmptyOrders() {
     );
 }
 
+/**
+ * Muestra las órdenes registradas, de la más reciente a la más antigua.
+ *
+ * @return El panel del historial de órdenes.
+ */
 export default function Orders() {
     const { t } = useTranslation('orders');
     const { orders } = useOrders();

@@ -1,0 +1,92 @@
+.steps {
+    flex: 1;
+    display: grid;
+    align-content: start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-bottom: var(--space-5);
+}
+
+.step:last-child {
+    padding-bottom: 0;
+}
+
+.marker {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    color: #252525;
+    font-size: 0.7rem;
+    background-color: #212124;
+    border: 2px solid #3f3f43;
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+.reached .marker {
+    background-color: #c9a246;
+    border-color: #c9a246;
+}
+
+/* Runs from the center of this marker to the next one */
+.connector {
+    position: absolute;
+    top: 28px;
+    bottom: 0;
+    left: 13px;
+    width: 2px;
+    background-color: #3f3f43;
+}
+
+.connectorReached {
+    background-color: #c9a246;
+}
+
+.body {
+    display: grid;
+    gap: 2px;
+    padding-top: 4px;
+    min-width: 0;
+}
+
+.label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: #8f8e93;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.reached .label {
+    color: #f1efe9;
+}
+
+.icon {
+    flex-shrink: 0;
+    width: 13px;
+}
+
+.reached .icon {
+    color: #c9a246;
+}
+
+.detail {
+    color: #8f8e93;
+    font-size: var(--font-size-xs);
+}
+
+.reached .detail {
+    color: #aaa9ad;
+}

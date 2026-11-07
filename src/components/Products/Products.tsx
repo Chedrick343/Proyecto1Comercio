@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Cuadrícula paginada de productos del catálogo.
+ */
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FaThLarge, FaList } from 'react-icons/fa';
@@ -13,27 +17,36 @@ import {
 } from '../../catalog/catalogSearchParams';
 
 
+/** Propiedades de ProductsGrid. */
 interface ProductsGridProps {
+    /** Productos ya filtrados que se deben mostrar. */
     products: Product[];
 }
 
 
 
+/** Cantidad de productos por página. */
 const PRODUCTS_PER_PAGE = 12;
 
-// Cuántas páginas mostrar a cada lado de la página actual
+/** Cantidad de páginas que se muestran a cada lado de la página actual. */
 const SIBLING_COUNT = 1;
 
+/** Marcador de páginas omitidas en la paginación. */
 const ELLIPSIS = 'ellipsis' as const;
 
+/** Elemento de la paginación: un número de página o puntos suspensivos. */
 type PageItem = number | typeof ELLIPSIS;
 
 
-/* =====================
-   UTILIDADES
-===================== */
-
-
+/**
+ * Calcula los elementos de la paginación. Siempre incluye la primera y la
+ * última página, las vecinas de la actual y puntos suspensivos donde se
+ * omiten páginas. Si hay pocas páginas, las muestra todas.
+ *
+ * @param currentPage Página actual.
+ * @param totalPages Total de páginas.
+ * @return Los números de página y puntos suspensivos, en orden.
+ */
 const getPageNumbers = (
     currentPage: number,
     totalPages: number
@@ -82,10 +95,17 @@ const getPageNumbers = (
 };
 
 
+/**
+ * Muestra los productos en cuadrícula o lista, con paginación. La página
+ * actual se guarda en la URL y se corrige si está fuera de rango.
+ *
+ * @param props Propiedades del componente.
+ * @return La sección de productos.
+ */
 export default function ProductsGrid({ products }: ProductsGridProps) {
 
     const { t } = useTranslation('catalog');
-    const allProducts = useMemo(() => products, [products]);
+    const allProducts = products;
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [viewMode, setViewMode] = useState<ProductCardLayout>('grid');
@@ -126,6 +146,11 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     );
 
 
+    /**
+     * Cambia de página y desplaza la vista al inicio de la sección.
+     *
+     * @param page Página destino; se ignora si está fuera de rango.
+     */
     const goToPage = (page: number) => {
 
         if (page < 1 || page > totalPages) {

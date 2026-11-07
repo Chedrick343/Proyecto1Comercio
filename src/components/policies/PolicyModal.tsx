@@ -1,19 +1,35 @@
+/**
+ * @fileoverview Ventana modal accesible para mostrar políticas.
+ */
+
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaTimes } from 'react-icons/fa';
 import styles from './Policies.module.css';
 
+/** Propiedades comunes de los modales de políticas. */
 export interface PolicyProps {
+  /** Indica si el modal está abierto. */
   isOpen: boolean;
+  /** Se llama cuando el usuario cierra el modal. */
   onClose: () => void;
 }
 
+/** Propiedades de PolicyModal. */
 interface PolicyModalProps extends PolicyProps {
   title: string;
   children: ReactNode;
 }
 
+/**
+ * Muestra un modal sobre la página. Mientras está abierto bloquea el
+ * desplazamiento del fondo, se cierra con Escape o al hacer clic fuera, y al
+ * cerrarse devuelve el foco al elemento que lo abrió.
+ *
+ * @param props Propiedades del componente.
+ * @return El modal en un portal sobre document.body, o null si está cerrado.
+ */
 export default function PolicyModal({ isOpen, onClose, title, children }: PolicyModalProps) {
   const { t } = useTranslation(['policies', 'common']);
   const titleId = useId();

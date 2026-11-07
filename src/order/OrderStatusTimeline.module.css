@@ -1,0 +1,111 @@
+.timeline {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 16px;
+    padding: 12px 0;
+}
+
+/* Línea que une los puntos de eventos consecutivos */
+.entry:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: calc(50% + 10px);
+    bottom: calc(-50% + 10px);
+    left: 5px;
+    width: 2px;
+    background-color: #474747;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+.neutral {
+    background-color: #7d8796;
+}
+
+.success {
+    background-color: #68a877;
+}
+
+.danger {
+    background-color: #c65c54;
+}
+
+.entryBody {
+    min-width: 0;
+}
+
+.event {
+    margin: 0;
+    color: #f7f2e9;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.reason {
+    color: #f3c5c2;
+    font-weight: 400;
+}
+
+.date {
+    color: #aaa9ad;
+    font-size: 0.8rem;
+}
+
+.statuses {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 14px;
+    margin: 0;
+}
+
+.statuses div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.statuses dt {
+    color: #aaa9ad;
+    font-size: 0.78rem;
+}
+
+.statuses dd {
+    min-width: 108px;
+    margin: 0;
+}
+
+@media (max-width: 760px) {
+    .entry {
+        grid-template-columns: 12px minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .dot {
+        margin-top: 5px;
+    }
+
+    .entry:not(:last-child)::after {
+        top: 33px;
+        bottom: -13px;
+    }
+
+    .statuses {
+        grid-column: 2;
+        justify-content: flex-start;
+    }
+}

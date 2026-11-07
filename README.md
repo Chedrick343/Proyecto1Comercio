@@ -30,5 +30,21 @@ de productos.
 
 De esa forma se consiguió la cuadricula. El json fue utilizado para simular la conexión con algolia
 
+# Inicio de sesión simulado
+La autenticación es simulada: los usuarios están en el índice de usuarios de Algolia (`VITE_ALGOLIA_USERS_INDEX_NAME`) y la verificación ocurre en el navegador. El índice solo guarda el hash SHA-256 de cada contraseña, nunca la contraseña en texto plano. La sesión activa se guarda en localStorage.
+
+Para cargar o actualizar los usuarios (requiere `ALGOLIA_APP_ID` y `ALGOLIA_ADMIN_API_KEY` en `.env.local`):
+
+```bash
+npm run seed-users
+```
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Cliente B2C | cliente@post.cr | Cliente2026! |
+| Cliente B2B (Joyería Aurora S.A.) | compras@joyeriaaurora.cr | Empresa2026! |
+| Administrador | admin@post.cr | Admin2026! |
+| Sin rol válido (prueba de error) | sinrol@post.cr | SinRol2026! |
+
 # Enlace del repositorio desplegado
 https://chedrick343.github.io/Proyecto1Comercio/

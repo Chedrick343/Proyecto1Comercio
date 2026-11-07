@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Sección de productos relacionados.
+ */
+
 import { useTranslation } from 'react-i18next';
 
 import ProductCard from '../Products/ProductCard';
@@ -6,6 +10,13 @@ import { useRelatedProducts } from './useRelatedProducts';
 
 import styles from './ProductDetailPage.module.css';
 
+/**
+ * Muestra otros productos de la misma marca.
+ *
+ * @param props Propiedades del componente.
+ * @param props.product Producto de referencia.
+ * @return La sección, o null si no hay productos relacionados.
+ */
 export default function RelatedProducts({ product }: { product: Product }) {
     const { t } = useTranslation('product');
     const relatedProducts = useRelatedProducts(product);

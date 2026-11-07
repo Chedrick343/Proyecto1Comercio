@@ -1,0 +1,15 @@
+.personalization {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+    width: 100%;
+    max-width: var(--page-max-width-wide);
+    margin: 0 auto;
+    padding: var(--space-7) var(--page-gutter) 0;
+    box-sizing: border-box;
+}
+
+/* Keeps the page spacing unchanged when there's nothing personalized to show */
+.personalization:empty {
+    display: none;
+}

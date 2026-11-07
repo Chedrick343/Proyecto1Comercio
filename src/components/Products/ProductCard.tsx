@@ -1,23 +1,33 @@
+/**
+ * @fileoverview Tarjeta de producto del catálogo.
+ */
+
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import AddToCartControl from '../add-to-cart/AddToCartControl';
-import type { Product } from '../../utils/Products';
+import { getMainCategory, type Product } from '../../utils/Products';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { getCatalogReturnState } from '../../catalog/catalogReturn';
 
 import styles from './ProductsGrid.module.css';
 
+/** Disposición de la tarjeta: en cuadrícula o en lista. */
 export type ProductCardLayout = 'grid' | 'list';
 
-const getMainCategory = (categories: string[]): string | undefined =>
-    categories[categories.length - 1];
-
+/** Propiedades de ProductCard. */
 interface ProductCardProps {
     product: Product;
     layout: ProductCardLayout;
 }
 
+/**
+ * Muestra un producto con su imagen, precio y control para agregarlo al
+ * carrito. Toda la tarjeta enlaza al detalle del producto.
+ *
+ * @param props Propiedades del componente.
+ * @return La tarjeta del producto.
+ */
 export default function ProductCard({ product, layout }: ProductCardProps) {
     const { t } = useTranslation('catalog');
     const location = useLocation();
@@ -40,7 +50,7 @@ export default function ProductCard({ product, layout }: ProductCardProps) {
 
             <div className={styles.cardBody}>
                 <span className={styles.category}>
-                    {getMainCategory(product.categories) ?? t('product.uncategorized')}
+                    {getMainCategory(product) ??t('product.uncategorized')}
                 </span>
 
                 <h3 className={styles.cardTitle}>

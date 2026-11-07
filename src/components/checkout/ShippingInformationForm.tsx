@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Paso del checkout para ingresar los datos de envío.
+ */
+
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { COSTA_RICAN_PROVINCES } from './checkoutTypes';
@@ -8,13 +12,23 @@ import type {
 
 import styles from './CheckoutEntryPage.module.css';
 
+/** Propiedades de ShippingInformationForm. */
 interface ShippingInformationFormProps {
     details: ShippingDetails;
     errors: ShippingFieldErrors;
+    /** Se llama cuando cambia un campo del formulario. */
     onDetailsChange: (field: keyof ShippingDetails, value: string) => void;
+    /** Se llama al enviar el formulario. */
     onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
+/**
+ * Muestra el formulario de contacto y dirección de entrega, con los errores
+ * de validación junto a cada campo.
+ *
+ * @param props Propiedades del componente.
+ * @return El formulario de envío.
+ */
 export default function ShippingInformationForm({
     details,
     errors,
@@ -22,6 +36,12 @@ export default function ShippingInformationForm({
     onSubmit
 }: ShippingInformationFormProps) {
     const { t } = useTranslation('checkout');
+    /**
+     * Obtiene la clase de un campo según si tiene errores.
+     *
+     * @param field Campo del formulario.
+     * @return La clase del campo, marcada como inválida si corresponde.
+     */
     const fieldClassName = (field: keyof ShippingDetails) =>
         errors[field]
             ? `${styles.formControl} ${styles.formControlInvalid}`

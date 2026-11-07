@@ -1,0 +1,16 @@
+.orderLink {
+    margin-top: var(--space-1);
+    color: #d8bd76;
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+}
+
+.orderLink:hover {
+    color: #f0d68e;
+    text-decoration: underline;
+}
+
+.orderLink:focus-visible {
+    outline: 2px solid #f0d68e;
+    outline-offset: 3px;
+}

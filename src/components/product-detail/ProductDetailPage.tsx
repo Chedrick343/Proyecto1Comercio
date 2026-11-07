@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página de detalle de un producto.
+ */
+
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -8,18 +12,28 @@ import ErrorState from '../error/ErrorState';
 import errorStateStyles from '../error/ErrorState.module.css';
 import { getCatalogReturnPath } from '../../catalog/catalogReturn';
 import { getCatalogCategoryPath } from '../../catalog/catalogSearchParams';
-import type { Product } from '../../utils/Products';
+import { getMainCategory, type Product } from '../../utils/Products';
 import ProductOverview from './ProductOverview';
 import ProductSpecifications from './ProductSpecifications';
 import RelatedProducts from './RelatedProducts';
 import { useProduct } from './useProduct';
+import { useTrackProductView } from '../../activity/useTrackProductView';
+import RecentlyViewedCarousel from '../personalization/RecentlyViewedCarousel';
 
 import styles from './ProductDetailPage.module.css';
 
+/**
+ * Muestra la ruta de navegación: el catálogo (con la búsqueda recordada)
+ * y la categoría principal del producto.
+ *
+ * @param props Propiedades del componente.
+ * @param props.product Producto que se está viendo.
+ * @return La ruta de navegación.
+ */
 function Breadcrumb({ product }: { product: Product }) {
     const { t } = useTranslation('product');
     const location = useLocation();
-    const category = product.categories[product.categories.length - 1];
+    const category = getMainCategory(product);
 
     return (
         <nav className={styles.breadcrumb} aria-label={t('breadcrumb.label')}>
@@ -39,6 +53,13 @@ function Breadcrumb({ product }: { product: Product }) {
     );
 }
 
+/**
+ * Muestra la imagen principal del producto.
+ *
+ * @param props Propiedades del componente.
+ * @param props.product Producto que se está viendo.
+ * @return La imagen del producto.
+ */
 function ProductImage({ product }: { product: Product }) {
     const { t } = useTranslation('product');
 
@@ -52,10 +73,17 @@ function ProductImage({ product }: { product: Product }) {
     );
 }
 
+/**
+ * Carga el producto indicado en la URL y muestra su información,
+ * especificaciones y productos relacionados, o un error si no se pudo cargar.
+ *
+ * @return La página del producto.
+ */
 export default function ProductDetailPage() {
     const { t } = useTranslation(['product', 'errors', 'common']);
     const { productId } = useParams<{ productId: string }>();
     const { product, errorCode, isLoading } = useProduct(productId);
+    useTrackProductView(product);
 
     return (
         <main className="app">
@@ -94,6 +122,11 @@ export default function ProductDetailPage() {
 
                     <ProductSpecifications facets={product.facets} />
                     <RelatedProducts product={product} />
+
+                    <RecentlyViewedCarousel
+                        currentProductId={product.objectID}
+                        className={styles.relatedSection}
+                    />
                 </div>
             )}
 

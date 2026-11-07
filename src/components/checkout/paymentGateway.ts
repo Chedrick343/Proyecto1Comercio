@@ -1,29 +1,50 @@
-import { processSandboxPayment } from '../../services/paymentSandbox/paymentSandboxService';
+/**
+ * @fileoverview Capa entre el checkout y la pasarela de pago, con tiempo límite de respuesta.
+ */
+
+import {
+    processSandboxPayment,
+    refundSandboxPayment
+} from '../../services/paymentSandbox/paymentSandboxService';
 import type {
     PaymentRequest,
+    RefundRequest,
     SandboxScenario
 } from '../../services/paymentSandbox/paymentSandboxTypes';
 import type { ProcessedPaymentStatus } from '../../orders/orderTypes';
 
+/** Resultado de un intento de pago, tal como lo ve la interfaz. */
 export type PaymentResult =
     | 'PAYMENT_APPROVED'
     | 'PAYMENT_DECLINED'
     | 'PAYMENT_ERROR';
 
+/** Estado de pago de la orden que corresponde a cada resultado. */
 export const PAYMENT_STATUS_BY_RESULT: Record<PaymentResult, ProcessedPaymentStatus> = {
     PAYMENT_APPROVED: 'APPROVED',
     PAYMENT_DECLINED: 'DECLINED',
     PAYMENT_ERROR: 'ERROR'
 };
 
+/** Resultado de un intento de pago con los datos de la transacción. */
 export interface PaymentOutcome {
     result: PaymentResult;
     transactionId?: string;
     providerMessage?: string;
 }
 
+/** Tiempo máximo de espera de la respuesta de la pasarela. */
 const PAYMENT_TIMEOUT_MS = 5000;
 
+/**
+ * Espera una operación, pero la rechaza si no termina a tiempo.
+ *
+ * @param operation Operación a esperar.
+ * @param timeoutMs Tiempo máximo de espera en milisegundos.
+ * @return El resultado de la operación.
+ * @throws {Error} Si se agota el tiempo o la operación falla.
+ * @template T
+ */
 async function withTimeout<T>(
     operation: Promise<T>,
     timeoutMs: number
@@ -44,7 +65,15 @@ async function withTimeout<T>(
     }
 }
 
-// Never throws: any provider failure or timeout becomes PAYMENT_ERROR so the UI can offer a retry.
+/**
+ * Envía un pago a la pasarela. Nunca lanza errores: cualquier falla del
+ * proveedor o tiempo agotado se convierte en PAYMENT_ERROR para que la
+ * interfaz pueda ofrecer reintentar.
+ *
+ * @param request Solicitud de cobro.
+ * @param scenario Escenario que debe reproducir la pasarela simulada.
+ * @return El resultado del pago.
+ */
 export async function submitPayment(
     request: PaymentRequest,
     scenario: SandboxScenario
@@ -64,5 +93,27 @@ export async function submitPayment(
         console.error('Fallo en el servicio de pago:', error);
 
         return { result: 'PAYMENT_ERROR' };
+    }
+}
+
+/**
+ * Solicita a la pasarela el reembolso de una transacción aprobada. Nunca
+ * lanza errores para que quien la llama decida qué hacer si falla.
+ *
+ * @param request Solicitud de reembolso.
+ * @return Verdadero si la pasarela confirmó el reembolso.
+ */
+export async function submitRefund(request: RefundRequest): Promise<boolean> {
+    try {
+        const response = await withTimeout(
+            refundSandboxPayment(request),
+            PAYMENT_TIMEOUT_MS
+        );
+
+        return response.status === 'REFUND_COMPLETED';
+    } catch (error) {
+        console.error('Fallo al reembolsar el pago:', error);
+
+        return false;
     }
 }

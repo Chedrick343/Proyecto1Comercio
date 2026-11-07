@@ -1,0 +1,35 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+    padding: var(--space-5);
+    background-color: #212124;
+    border: 1px solid #313134;
+    border-radius: 14px;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.heading {
+    min-width: 0;
+}
+
+.title {
+    margin: 0;
+    color: #f1efe9;
+    font-size: var(--font-size-md);
+    font-weight: 700;
+}
+
+.description {
+    margin: var(--space-1) 0 0;
+    color: #8f8e93;
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+}

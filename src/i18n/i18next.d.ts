@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Tipado de i18next: permite que TypeScript valide las claves de
+ * traducción contra los recursos en español.
+ */
+
 import 'i18next';
 
 import type { DEFAULT_LANGUAGE, resources } from './resources';

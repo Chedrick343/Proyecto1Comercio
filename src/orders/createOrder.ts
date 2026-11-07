@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Creación de órdenes a partir del carrito y los datos del checkout.
+ */
+
 import type { CartItem } from '../context/CartContext';
 import type { ShippingDetails } from '../components/checkout/checkoutTypes';
 import type {
@@ -6,9 +10,26 @@ import type {
     OrderTotals,
     TermsAcceptance
 } from './orderTypes';
+import { withCreatedEntry } from './orderStateMachine';
 
+/** Moneda usada cuando el carrito no indica ninguna. */
 const DEFAULT_CURRENCY = 'CRC';
 
+/**
+ * Obtiene la moneda en la que se cobra el carrito.
+ *
+ * @param cart Productos del carrito.
+ * @return La moneda del primer producto, o la moneda por defecto si está vacío.
+ */
+export const getCartCurrency = (cart: CartItem[]): string =>
+    cart[0]?.currency ?? DEFAULT_CURRENCY;
+
+/**
+ * Genera un número de orden con la fecha y un sufijo aleatorio.
+ *
+ * @param date Fecha de la orden; por defecto, el momento actual.
+ * @return Un número de orden con el formato ORD-AAAAMMDD-XXXXXX.
+ */
 export function generateOrderNumber(date: Date = new Date()): string {
     const datePart = [
         date.getFullYear(),
@@ -25,6 +46,12 @@ export function generateOrderNumber(date: Date = new Date()): string {
     return `ORD-${datePart}-${randomPart}`;
 }
 
+/**
+ * Convierte un producto del carrito en una línea de la orden.
+ *
+ * @param item Producto del carrito.
+ * @return La línea de la orden con su subtotal calculado.
+ */
 function toOrderItem(item: CartItem): OrderItem {
     return {
         productId: item.id,
@@ -37,6 +64,7 @@ function toOrderItem(item: CartItem): OrderItem {
     };
 }
 
+/** Datos necesarios para crear una orden. */
 interface CreateOrderInput {
     cart: CartItem[];
     totals: OrderTotals;
@@ -44,7 +72,15 @@ interface CreateOrderInput {
     termsAcceptance: TermsAcceptance;
 }
 
-// Totals come from the cart so the order matches the summary the customer reviewed.
+/**
+ * Crea una orden pendiente de pago. Los totales se toman del carrito para
+ * que la orden coincida con el resumen que revisó el cliente.
+ *
+ * @param input Carrito, totales, datos de envío y aceptación de términos.
+ * @return La nueva orden en estado PENDING, sin intentos de pago y con el
+ *     evento CREATED en su historial.
+ * @throws {Error} Si el carrito está vacío.
+ */
 export function createOrder({
     cart,
     totals,
@@ -58,11 +94,11 @@ export function createOrder({
     const now = new Date();
     const timestamp = now.toISOString();
 
-    return {
+    return withCreatedEntry({
         orderNumber: generateOrderNumber(now),
         createdAt: timestamp,
         updatedAt: timestamp,
-        currency: cart[0]?.currency ?? DEFAULT_CURRENCY,
+        currency: getCartCurrency(cart),
         customer: { ...customer },
         termsAcceptance: { ...termsAcceptance },
         items: cart.map(toOrderItem),
@@ -73,5 +109,5 @@ export function createOrder({
         orderStatus: 'PENDING',
         paymentStatus: 'PENDING',
         paymentAttempts: 0
-    };
+    });
 }

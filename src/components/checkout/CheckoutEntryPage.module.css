@@ -29,26 +29,20 @@
     gap: 18px;
 }
 
-.backLink,
-.editCartLink {
+.backLink {
+    align-self: flex-start;
     color: #d8bd76;
+    font-size: 0.9rem;
     text-decoration: none;
 }
 
-.backLink {
-    align-self: flex-start;
-    font-size: 0.9rem;
-}
-
 .backLink:hover,
-.editCartLink:hover,
 .textAction:hover {
     color: #f0d68e;
     text-decoration: underline;
 }
 
 .backLink:focus-visible,
-.editCartLink:focus-visible,
 .textAction:focus-visible,
 .primaryAction:focus-visible,
 .secondaryAction:focus-visible {
@@ -548,26 +542,6 @@
     font-size: 1.4rem;
 }
 
-
-.paymentFeedback {
-    margin: 20px 0 0;
-    padding: 13px 15px;
-    border-left: 3px solid;
-    font-size: 0.9rem;
-    line-height: 1.45;
-}
-
-.paymentApproved {
-    color: #d5e8d4;
-    background-color: #243127;
-    border-color: #68a877;
-}
-
-.paymentFailed {
-    color: #f3c5c2;
-    background-color: #3b2524;
-    border-color: #c65c54;
-}
 
 .reviewActions {
     display: flex;

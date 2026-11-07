@@ -1,8 +1,8 @@
+/**
+ * @fileoverview Tipos de los productos del catálogo y filtrado del lado del cliente.
+ */
 
-/* =====================
-   TIPOS DEL JSON
-===================== */
-
+/** Condiciones de venta a consumidores finales. */
 export interface B2C {
     enabled: boolean;
     price: number;
@@ -11,15 +11,19 @@ export interface B2C {
 }
 
 
+/** Condiciones de venta a empresas. */
 export interface B2B {
     enabled: boolean;
     price: number;
     currency: string;
+    /** Cantidad mínima de unidades por pedido. */
     minimumOrder: number;
+    /** Descuento para empresas, expresado como fracción. */
     businessDiscount: number;
 }
 
 
+/** Tienda física y su inventario del producto. */
 export interface Location {
     locationId: string;
     title: string;
@@ -30,7 +34,9 @@ export interface Location {
 }
 
 
+/** Producto del catálogo, tal como se almacena en Algolia. */
 export interface Product {
+    /** Identificador del producto en Algolia. */
     objectID: string;
     sku: string;
     title: string;
@@ -52,18 +58,27 @@ export interface Product {
 
     image_url: string;
 
+    /** Características del producto (material, color, talla, etc.). */
     facets: Record<string, string | number | boolean>;
 
     tags: string[];
 
+    /** Indica si el producto se puede mostrar en la tienda. */
     active: boolean;
 }
 
 
-/* =====================
-   FILTROS
-===================== */
+/**
+ * Obtiene la categoría más específica de un producto.
+ *
+ * @param product Producto, con sus categorías de la más general a la más específica.
+ * @return La última categoría, o undefined si no tiene.
+ */
+export const getMainCategory = (product: Product): string | undefined =>
+    product.categories[product.categories.length - 1];
 
+
+/** Criterios para filtrar el catálogo. */
 export interface ProductFilters {
     search: string;
     categories: string[];
@@ -72,33 +87,24 @@ export interface ProductFilters {
 }
 
 
-/*
- * El JSON contiene productos que superan
- * ₡1,000,000, por ejemplo Bvlgari y Cartier.
- *
- * Por eso aumentamos el máximo para que
- * esos productos también puedan aparecer.
- */
-
+/** Precio mínimo del filtro de precios. */
 export const MIN_PRICE = 0;
+/**
+ * Precio máximo del filtro de precios. Supera ₡1 000 000 porque hay
+ * productos (por ejemplo, de Bvlgari y Cartier) por encima de ese monto.
+ */
 export const MAX_PRICE = 3_000_000;
+/** Incremento del control deslizante de precios. */
 export const PRICE_STEP = 10_000;
 
 
-/* =====================
-   NORMALIZACIÓN
-===================== */
-
-/*
- * Convierte:
+/**
+ * Normaliza un texto para compararlo sin distinguir mayúsculas ni tildes
+ * (por ejemplo, "Audífonos" se convierte en "audifonos").
  *
- * "Audífonos" → "audifonos"
- * "Oro Rosa"  → "oro rosa"
- *
- * Esto permite hacer búsquedas sin
- * preocuparnos por mayúsculas o tildes.
+ * @param text Texto a normalizar.
+ * @return El texto en minúsculas, sin diacríticos ni espacios en los extremos.
  */
-
 const normalize = (text: string) =>
     text
         .toLowerCase()
@@ -107,10 +113,13 @@ const normalize = (text: string) =>
         .trim();
 
 
-/* =====================
-   FILTRADO
-===================== */
-
+/**
+ * Filtra los productos visibles para clientes según búsqueda, categorías y precio.
+ *
+ * @param products Productos a filtrar.
+ * @param filters Criterios de filtrado.
+ * @return Los productos activos, habilitados para B2C, que cumplen los criterios.
+ */
 export function filterProducts(
     products: Product[],
     filters: ProductFilters
@@ -121,43 +130,19 @@ export function filterProducts(
 
     return products.filter((product) => {
 
-        /*
-         * 1. PRODUCTO ACTIVO
-         *
-         * Los productos con active = false
-         * no deberían mostrarse en la tienda.
-         */
-
+        // Los productos inactivos no se muestran en la tienda.
         if (!product.active) {
             return false;
         }
 
 
-        /*
-         * 2. DISPONIBILIDAD B2C
-         *
-         * Como esta es la tienda para clientes,
-         * utilizamos la información de b2c.
-         */
-
+        // Esta es la tienda para clientes, así que se usa la información de b2c.
         if (!product.b2c.enabled) {
             return false;
         }
 
 
-        /*
-         * 3. BÚSQUEDA DE TEXTO
-         *
-         * Busca en:
-         *
-         * - título
-         * - marca
-         * - descripción
-         * - categorías
-         * - SKU
-         * - tags
-         */
-
+        // Busca en título, marca, descripción, categorías, SKU y tags.
         if (term !== '') {
 
             const haystack = normalize(
@@ -179,13 +164,7 @@ export function filterProducts(
         }
 
 
-        /*
-         * 4. CATEGORÍAS
-         *
-         * El producto pasa si pertenece
-         * a al menos una categoría seleccionada.
-         */
-
+        // El producto pasa si pertenece a al menos una categoría seleccionada.
         if (filters.categories.length > 0) {
 
             const matchesCategory = filters.categories.some(

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Componente raíz: define las rutas de la tienda y el catálogo de productos.
+ */
+
 import { useEffect, useMemo } from 'react';
 import { Route, Routes, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -20,10 +24,15 @@ import CarritoSection from './components/carrito/carritoSection';
 import CheckoutEntryPage from './components/checkout/CheckoutEntryPage';
 import OrderConfirmationPage from './components/order/OrderConfirmationPage';
 import AccountPage from './components/user/AccountPage';
+import { ADMIN_PATH } from './components/admin/adminRoutes';
+import LoginPage from './components/login/LoginPage';
+import { LOGIN_PATH } from './components/login/loginRedirect';
 import ErrorState from './components/error/ErrorState';
 import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
 import Footer from './components/footer/footer';
+import { useTrackSearch } from './activity/useTrackSearch';
+import CatalogPersonalization from './components/personalization/CatalogPersonalization';
 
 
 import {
@@ -37,15 +46,25 @@ import {
     searchClient
 } from './utils/algolia';
 import {
+    isCatalogHome,
     readCatalogFilters,
     readCatalogQuery,
     withCatalogFilters
 } from './catalog/catalogSearchParams';
 
-// Filtering and pagination happen on the client, so the whole index is requested.
+/**
+ * Resultados solicitados a Algolia. El filtrado y la paginación ocurren en
+ * el cliente, así que se pide el índice completo.
+ */
 const CATALOG_HITS_PER_PAGE = 1000;
 
 
+/**
+ * Muestra el catálogo: busca en Algolia según el texto de la URL y aplica
+ * en el cliente los filtros de categoría y precio.
+ *
+ * @return La página del catálogo con su estado de carga o error.
+ */
 function ProductCatalog() {
     const { t } = useTranslation(['catalog', 'errors', 'common']);
     const { items } = useHits();
@@ -61,6 +80,11 @@ function ProductCatalog() {
 
     const filters = useMemo(() => readCatalogFilters(searchParams), [searchParams]);
 
+    /**
+     * Guarda los nuevos filtros en la URL.
+     *
+     * @param nextFilters Filtros a aplicar.
+     */
     const handleFiltersChange = (nextFilters: ProductFilters) => {
         setSearchParams(
             (currentParams) => withCatalogFilters(currentParams, nextFilters),
@@ -81,6 +105,8 @@ function ProductCatalog() {
     const isLoading =
         status === 'loading' ||
         status === 'stalled';
+
+    useTrackSearch(query, products.length, status === 'idle');
 
     const hasVisibleResults =
         allProducts.length > 0;
@@ -142,6 +168,11 @@ function ProductCatalog() {
 
             </div>
 
+            <CatalogPersonalization
+                catalog={allProducts}
+                showRecommendations={isCatalogHome(searchParams) && hasVisibleResults}
+            />
+
             <NavBar />
         </main>
 
@@ -151,6 +182,12 @@ function ProductCatalog() {
 }
 
 
+/**
+ * Define las rutas de la tienda. Si Algolia no está configurado, muestra
+ * una página de tienda no disponible.
+ *
+ * @return Las rutas de la aplicación o la página de error.
+ */
 export default function App() {
     const { t } = useTranslation('errors');
 
@@ -217,6 +254,11 @@ export default function App() {
             {/*CUENTA*/}
 
             <Route
+                path={LOGIN_PATH}
+                element={<LoginPage />}
+            />
+
+            <Route
                 path="/cuenta"
                 element={<AccountPage view="menu" />}
             />
@@ -224,6 +266,11 @@ export default function App() {
             <Route
                 path="/cuenta/pedidos"
                 element={<AccountPage view="orders" />}
+            />
+
+            <Route
+                path={ADMIN_PATH}
+                element={<AccountPage view="admin" />}
             />
 
             <Route

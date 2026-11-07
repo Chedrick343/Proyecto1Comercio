@@ -1,11 +1,21 @@
+/**
+ * @fileoverview Pie de página con la marca y los enlaces a las políticas.
+ */
+
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './footer.module.css';
 import PolicyDocument from '../policies/PolicyDocument';
 import { POLICY_KEYS, type PolicyKey } from '../policies/policyKeys';
 
+/** Año mostrado en el aviso de derechos de autor. */
 const CURRENT_YEAR = new Date().getFullYear();
 
+/**
+ * Muestra el pie de página. Cada política se abre en un modal.
+ *
+ * @return El pie de página y, si hay una abierta, la política seleccionada.
+ */
 export default function Footer() {
   const { t } = useTranslation(['common', 'policies']);
   const [openPolicy, setOpenPolicy] = useState<PolicyKey | null>(null);
