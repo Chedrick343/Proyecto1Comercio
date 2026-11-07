@@ -10,6 +10,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDateTime } from '../../utils/formatDate';
 import { formatRate } from '../../utils/formatRate';
 import { OrderStatusBadge, PaymentStatusBadge } from './OrderStatusBadge';
+import OrderStatusTimeline from './OrderStatusTimeline';
 
 import styles from './OrderDetails.module.css';
 
@@ -38,6 +39,16 @@ export default function OrderDetails({ order }: { order: Order }) {
                     <div>
                         <dt>{t('orders:details.payment')}</dt>
                         <dd><PaymentStatusBadge status={order.paymentStatus} /></dd>
+                    </div>
+                    {order.failureReason && (
+                        <div>
+                            <dt>{t('orders:details.failureReason')}</dt>
+                            <dd>{t(`orders:failureReasons.${order.failureReason}`)}</dd>
+                        </div>
+                    )}
+                    <div>
+                        <dt>{t('orders:details.attempts')}</dt>
+                        <dd>{order.paymentAttempts}</dd>
                     </div>
                     {order.transactionId && (
                         <div>
@@ -84,6 +95,16 @@ export default function OrderDetails({ order }: { order: Order }) {
                     )}
                 </dl>
             </section>
+
+            {order.statusHistory && order.statusHistory.length > 0 && (
+                <section
+                    className={`${styles.panel} ${styles.historyPanel}`}
+                    aria-labelledby="order-history-heading"
+                >
+                    <h2 id="order-history-heading">{t('orders:details.historyTitle')}</h2>
+                    <OrderStatusTimeline history={order.statusHistory} />
+                </section>
+            )}
 
             <section
                 className={`${styles.panel} ${styles.productsPanel}`}
