@@ -5,7 +5,6 @@
 
     box-sizing: border-box;
 
-    /* Fondo gris oscuro */
     background-color: #3f3f3f;
 
     border-radius: 0 0 20px 20px;
@@ -13,31 +12,26 @@
 
 
 /* =========================
-   BOTÓN FILTERS
+   BOTÓN FILTERS (MÓVIL)
 ========================= */
-.filtersButton:active {
-    transform: scale(0.98);
-}
 
 .filtersButton {
     display: flex;
     align-items: center;
-    justify-content: space-between;
 
     width: 100%;
 
     gap: 12px;
 
-    padding: 16px 24px;
+    padding: 14px 22px;
 
-    border: none;
-
-    border-radius: 30px;
+    border-radius: var(--radius-pill);
 
     background-color: #292929;
     border: 1px solid #474747;
     color: #f7f2e9;
 
+    font: inherit;
     font-size: 17px;
     font-weight: 600;
 
@@ -45,14 +39,66 @@
 
     transition:
         background-color 0.2s ease,
+        border-color 0.2s ease,
         transform 0.2s ease;
 }
 
-
-
-.filtersButton:hover {
-    background-color: #3f3f3f;
+.filtersButton:hover,
+.filtersButtonOpen {
+    background-color: #2f2f33;
+    border-color: #c9a246;
 }
+
+.filtersButton:active {
+    transform: scale(0.98);
+}
+
+.filtersButton:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.buttonIcon {
+    flex-shrink: 0;
+    color: #c9a246;
+    font-size: 15px;
+}
+
+.buttonLabel {
+    flex: 1;
+    text-align: left;
+}
+
+.countBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+
+    box-sizing: border-box;
+
+    color: #1c1c1e;
+    background-color: #c9a246;
+    border-radius: var(--radius-pill);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.chevron {
+    flex-shrink: 0;
+    color: #c9a246;
+    font-size: 13px;
+    transition: transform 0.2s ease;
+}
+
+.filtersButtonOpen .chevron {
+    transform: rotate(180deg);
+}
+
 
 /* =========================
    PANEL
@@ -69,10 +115,10 @@
 
     box-sizing: border-box;
 
-    background-color: #292929;
+    background-color: #232428;
 
-    border: 1px solid #474747;
-    border-radius: 16px;
+    border: 1px solid #3a3a3d;
+    border-radius: var(--radius-lg);
 
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
@@ -81,25 +127,84 @@
     display: block;
 }
 
+.panelHeader {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+
+    border-bottom: 1px solid #3a3a3d;
+}
+
+/* En móvil el botón ya dice "Filtros"; el título solo se muestra en escritorio. */
+.panelTitle {
+    display: none;
+    align-items: center;
+    gap: 10px;
+
+    margin-right: auto;
+
+    font-size: var(--font-size-xl);
+}
+
+.panelTitleIcon {
+    color: #c9a246;
+    font-size: 16px;
+}
+
+.clearButton {
+    padding: 6px 12px;
+
+    color: #c9a246;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.clearButton:hover:not(:disabled) {
+    background-color: rgba(201, 162, 70, 0.12);
+}
+
+.clearButton:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.clearButton:disabled {
+    color: #6b6b70;
+    cursor: default;
+}
+
 
 /* =========================
    SECCIÓN INDIVIDUAL
 ========================= */
 
 .filterSection {
-
     display: flex;
     flex-direction: column;
 
     gap: 14px;
 
     padding-bottom: 24px;
-
     margin-bottom: 24px;
 
-    border-bottom: 1px solid #494949;
+    border-bottom: 1px solid #3a3a3d;
 }
-
 
 .filterSection:last-child {
     margin-bottom: 0;
@@ -108,38 +213,32 @@
     border-bottom: none;
 }
 
-
-/* =========================
-   TÍTULOS
-========================= */
-
 .filterTitle {
     margin: 0;
 
-    font-size: 18px;
-    font-weight: 600;
+    color: #aaa9ad;
 
-    color: #f8f3ea;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 
 /* =========================
-   CATEGORIES
+   CATEGORÍAS
 ========================= */
 
 .categoriesList {
     display: flex;
     flex-direction: column;
 
-    gap: 14px;
+    gap: 2px;
 
-    /* Mostrar aproximadamente 5 categorías */
-    max-height: 190px;
-
-    /* Scroll vertical */
+    max-height: 320px;
     overflow-y: auto;
 
-    padding-right: 8px;
+    margin: 0 -8px;
 }
 
 .categoriesList::-webkit-scrollbar {
@@ -152,127 +251,311 @@
 }
 
 .categoriesList::-webkit-scrollbar-thumb {
-    background: #999999;
+    background: #555558;
     border-radius: 10px;
 }
 
-.categoriesList::-webkit-scrollbar-thumb:hover {
-    background: #777777;
-}
-
 .categoryOption {
+    position: relative;
 
     display: flex;
     align-items: center;
 
-    gap: 10px;
+    gap: 12px;
 
+    padding: 9px 8px;
+
+    border-radius: var(--radius-md);
+
+    color: #d6d4d0;
     font-size: 15px;
 
     cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
 }
 
+.categoryOption:hover {
+    background-color: #2c2d31;
+}
 
-.categoryOption input {
+.checkboxInput {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
 
-    width: 17px;
-    height: 17px;
+.checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    cursor: pointer;
-    accent-color: #c9a246;
+    flex-shrink: 0;
+
+    width: 18px;
+    height: 18px;
+
+    box-sizing: border-box;
+
+    color: transparent;
+    border: 1.5px solid #6b6b70;
+    border-radius: 5px;
+
+    font-size: 10px;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.categoryOption:hover .checkbox {
+    border-color: #c9a246;
+}
+
+.checkboxInput:checked + .checkbox {
+    color: #1c1c1e;
+    background-color: #c9a246;
+    border-color: #c9a246;
+}
+
+.checkboxInput:focus-visible + .checkbox {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.categoryName {
+    flex: 1;
+    min-width: 0;
+}
+
+.checkboxInput:checked ~ .categoryName {
+    color: #f7f2e9;
+    font-weight: 600;
+}
+
+.categoryCount {
+    min-width: 26px;
+    padding: 1px 8px;
+
+    box-sizing: border-box;
+
+    color: #8f8e93;
+    background-color: #2c2d31;
+    border-radius: var(--radius-pill);
+
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.categoryOption:hover .categoryCount {
+    background-color: #36373c;
 }
 
 
 /* =========================
-   PRICE RANGE
+   RANGO DE PRECIO
 ========================= */
 
 .priceValues {
-
     display: flex;
-
-    justify-content: space-between;
-
-    gap: 12px;
+    gap: 10px;
 }
-
 
 .priceBox {
-
     flex: 1;
+    min-width: 0;
 
     display: flex;
     flex-direction: column;
 
-    gap: 5px;
+    gap: 2px;
 
-    padding: 12px;
+    padding: 10px 12px;
 
-    background-color: #333333;
-
-    border-radius: 10px;
+    border: 1px solid #3a3a3d;
+    border-radius: var(--radius-md);
 }
-
 
 .priceBox span {
-
+    color: #8f8e93;
     font-size: 11px;
-
-    color: #aaa8a4;
 }
-
 
 .priceBox strong {
-
-    font-size: 14px;
+    overflow: hidden;
 
     color: #f7f3eb;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
+/* Dos controles superpuestos sobre una misma pista: solo sus perillas reciben el puntero. */
+.rangeSlider {
+    position: relative;
 
-/* =========================
-   SLIDERS
-========================= */
-
-.sliderContainer {
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 8px;
+    height: 24px;
+    margin: 4px 9px 0;
 }
 
+.rangeTrack {
+    position: absolute;
+    top: 50%;
+    right: -9px;
+    left: -9px;
 
-.sliderLabel {
+    height: 4px;
 
-    font-size: 13px;
-    font-weight: 500;
+    background:
+        linear-gradient(
+            to right,
+            transparent var(--range-start),
+            #c9a246 var(--range-start),
+            #c9a246 var(--range-end),
+            transparent var(--range-end)
+        ) center / calc(100% - 18px) 100% no-repeat,
+        #3a3a3d;
+    border-radius: var(--radius-pill);
 
-    color: #b9b9b9;
+    transform: translateY(-50%);
 }
-
 
 .priceSlider {
+    position: absolute;
+    inset: 0 -9px;
 
-    width: 100%;
+    width: calc(100% + 18px);
+    height: 100%;
+    margin: 0;
 
-    cursor: pointer;
+    background: none;
+
+    appearance: none;
+    pointer-events: none;
 }
 
+.priceSliderOnTop {
+    z-index: 1;
+}
 
-/* =========================
-   LÍMITES
-========================= */
+.priceSlider::-webkit-slider-runnable-track {
+    height: 100%;
+    background: none;
+}
+
+.priceSlider::-moz-range-track {
+    background: none;
+}
+
+.priceSlider::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+
+    background-color: #f7f2e9;
+    border: 3px solid #c9a246;
+    border-radius: 50%;
+    box-sizing: border-box;
+
+    appearance: none;
+    cursor: grab;
+    pointer-events: auto;
+
+    transition: transform 0.15s ease;
+}
+
+.priceSlider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+
+    background-color: #f7f2e9;
+    border: 3px solid #c9a246;
+    border-radius: 50%;
+    box-sizing: border-box;
+
+    cursor: grab;
+    pointer-events: auto;
+}
+
+.priceSlider:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    transform: scale(1.15);
+}
+
+.priceSlider:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.priceSlider:focus-visible::-moz-range-thumb {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
 
 .priceLimits {
-
     display: flex;
-
     justify-content: space-between;
 
-    font-size: 11px;
+    margin-top: -6px;
 
-    color: #a8a8a8;
+    color: #8f8e93;
+    font-size: 11px;
+}
+
+.applyPriceButton {
+    width: 100%;
+    padding: 10px 16px;
+
+    color: #c9a246;
+    background-color: transparent;
+    border: 1px solid #c9a246;
+    border-radius: var(--radius-pill);
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.applyPriceButton:hover:not(:disabled) {
+    color: #1c1c1e;
+    background-color: #c9a246;
+}
+
+.applyPriceButton:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.applyPriceButton:disabled {
+    color: #6b6b70;
+    border-color: #3a3a3d;
+    cursor: default;
+}
+
+.visuallyHidden {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 
@@ -284,10 +567,6 @@
 
     .filters {
         padding: 20px var(--page-gutter);
-    }
-
-    .filterTitle {
-        font-size: 20px;
     }
 
 }
@@ -323,6 +602,10 @@
         width: 100%;
         height: auto;
         margin-top: 0;
+    }
+
+    .panelTitle {
+        display: flex;
     }
 
 }

@@ -2,9 +2,13 @@
  * @fileoverview Capa entre el checkout y la pasarela de pago, con tiempo límite de respuesta.
  */
 
-import { processSandboxPayment } from '../../services/paymentSandbox/paymentSandboxService';
+import {
+    processSandboxPayment,
+    refundSandboxPayment
+} from '../../services/paymentSandbox/paymentSandboxService';
 import type {
     PaymentRequest,
+    RefundRequest,
     SandboxScenario
 } from '../../services/paymentSandbox/paymentSandboxTypes';
 import type { ProcessedPaymentStatus } from '../../orders/orderTypes';
@@ -89,5 +93,27 @@ export async function submitPayment(
         console.error('Fallo en el servicio de pago:', error);
 
         return { result: 'PAYMENT_ERROR' };
+    }
+}
+
+/**
+ * Solicita a la pasarela el reembolso de una transacción aprobada. Nunca
+ * lanza errores para que quien la llama decida qué hacer si falla.
+ *
+ * @param request Solicitud de reembolso.
+ * @return Verdadero si la pasarela confirmó el reembolso.
+ */
+export async function submitRefund(request: RefundRequest): Promise<boolean> {
+    try {
+        const response = await withTimeout(
+            refundSandboxPayment(request),
+            PAYMENT_TIMEOUT_MS
+        );
+
+        return response.status === 'REFUND_COMPLETED';
+    } catch (error) {
+        console.error('Fallo al reembolsar el pago:', error);
+
+        return false;
     }
 }

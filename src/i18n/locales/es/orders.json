@@ -9,7 +9,9 @@
       "PENDING": "Pendiente",
       "APPROVED": "Aprobado",
       "DECLINED": "Rechazado",
-      "ERROR": "Error del servicio"
+      "ERROR": "Error del servicio",
+      "REFUNDED": "Reembolsado",
+      "CANCELLED": "No cobrado"
     }
   },
   "actions": {
@@ -37,7 +39,10 @@
       "product": "Producto",
       "quantity": "Cantidad",
       "unitPrice": "Precio unitario"
-    }
+    },
+    "failureReason": "Motivo",
+    "attempts": "Intentos de pago",
+    "historyTitle": "Historial de estados"
   },
   "history": {
     "title": "Mis pedidos",
@@ -48,5 +53,20 @@
   "notFound": {
     "title": "No encontramos este pedido",
     "description": "No existe un pedido con el número {{orderNumber}} en este dispositivo."
+  },
+  "failureReasons": {
+    "OUT_OF_STOCK": "Producto agotado",
+    "AMOUNT_MISMATCH": "El monto no coincidía con los precios",
+    "CONFIRMATION_ERROR": "No se pudo confirmar después del pago",
+    "MAX_ATTEMPTS": "Se agotaron los intentos de pago"
+  },
+  "events": {
+    "CREATED": "Orden creada",
+    "PAYMENT_APPROVED": "Pago aprobado",
+    "PAYMENT_DECLINED": "Pago rechazado",
+    "PAYMENT_ERROR": "Error del servicio de pago",
+    "PAYMENT_REFUNDED": "Pago reembolsado",
+    "ORDER_CONFIRMED": "Orden confirmada",
+    "ORDER_FAILED": "Orden fallida"
   }
 }

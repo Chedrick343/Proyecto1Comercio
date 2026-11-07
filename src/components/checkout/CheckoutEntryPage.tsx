@@ -21,8 +21,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
 import CheckoutOrderReview from './CheckoutOrderReview';
 import PaymentMethodSelection from './PaymentMethodSelection';
-import { useOrderPayment } from './useOrderPayment';
-import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
+import { useOrderPayment, type SandboxScenarios } from './useOrderPayment';
 import type { TermsAcceptance } from '../../orders/orderTypes';
 import { createTermsAcceptance } from '../../orders/termsAcceptance';
 import {
@@ -73,8 +72,10 @@ export default function CheckoutEntryPage() {
         INITIAL_NEW_PAYMENT_CARD
     );
     const [paymentCardErrors, setPaymentCardErrors] = useState<PaymentCardErrors>({});
-    const [sandboxScenario, setSandboxScenario] =
-        useState<SandboxScenario>('APPROVE');
+    const [sandboxScenarios, setSandboxScenarios] = useState<SandboxScenarios>({
+        payment: 'APPROVE',
+        order: 'NORMAL'
+    });
     const [termsAcceptance, setTermsAcceptance] = useState<TermsAcceptance | null>(null);
     const [showTermsError, setShowTermsError] = useState(false);
 
@@ -91,7 +92,9 @@ export default function CheckoutEntryPage() {
 
     const {
         paymentResult,
-        isProcessingPayment,
+        processingStage,
+        paymentAttempts,
+        failedOrder,
         confirmedOrderNumber,
         payOrder,
         clearPaymentResult,
@@ -246,7 +249,13 @@ export default function CheckoutEntryPage() {
             return;
         }
 
-        payOrder(shippingDetails, termsAcceptance, sandboxScenario);
+        payOrder(shippingDetails, termsAcceptance, sandboxScenarios);
+    };
+
+    /** Descarta la orden fallida y vuelve a los escenarios sin fallos para intentar de nuevo. */
+    const handleStartNewOrder = () => {
+        discardActiveOrder();
+        setSandboxScenarios({ payment: 'APPROVE', order: 'NORMAL' });
     };
 
     const checkoutSteps: {
@@ -357,15 +366,19 @@ export default function CheckoutEntryPage() {
                                         : t('checkout:payment.newCardEndingIn', { lastFourDigits: getLastFourDigits(newPaymentCard.cardNumber) })
                                 }
                                 paymentResult={paymentResult}
-                                isProcessingPayment={isProcessingPayment}
-                                sandboxScenario={sandboxScenario}
+                                processingStage={processingStage}
+                                paymentAttempts={paymentAttempts}
+                                failedOrder={failedOrder}
+                                sandboxScenarios={sandboxScenarios}
                                 hasAcceptedTerms={termsAcceptance !== null}
                                 showTermsError={showTermsError}
-                                onSandboxScenarioChange={setSandboxScenario}
+                                onSandboxScenariosChange={setSandboxScenarios}
                                 onTermsAcceptanceChange={handleTermsAcceptanceChange}
                                 onEditDetails={() => setCurrentStep(1)}
                                 onEditPayment={() => setCurrentStep(2)}
                                 onSubmitPayment={handlePaymentSubmit}
+                                onDismissPaymentResult={clearPaymentResult}
+                                onStartNewOrder={handleStartNewOrder}
                             />
                         )}
                     </div>

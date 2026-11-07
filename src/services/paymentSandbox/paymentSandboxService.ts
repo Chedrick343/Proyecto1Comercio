@@ -1,12 +1,15 @@
 /**
  * @fileoverview Pasarela de pago simulada. Reproduce aprobaciones, rechazos, errores del
- * servicio y falta de respuesta para probar el flujo de pago sin cobros reales.
+ * servicio y falta de respuesta para probar el flujo de pago sin cobros reales. También
+ * procesa los reembolsos de las órdenes que no se pudieron confirmar.
  */
 
 import type {
     PaymentRequest,
     PaymentResponse,
     PaymentResponseStatus,
+    RefundRequest,
+    RefundResponse,
     SandboxScenario
 } from './paymentSandboxTypes';
 
@@ -126,4 +129,31 @@ export async function processSandboxPayment(
                 'El proveedor de pagos no está disponible.'
             );
     }
+}
+
+/**
+ * Devuelve el monto de una transacción aprobada. La tienda lo solicita cuando
+ * cobró una orden que después no pudo confirmar.
+ *
+ * @param request Solicitud de reembolso.
+ * @return La respuesta con un identificador de reembolso nuevo.
+ * @throws {PaymentServiceError} Si la solicitud es inválida.
+ */
+export async function refundSandboxPayment(request: RefundRequest): Promise<RefundResponse> {
+    await wait(PROCESSING_DELAY_MS);
+
+    assertValidRequest(request);
+
+    if (request.transactionId.trim() === '') {
+        throw new PaymentServiceError('La solicitud de reembolso no indica la transacción.');
+    }
+
+    return {
+        refundId: generateTransactionId().replace('TXN', 'RFD'),
+        transactionId: request.transactionId,
+        amount: request.amount,
+        currency: request.currency,
+        status: 'REFUND_COMPLETED',
+        processedAt: new Date().toISOString()
+    };
 }

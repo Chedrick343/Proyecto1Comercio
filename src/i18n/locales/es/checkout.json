@@ -88,23 +88,60 @@
   },
   "sandbox": {
     "title": "Modo Sandbox",
-    "hint": "Elige el resultado que devolverá el servicio de pago simulado.",
+    "hint": "Elige qué responderán los servicios simulados para reproducir cada escenario.",
+    "paymentGroup": "Servicio de pago",
+    "orderGroup": "Servicio de órdenes",
     "scenarios": {
       "APPROVE": "Pago aprobado",
       "DECLINE": "Pago rechazado",
       "SERVICE_ERROR": "Error del servicio",
       "NO_RESPONSE": "Sin respuesta"
-    }
+    },
+    "orderScenarios": {
+      "NORMAL": "Sin fallos",
+      "OUT_OF_STOCK": "Producto agotado",
+      "AMOUNT_MISMATCH": "Monto no coincide",
+      "CONFIRMATION_ERROR": "Falla al confirmar"
+    },
+    "attemptsNote_one": "Si el pago se rechaza {{count}} vez, la orden se marca como fallida.",
+    "attemptsNote_other": "Si el pago se rechaza {{count}} veces, la orden se marca como fallida."
   },
   "payButton": {
     "pay": "Confirmar y pagar",
-    "processing": "Procesando pago...",
+    "validating": "Validando pedido...",
+    "paying": "Procesando pago...",
+    "confirming": "Confirmando pedido...",
+    "refunding": "Reembolsando pago...",
     "approved": "Pago aprobado",
     "retry": "Intentar pagar nuevamente"
   },
-  "paymentResult": {
-    "PAYMENT_APPROVED": "El pago fue aprobado. Gracias por tu compra.",
-    "PAYMENT_DECLINED": "El pago no fue aprobado. Puedes intentarlo nuevamente.",
-    "PAYMENT_ERROR": "No pudimos procesar el pago. Inténtalo nuevamente en unos momentos."
+  "orderFailure": {
+    "eyebrow": "ORDEN FALLIDA",
+    "title": "No pudimos completar tu pedido",
+    "reasons": {
+      "OUT_OF_STOCK": "Uno de los productos se agotó antes de procesar el pago. No se realizó ningún cobro.",
+      "AMOUNT_MISMATCH": "El total de la orden ya no coincide con los precios vigentes. No se realizó ningún cobro.",
+      "CONFIRMATION_ERROR": "El pago se aprobó, pero no pudimos confirmar la orden. Ya reembolsamos el monto completo.",
+      "REFUND_PENDING": "El pago se aprobó, pero no pudimos confirmar la orden ni completar el reembolso automático. Te contactaremos para devolverte el monto.",
+      "MAX_ATTEMPTS_one": "El pago fue rechazado {{count}} vez, así que la orden se canceló.",
+      "MAX_ATTEMPTS_other": "El pago fue rechazado {{count}} veces, así que la orden se canceló."
+    },
+    "viewOrder": "Ver el detalle de la orden {{orderNumber}}",
+    "backToCart": "Volver al carrito",
+    "newOrder": "Crear orden nueva"
+  },
+  "paymentDialog": {
+    "PAYMENT_DECLINED": {
+      "eyebrow": "PAGO RECHAZADO",
+      "title": "Tu pago no fue aprobado",
+      "description_one": "El emisor de la tarjeta rechazó el cobro. Te queda {{count}} intento antes de que la orden se cancele.",
+      "description_other": "El emisor de la tarjeta rechazó el cobro. Te quedan {{count}} intentos antes de que la orden se cancele."
+    },
+    "PAYMENT_ERROR": {
+      "eyebrow": "ERROR DEL SERVICIO",
+      "title": "No pudimos procesar el pago",
+      "description": "El servicio de pago no respondió correctamente y no se realizó ningún cobro. Inténtalo nuevamente en unos momentos."
+    },
+    "close": "Entendido"
   }
 }
