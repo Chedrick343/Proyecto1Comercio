@@ -543,26 +543,6 @@
 }
 
 
-.paymentFeedback {
-    margin: 20px 0 0;
-    padding: 13px 15px;
-    border-left: 3px solid;
-    font-size: 0.9rem;
-    line-height: 1.45;
-}
-
-.paymentApproved {
-    color: #d5e8d4;
-    background-color: #243127;
-    border-color: #68a877;
-}
-
-.paymentFailed {
-    color: #f3c5c2;
-    background-color: #3b2524;
-    border-color: #c65c54;
-}
-
 .reviewActions {
     display: flex;
     justify-content: flex-end;

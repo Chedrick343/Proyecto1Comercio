@@ -2,7 +2,7 @@
  * @fileoverview Último paso del checkout: revisión de la orden y pago.
  */
 
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -10,9 +10,13 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import type { CartItem } from '../../context/CartContext';
 import type { ShippingDetails } from './checkoutTypes';
 import type { PaymentResult } from './paymentGateway';
-import type { SandboxScenario } from '../../services/paymentSandbox/paymentSandboxTypes';
+import type { Order } from '../../orders/orderTypes';
+import { MAX_PAYMENT_ATTEMPTS } from '../../orders/orderStateMachine';
+import OrderFailedDialog from './OrderFailedDialog';
+import PaymentFailedDialog from './PaymentFailedDialog';
 import SandboxScenarioSelector from './SandboxScenarioSelector';
 import TermsAcceptanceCheckbox from './TermsAcceptanceCheckbox';
+import type { CheckoutStage, SandboxScenarios } from './useOrderPayment';
 
 import styles from './CheckoutEntryPage.module.css';
 
@@ -24,13 +28,18 @@ interface CheckoutOrderReviewProps {
     paymentDescription: string;
     /** Resultado del último intento de pago, o null si no hay. */
     paymentResult: PaymentResult | null;
-    isProcessingPayment: boolean;
-    /** Escenario que simulará la pasarela de pago. */
-    sandboxScenario: SandboxScenario;
+    /** Etapa del proceso en curso, o null si no hay ninguno. */
+    processingStage: CheckoutStage | null;
+    /** Intentos de pago realizados sobre la orden activa. */
+    paymentAttempts: number;
+    /** Orden activa si falló, o null. */
+    failedOrder: Order | null;
+    /** Escenarios que simularán los servicios de pago y de órdenes. */
+    sandboxScenarios: SandboxScenarios;
     hasAcceptedTerms: boolean;
     /** Muestra el error de términos no aceptados. */
     showTermsError: boolean;
-    onSandboxScenarioChange: (scenario: SandboxScenario) => void;
+    onSandboxScenariosChange: (scenarios: SandboxScenarios) => void;
     onTermsAcceptanceChange: (accepted: boolean) => void;
     /** Vuelve al paso de datos de envío. */
     onEditDetails: () => void;
@@ -38,12 +47,18 @@ interface CheckoutOrderReviewProps {
     onEditPayment: () => void;
     /** Se llama al enviar el formulario de pago. */
     onSubmitPayment: (event: FormEvent<HTMLFormElement>) => void;
+    /** Oculta el aviso del último intento de pago. */
+    onDismissPaymentResult: () => void;
+    /** Descarta la orden fallida para intentar con una nueva. */
+    onStartNewOrder: () => void;
 }
 
 /**
  * Muestra los productos, los datos de entrega y el método de pago para
- * revisarlos, junto con la aceptación de términos, el selector de escenario
- * de la pasarela simulada y el botón de pago.
+ * revisarlos, junto con la aceptación de términos, el selector de escenarios
+ * de los servicios simulados y el botón de pago. Los pagos no aprobados y las
+ * órdenes fallidas se informan con diálogos; si se cierra el de la orden
+ * fallida, el botón de pago pasa a ofrecer una orden nueva.
  *
  * @param props Propiedades del componente.
  * @return El formulario de revisión y pago.
@@ -53,18 +68,24 @@ export default function CheckoutOrderReview({
     details,
     paymentDescription,
     paymentResult,
-    isProcessingPayment,
-    sandboxScenario,
+    processingStage,
+    paymentAttempts,
+    failedOrder,
+    sandboxScenarios,
     hasAcceptedTerms,
     showTermsError,
-    onSandboxScenarioChange,
+    onSandboxScenariosChange,
     onTermsAcceptanceChange,
     onEditDetails,
     onEditPayment,
-    onSubmitPayment
+    onSubmitPayment,
+    onDismissPaymentResult,
+    onStartNewOrder
 }: CheckoutOrderReviewProps) {
     const { t } = useTranslation(['checkout', 'common']);
-    const isCheckoutLocked = isProcessingPayment || paymentResult === 'PAYMENT_APPROVED';
+    const [dismissedOrderNumber, setDismissedOrderNumber] = useState<string | null>(null);
+    const isCheckoutLocked =
+        processingStage !== null || paymentResult === 'PAYMENT_APPROVED' || failedOrder !== null;
 
     return (
         <form
@@ -121,19 +142,6 @@ export default function CheckoutOrderReview({
                 </button>
             </div>
 
-            {paymentResult && (
-                <p
-                    className={
-                        paymentResult === 'PAYMENT_APPROVED'
-                            ? `${styles.paymentFeedback} ${styles.paymentApproved}`
-                            : `${styles.paymentFeedback} ${styles.paymentFailed}`
-                    }
-                    role={paymentResult === 'PAYMENT_APPROVED' ? 'status' : 'alert'}
-                >
-                    {t(`checkout:paymentResult.${paymentResult}`)}
-                </p>
-            )}
-
             <div className={styles.reviewProductsHeader}>
                 <h3>{t('checkout:review.products')}</h3>
                 <Link to="/carrito" className={styles.textAction}>
@@ -165,20 +173,40 @@ export default function CheckoutOrderReview({
             />
 
             <SandboxScenarioSelector
-                selectedScenario={sandboxScenario}
+                scenarios={sandboxScenarios}
                 disabled={isCheckoutLocked}
-                onScenarioChange={onSandboxScenarioChange}
+                onScenariosChange={onSandboxScenariosChange}
             />
 
             <div className={styles.reviewActions}>
-                <button
-                    className={styles.primaryAction}
-                    type="submit"
-                    disabled={isCheckoutLocked}
-                >
-                    {t(`checkout:payButton.${getPayButtonState(isProcessingPayment, paymentResult)}`)}
-                </button>
+                {failedOrder ? (
+                    <button className={styles.primaryAction} type="button" onClick={onStartNewOrder}>
+                        {t('checkout:orderFailure.newOrder')}
+                    </button>
+                ) : (
+                    <button
+                        className={styles.primaryAction}
+                        type="submit"
+                        disabled={isCheckoutLocked}
+                        aria-busy={processingStage !== null}
+                    >
+                        {t(`checkout:payButton.${getPayButtonState(processingStage, paymentResult, paymentAttempts)}`)}
+                    </button>
+                )}
             </div>
+
+            <PaymentFailedDialog
+                result={paymentResult === 'PAYMENT_APPROVED' || failedOrder ? null : paymentResult}
+                remainingAttempts={MAX_PAYMENT_ATTEMPTS - paymentAttempts}
+                onClose={onDismissPaymentResult}
+            />
+
+            <OrderFailedDialog
+                order={failedOrder}
+                isOpen={failedOrder !== null && failedOrder.orderNumber !== dismissedOrderNumber}
+                onClose={() => setDismissedOrderNumber(failedOrder?.orderNumber ?? null)}
+                onStartNewOrder={onStartNewOrder}
+            />
         </form>
     );
 }
@@ -186,21 +214,23 @@ export default function CheckoutOrderReview({
 /**
  * Determina el estado del botón de pago.
  *
- * @param isProcessingPayment Indica si hay un pago en curso.
+ * @param processingStage Etapa del proceso en curso, o null si no hay ninguno.
  * @param paymentResult Resultado del último intento de pago.
+ * @param paymentAttempts Intentos de pago realizados sobre la orden activa.
  * @return La clave de traducción del texto del botón.
  */
 function getPayButtonState(
-    isProcessingPayment: boolean,
-    paymentResult: PaymentResult | null
-): 'processing' | 'approved' | 'retry' | 'pay' {
-    if (isProcessingPayment) {
-        return 'processing';
+    processingStage: CheckoutStage | null,
+    paymentResult: PaymentResult | null,
+    paymentAttempts: number
+): CheckoutStage | 'approved' | 'retry' | 'pay' {
+    if (processingStage) {
+        return processingStage;
     }
 
     if (paymentResult === 'PAYMENT_APPROVED') {
         return 'approved';
     }
 
-    return paymentResult ? 'retry' : 'pay';
+    return paymentAttempts > 0 ? 'retry' : 'pay';
 }
