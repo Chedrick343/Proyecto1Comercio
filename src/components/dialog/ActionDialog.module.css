@@ -72,6 +72,11 @@
     margin-top: var(--space-4);
 }
 
+/* Una sola acción ocupa todo el ancho */
+.actions > :only-child {
+    grid-column: 1 / -1;
+}
+
 .primaryAction,
 .secondaryAction,
 .dangerAction {
