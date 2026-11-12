@@ -15,6 +15,22 @@ export interface Company {
     taxId: string;
 }
 
+/** Dirección de entrega guardada en la cuenta del usuario. */
+export interface SavedAddress {
+    fullName: string;
+    phone: string;
+    province: string;
+    canton: string;
+    address: string;
+    /** Indicaciones adicionales para la entrega; puede estar vacío. */
+    deliveryNotes: string;
+    /**
+     * Sucursal que se elige automáticamente al iniciar sesión; si no existe,
+     * el usuario elige la sucursal en cada compra.
+     */
+    defaultBranchId?: string;
+}
+
 /** Usuario con sesión iniciada. No incluye datos de autenticación. */
 export interface User {
     /** Identificador del usuario; coincide con su correo normalizado. */
@@ -24,6 +40,8 @@ export interface User {
     role: UserRole;
     /** Empresa del usuario; solo existe para clientes B2B. */
     company?: Company;
+    /** Dirección de entrega guardada; es opcional. */
+    savedAddress?: SavedAddress;
 }
 
 /**
@@ -64,6 +82,22 @@ export const isCompany = (value: unknown): value is Company =>
     typeof value.taxId === 'string';
 
 /**
+ * Verifica si un valor tiene la forma de una dirección guardada.
+ *
+ * @param value Valor a verificar.
+ * @return Verdadero si el valor tiene todos los campos de la dirección.
+ */
+export const isSavedAddress = (value: unknown): value is SavedAddress =>
+    isObject(value) &&
+    typeof value.fullName === 'string' &&
+    typeof value.phone === 'string' &&
+    typeof value.province === 'string' &&
+    typeof value.canton === 'string' &&
+    typeof value.address === 'string' &&
+    typeof value.deliveryNotes === 'string' &&
+    (value.defaultBranchId === undefined || typeof value.defaultBranchId === 'string');
+
+/**
  * Verifica si un valor tiene la forma de un usuario con un rol admitido.
  *
  * @param value Valor a verificar, por ejemplo uno recuperado de localStorage.
@@ -75,4 +109,5 @@ export const isUser = (value: unknown): value is User =>
     typeof value.name === 'string' &&
     typeof value.email === 'string' &&
     isUserRole(value.role) &&
-    (value.company === undefined || isCompany(value.company));
+    (value.company === undefined || isCompany(value.company)) &&
+    (value.savedAddress === undefined || isSavedAddress(value.savedAddress));
