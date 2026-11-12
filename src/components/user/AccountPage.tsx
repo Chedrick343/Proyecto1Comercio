@@ -9,6 +9,7 @@ import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
 import Orders from '../Orders/Orders';
 import AdminPanel from '../admin/AdminPanel';
+import RequirePermission from '../access/RequirePermission';
 import UserSection from './userSection';
 
 import styles from './AccountPage.module.css';
@@ -64,7 +65,13 @@ export default function AccountPage({ view }: AccountPageProps) {
                         <Link to="/cuenta" className={styles.backLink}>
                             ← {t('backToAccount')}
                         </Link>
-                        {isAdminView ? <AdminPanel /> : <Orders />}
+                        {isAdminView ? (
+                            <AdminPanel />
+                        ) : (
+                            <RequirePermission permission="VIEW_OWN_ORDERS">
+                                <Orders />
+                            </RequirePermission>
+                        )}
                     </div>
                 </div>
             </section>

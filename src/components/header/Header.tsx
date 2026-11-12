@@ -9,6 +9,7 @@ import { FaShoppingCart, FaUser, FaUserCircle } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { useSession } from '../../context/SessionContext';
+import { hasPermission } from '../../session/permissions';
 import { getFirstName } from '../../session/userTypes';
 import CartBadge from '../cart-badge/CartBadge';
 import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
@@ -70,9 +71,8 @@ function CartButton() {
 }
 
 /**
- * Acceso a la cuenta. Con sesión iniciada muestra el nombre del usuario (el
- * rol solo se anuncia a lectores de pantalla) y enlaza a su cuenta; como
- * invitado, enlaza al inicio de sesión.
+ * Acceso a la cuenta. Con sesión iniciada muestra el nombre y el rol del
+ * usuario y enlaza a su cuenta; como invitado, enlaza al inicio de sesión.
  *
  * @return El enlace a la cuenta o al inicio de sesión.
  */
@@ -93,14 +93,23 @@ function AccountButton() {
 
     const accountLabel = t('auth:session.accountOf', {
         name: currentUser.name,
-        role: t(`auth:roles.${currentUser.role}`)
+        role: t(`auth:roles.${currentUser.role}`),
+        userType: t(`auth:userTypes.${currentUser.role}`)
     });
 
     return (
-        <Link to="/cuenta" className={className} aria-label={accountLabel} title={accountLabel}>
+        <Link
+            to="/cuenta"
+            className={`${className} ${styles.signedIn}`}
+            aria-label={accountLabel}
+            title={accountLabel}
+        >
             <FaUserCircle className={styles.headerIcon} aria-hidden="true" />
             <span className={`${styles.headerLabel} ${styles.accountName}`}>
                 {getFirstName(currentUser)}
+            </span>
+            <span className={styles.roleTag} aria-hidden="true">
+                {t(`auth:roleTags.${currentUser.role}`)}
             </span>
         </Link>
     );
@@ -113,19 +122,23 @@ interface HeaderProps {
 }
 
 /**
- * Muestra el encabezado de la tienda.
+ * Muestra el encabezado de la tienda. El botón del carrito solo aparece
+ * para quien puede comprar.
  *
  * @param props Propiedades del componente.
  * @return El encabezado.
  */
 export default function Header({ children }: HeaderProps) {
+    const { currentUser } = useSession();
+    const canUseCart = hasPermission(currentUser, 'ADD_TO_CART');
+
     return (
         <header className={styles.header}>
             <Logo />
 
             <div className={styles.headerActions}>
                 <AccountButton />
-                <CartButton />
+                {canUseCart && <CartButton />}
             </div>
 
             {children && (

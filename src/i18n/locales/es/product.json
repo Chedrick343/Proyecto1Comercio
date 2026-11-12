@@ -4,6 +4,7 @@
   "addToCart": "Agregar al carrito",
   "addToCartShort": "Agregar",
   "addedAnnouncement": "{{name}} se agregó al carrito",
+  "purchaseDisabled": "Vista de administrador: compras deshabilitadas",
   "cartControl": {
     "label": "Cantidad de {{name}} en el carrito",
     "inCart": "en el carrito",
