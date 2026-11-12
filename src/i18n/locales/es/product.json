@@ -27,7 +27,6 @@
     "lowStock_other": "Últimas {{count}} unidades",
     "outOfStock": "Agotado"
   },
-  "stores": "En tiendas: {{stores}}",
   "description": "Descripción",
   "reference": "Ref. {{sku}}",
   "details": {

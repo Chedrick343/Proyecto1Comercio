@@ -42,16 +42,6 @@ export function getBranchStock(product: Product, branchId: string): number {
 }
 
 /**
- * Indica si un producto tiene unidades en una sucursal.
- *
- * @param product Producto a consultar.
- * @param branchId Identificador de la sucursal.
- * @return Verdadero si hay al menos una unidad.
- */
-export const isAvailableAtBranch = (product: Product, branchId: string): boolean =>
-    getBranchStock(product, branchId) > 0;
-
-/**
  * Obtiene las unidades de un producto en cada sucursal de la tienda,
  * incluidas las que no tienen unidades.
  *

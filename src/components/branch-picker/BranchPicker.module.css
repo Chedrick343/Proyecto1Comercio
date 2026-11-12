@@ -1,0 +1,204 @@
+/* Tarjeta de la sucursal elegida */
+
+.card {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid #3a3a3d;
+    border-radius: var(--radius-md);
+    background-color: #1d1e22;
+}
+
+.cardInvalid {
+    border-color: #d66b63;
+}
+
+.label {
+    color: #aaa9ad;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.selectedName {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    color: #f7f2e9;
+    font-size: var(--font-size-md);
+    font-weight: 700;
+}
+
+.selectedName svg {
+    color: #c9a246;
+}
+
+.selectedNameEmpty {
+    color: #aaa9ad;
+    font-weight: 400;
+}
+
+.openButton {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    margin-top: var(--space-1);
+    padding: 0 var(--space-4);
+    border: 1px solid #c9a246;
+    border-radius: var(--radius-pill);
+    background-color: transparent;
+    color: #e4c56f;
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.openButton:hover {
+    background-color: rgba(201, 162, 70, 0.12);
+}
+
+.openButton:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.cardInvalid .openButton {
+    border-color: #d66b63;
+}
+
+.error {
+    color: #f3aaa5;
+    font-size: 0.8rem;
+}
+
+/* Lista de sucursales del diálogo */
+
+.branchList {
+    width: 100%;
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    border: 1px solid #3a3a3d;
+    border-radius: var(--radius-md);
+    list-style: none;
+    text-align: left;
+}
+
+.branchList > li + li {
+    border-top: 1px solid #3a3a3d;
+}
+
+.branchRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+}
+
+.branchRowSelectable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.branchRowSelectable:hover {
+    background-color: #333336;
+}
+
+.branchRowChecked {
+    background-color: rgba(201, 162, 70, 0.1);
+}
+
+.defaultTag {
+    margin-left: var(--space-2);
+    padding: 1px 7px;
+    border: 1px solid #c9a246;
+    border-radius: var(--radius-pill);
+    color: #e4c56f;
+    font-size: 0.68rem;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.radio {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin: 0;
+    accent-color: #c9a246;
+    cursor: pointer;
+}
+
+.branchName {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.tag {
+    flex-shrink: 0;
+    padding: 3px 10px;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.tagAvailable {
+    background-color: rgba(124, 196, 140, 0.12);
+    color: #7cc48c;
+}
+
+.tagLow {
+    background-color: rgba(227, 180, 90, 0.12);
+    color: #e3b45a;
+}
+
+.tagOut {
+    background-color: rgba(214, 107, 99, 0.12);
+    color: #f3aaa5;
+}
+
+.tagUnknown {
+    color: #8c8c8f;
+}
+
+.footnote {
+    width: 100%;
+    margin: var(--space-2) 0 0;
+    color: #aaa9ad;
+    font-size: var(--font-size-sm);
+    text-align: right;
+}
+
+/* Aviso de disponibilidad en la sucursal elegida */
+
+.note {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.noteAvailable {
+    color: #7cc48c;
+}
+
+.noteLow {
+    color: #e3b45a;
+}
+
+.noteOut {
+    color: #f3aaa5;
+}
+
+.otherBranches {
+    color: #aaa9ad;
+    font-weight: 400;
+}

@@ -23,6 +23,16 @@
     object-fit: contain;
 }
 
+.quantity {
+    width: 100%;
+    max-width: 240px;
+    margin-top: var(--space-3);
+}
+
+.quantity > * {
+    width: 100%;
+}
+
 .product p {
     margin: 0;
     font-size: var(--font-size-sm);
