@@ -4,11 +4,13 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCartPlus, FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaCartPlus, FaLock, FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
 
 import { toProductSnapshot } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
+import { useSession } from '../../context/SessionContext';
+import { hasPermission } from '../../session/permissions';
 import type { Product } from '../../utils/Products';
 
 import styles from './AddToCartControl.module.css';
@@ -28,7 +30,8 @@ interface AddToCartControlProps {
 /**
  * Muestra un botón para agregar el producto. Tras agregarlo, se convierte
  * en un selector de cantidad limitado por el stock disponible. Los cambios
- * se anuncian a los lectores de pantalla.
+ * se anuncian a los lectores de pantalla. Quien no puede comprar, como el
+ * administrador, ve un aviso en lugar del botón.
  *
  * @param props Propiedades del componente.
  * @return El control para agregar al carrito.
@@ -42,6 +45,7 @@ export default function AddToCartControl({
     const { t } = useTranslation('product');
     const { cart, addProduct, increaseQuantity, decreaseQuantity, removeProduct } = useCart();
     const { track } = useAnalytics();
+    const { currentUser } = useSession();
     const [announcement, setAnnouncement] = useState('');
     // Counts only the units added during this visit; reloading or navigating resets it,
     // while the cart keeps its full quantity.
@@ -93,6 +97,17 @@ export default function AddToCartControl({
 
         decreaseQuantity(productId);
     };
+
+    if (!hasPermission(currentUser, 'ADD_TO_CART')) {
+        return (
+            <div className={containerClassName}>
+                <p className={styles.purchaseDisabledNote}>
+                    <FaLock aria-hidden="true" />
+                    <span>{t('purchaseDisabled')}</span>
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className={containerClassName}>
