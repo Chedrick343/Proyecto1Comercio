@@ -27,7 +27,21 @@
     "lowStock_other": "Últimas {{count}} unidades",
     "outOfStock": "Agotado"
   },
-  "stores": "En tiendas: {{stores}}",
+  "branchStock": {
+    "open": "Ver disponibilidad en tiendas",
+    "eyebrow": "DISPONIBILIDAD EN TIENDAS",
+    "title": "Unidades por sucursal",
+    "description": "Revisa las unidades de {{name}} en cada una de nuestras sucursales.",
+    "listLabel": "Unidades disponibles por sucursal",
+    "available_one": "{{count}} disponible",
+    "available_other": "{{count}} disponibles",
+    "lowStock_one": "Queda {{count}}",
+    "lowStock_other": "Quedan {{count}}",
+    "outOfStock": "No disponible",
+    "total_one": "Total en todas las sucursales: {{count}} unidad",
+    "total_other": "Total en todas las sucursales: {{count}} unidades",
+    "close": "Cerrar"
+  },
   "description": "Descripción",
   "reference": "Ref. {{sku}}",
   "details": {

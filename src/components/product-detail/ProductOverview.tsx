@@ -4,11 +4,14 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaStore } from 'react-icons/fa';
 
 import AddToCartControl from '../add-to-cart/AddToCartControl';
 import AddedToCartDialog from '../add-to-cart/AddedToCartDialog';
+import BranchStockDialog from '../branch-stock/BranchStockDialog';
 import { IVA_RATE } from '../../context/CartContext';
-import { getAvailableStores, getStockStatus } from '../../product/productSpecifications';
+import { getStockByBranch } from '../../inventory/branchInventory';
+import { getStockStatus } from '../../product/productSpecifications';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
 import type { Product } from '../../utils/Products';
@@ -24,8 +27,8 @@ const STOCK_STATUS_CLASS = {
 };
 
 /**
- * Muestra marca, nombre, calificación, precio, disponibilidad y tiendas
- * con stock, junto con el control para agregar al carrito.
+ * Muestra marca, nombre, calificación, precio y disponibilidad, con un botón
+ * para ver las unidades en cada sucursal y el control para agregar al carrito.
  *
  * @param props Propiedades del componente.
  * @param props.product Producto a mostrar.
@@ -34,9 +37,15 @@ const STOCK_STATUS_CLASS = {
 export default function ProductOverview({ product }: { product: Product }) {
     const { t } = useTranslation('product');
     const [isAddedDialogOpen, setIsAddedDialogOpen] = useState(false);
+    const [isBranchStockOpen, setIsBranchStockOpen] = useState(false);
 
     const stockStatus = getStockStatus(product);
-    const availableStores = getAvailableStores(product);
+
+    /** Abre la disponibilidad por sucursal y la registra en la consola. */
+    const handleOpenBranchStock = () => {
+        console.log(`Consultando disponibilidad por sucursal de ${product.objectID}:`, getStockByBranch(product));
+        setIsBranchStockOpen(true);
+    };
 
     return (
         <section className={styles.overview} aria-labelledby="product-title">
@@ -53,16 +62,26 @@ export default function ProductOverview({ product }: { product: Product }) {
                 </p>
             </div>
 
-            <p className={styles.availability}>
+            <div className={styles.availability}>
                 <span className={`${styles.stockStatus} ${STOCK_STATUS_CLASS[stockStatus]}`}>
                     {t(`stock.${stockStatus}`, { count: product.stock_quantity })}
                 </span>
-                {stockStatus !== 'outOfStock' && availableStores.length > 0 && (
-                    <span className={styles.stores}>
-                        {t('stores', { stores: availableStores.join(' · ') })}
-                    </span>
-                )}
-            </p>
+                <button
+                    type="button"
+                    className={styles.branchStockButton}
+                    aria-haspopup="dialog"
+                    onClick={handleOpenBranchStock}
+                >
+                    <FaStore aria-hidden="true" />
+                    {t('branchStock.open')}
+                </button>
+            </div>
+
+            <BranchStockDialog
+                product={product}
+                isOpen={isBranchStockOpen}
+                onClose={() => setIsBranchStockOpen(false)}
+            />
 
             <AddToCartControl
                 product={product}
