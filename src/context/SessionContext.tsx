@@ -10,6 +10,7 @@ import {
     type ReactNode
 } from 'react';
 
+import { getPermissions } from '../session/permissions';
 import { isUser, type User } from '../session/userTypes';
 
 /** Clave de localStorage donde se guarda el usuario con sesión iniciada. */
@@ -78,9 +79,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
         }
     }, [currentUser]);
 
-    const startSession = (user: User) => setCurrentUser(user);
+    const startSession = (user: User) => {
+        console.log(`Sesión iniciada: ${user.email} con rol ${user.role}.`);
+        console.log('Permisos del usuario:', getPermissions(user));
+        setCurrentUser(user);
+    };
 
-    const endSession = () => setCurrentUser(null);
+    const endSession = () => {
+        console.log(`Sesión cerrada: ${currentUser?.email ?? 'sin usuario'}. Ahora se navega como invitado.`);
+        setCurrentUser(null);
+    };
 
     return (
         <SessionContext.Provider value={{ currentUser, startSession, endSession }}>
