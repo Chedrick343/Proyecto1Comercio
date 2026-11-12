@@ -76,6 +76,28 @@
     white-space: nowrap;
 }
 
+/* With an active session the account stays visible on mobile so the role is always shown */
+.accountButton.signedIn {
+    display: flex;
+}
+
+.roleTag {
+    padding: 2px 7px;
+    border: 1px solid #c9a246;
+    border-radius: var(--radius-pill);
+    color: #e4c56f;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+}
+
+@media (max-width: 860px) {
+    .signedIn .accountName {
+        display: none;
+    }
+}
+
 @media (min-width: 861px) {
     .header {
         flex: 1;

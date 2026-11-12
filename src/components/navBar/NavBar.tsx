@@ -11,6 +11,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useCart } from '../../context/CartContext';
+import { useSession } from '../../context/SessionContext';
+import { hasPermission } from '../../session/permissions';
 import { FOCUS_SEARCH_STATE } from '../search-bar/searchFocus';
 import CartBadge from '../cart-badge/CartBadge';
 import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
@@ -66,7 +68,7 @@ function getSelectedOption(pathname: string): NavOption | null {
 
 /**
  * Muestra la barra de navegación inferior. La opción del carrito abre la
- * vista previa cuando está disponible.
+ * vista previa cuando está disponible, y solo aparece para quien puede comprar.
  *
  * @return La barra de navegación.
  */
@@ -74,13 +76,18 @@ export default function NavBar() {
     const { t } = useTranslation();
     const { pathname } = useLocation();
     const { totalItems } = useCart();
+    const { currentUser } = useSession();
     const cartPreview = useCartPreview();
 
     const selected = getSelectedOption(pathname);
+    const canUseCart = hasPermission(currentUser, 'ADD_TO_CART');
+    const visibleItems = canUseCart
+        ? NAV_ITEMS
+        : NAV_ITEMS.filter((item) => item.id !== 'cart');
 
     return (
         <nav className={styles.navBar} aria-label={t('nav.label')}>
-            {NAV_ITEMS.map(({ id, Icon, path, state, disabled }) => {
+            {visibleItems.map(({ id, Icon, path, state, disabled }) => {
                 const opensCartPreview = id === 'cart' && isCartPreviewAvailable(pathname);
                 const isSelected = selected === id || (opensCartPreview && cartPreview.isOpen);
                 const label = t(`nav.${id}`);
