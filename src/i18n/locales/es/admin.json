@@ -1,12 +1,4 @@
 {
-  "access": {
-    "signInTitle": "Inicia sesión como administrador",
-    "signInDescription": "El panel administrativo solo está disponible para el administrador de la tienda.",
-    "signIn": "Iniciar sesión",
-    "deniedTitle": "Acceso restringido",
-    "deniedDescription": "Tu cuenta no tiene permisos para ver el panel administrativo.",
-    "goToCatalog": "Ir al catálogo"
-  },
   "usage": {
     "title": "Métricas de uso",
     "description": "Calculadas con la actividad registrada en este navegador: usuarios con sesión e invitados.",

@@ -34,6 +34,33 @@
     "policiesTitle": "Información de compra",
     "copyright": "© {{year}} {{brand}}. Todos los derechos reservados."
   },
+  "access": {
+    "signInTitle": "Inicia sesión para continuar",
+    "deniedTitle": "Acceso restringido",
+    "signIn": "Iniciar sesión",
+    "goToCatalog": "Ir al catálogo",
+    "goToAdminPanel": "Ir al panel administrativo",
+    "signInReasons": {
+      "VIEW_CATALOG": "Inicia sesión para ver el catálogo.",
+      "SEARCH_PRODUCTS": "Inicia sesión para buscar productos.",
+      "ADD_TO_CART": "Inicia sesión para usar el carrito.",
+      "CHECKOUT": "Para completar la compra necesitas iniciar sesión. Así la orden queda asociada a tu cuenta y a tus condiciones de compra.",
+      "VIEW_OWN_ORDERS": "Inicia sesión para ver los pedidos de tu cuenta.",
+      "VIEW_ALL_ORDERS": "Solo el administrador de la tienda puede consultar todas las órdenes.",
+      "VIEW_ADMIN_INFORMATION": "El panel administrativo solo está disponible para el administrador de la tienda.",
+      "EDIT_STORE_DATA": "Solo el administrador de la tienda puede modificar su información."
+    },
+    "deniedReasons": {
+      "VIEW_CATALOG": "Tu cuenta no tiene permiso para ver el catálogo.",
+      "SEARCH_PRODUCTS": "Tu cuenta no tiene permiso para buscar productos.",
+      "ADD_TO_CART": "La cuenta de administrador no puede comprar. Úsala para consultar y administrar la tienda.",
+      "CHECKOUT": "La cuenta de administrador no puede realizar compras. Úsala para consultar y administrar la tienda.",
+      "VIEW_OWN_ORDERS": "La cuenta de administrador no tiene pedidos propios. Puedes consultar todas las órdenes desde el panel administrativo.",
+      "VIEW_ALL_ORDERS": "Tu cuenta no tiene permisos para consultar las órdenes de otros clientes.",
+      "VIEW_ADMIN_INFORMATION": "Tu cuenta no tiene permisos para ver el panel administrativo.",
+      "EDIT_STORE_DATA": "Tu cuenta no tiene permisos para modificar la información de la tienda."
+    }
+  },
   "delivery": {
     "recipient": "Recibe",
     "contact": "Contacto",
