@@ -7,10 +7,10 @@ import { useTranslation } from 'react-i18next';
 import { FaStore } from 'react-icons/fa';
 
 import AddToCartControl from '../add-to-cart/AddToCartControl';
-import AddedToCartDialog from '../add-to-cart/AddedToCartDialog';
-import BranchStockDialog from '../branch-stock/BranchStockDialog';
+import BranchPickerDialog from '../branch-picker/BranchPickerDialog';
+import DefaultBranchStockNote from '../branch-picker/DefaultBranchStockNote';
+import { useProductBranchStatuses } from '../branch-picker/useBranchStatuses';
 import { IVA_RATE } from '../../context/CartContext';
-import { getStockByBranch } from '../../inventory/branchInventory';
 import { getStockStatus } from '../../product/productSpecifications';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
@@ -27,23 +27,26 @@ const STOCK_STATUS_CLASS = {
 };
 
 /**
- * Muestra marca, nombre, calificación, precio y disponibilidad, con un botón
- * para ver las unidades en cada sucursal y el control para agregar al carrito.
+ * Muestra marca, nombre, calificación, precio y disponibilidad, junto con el
+ * control para agregar al carrito. Cualquier persona puede consultar las
+ * unidades en cada sucursal; la sucursal de la compra se elige en el
+ * checkout. Si el usuario tiene una sucursal predeterminada, también se
+ * indica cuántas unidades hay en ella.
  *
  * @param props Propiedades del componente.
  * @param props.product Producto a mostrar.
  * @return El resumen del producto.
  */
 export default function ProductOverview({ product }: { product: Product }) {
-    const { t } = useTranslation('product');
-    const [isAddedDialogOpen, setIsAddedDialogOpen] = useState(false);
+    const { t } = useTranslation(['product', 'common']);
     const [isBranchStockOpen, setIsBranchStockOpen] = useState(false);
 
     const stockStatus = getStockStatus(product);
+    const branchStatuses = useProductBranchStatuses(product);
 
-    /** Abre la disponibilidad por sucursal y la registra en la consola. */
+    /** Abre la consulta de unidades por sucursal y la registra en la consola. */
     const handleOpenBranchStock = () => {
-        console.log(`Consultando disponibilidad por sucursal de ${product.objectID}:`, getStockByBranch(product));
+        console.log(`Consultando disponibilidad por sucursal de ${product.objectID}:`, branchStatuses);
         setIsBranchStockOpen(true);
     };
 
@@ -66,6 +69,7 @@ export default function ProductOverview({ product }: { product: Product }) {
                 <span className={`${styles.stockStatus} ${STOCK_STATUS_CLASS[stockStatus]}`}>
                     {t(`stock.${stockStatus}`, { count: product.stock_quantity })}
                 </span>
+
                 <button
                     type="button"
                     className={styles.branchStockButton}
@@ -73,27 +77,26 @@ export default function ProductOverview({ product }: { product: Product }) {
                     onClick={handleOpenBranchStock}
                 >
                     <FaStore aria-hidden="true" />
-                    {t('branchStock.open')}
+                    {t('common:branch.viewAvailability')}
                 </button>
             </div>
 
-            <BranchStockDialog
-                product={product}
+            <DefaultBranchStockNote product={product} />
+
+            <BranchPickerDialog
                 isOpen={isBranchStockOpen}
                 onClose={() => setIsBranchStockOpen(false)}
+                description={t('common:branch.dialog.productDescription', { name: product.title })}
+                statuses={branchStatuses}
+                isSelectable={false}
+                footnote={t('common:branch.dialog.total', { count: product.stock_quantity })}
             />
 
             <AddToCartControl
                 product={product}
                 fullWidth
                 className={styles.purchase}
-                onAdded={() => setIsAddedDialogOpen(true)}
-            />
-
-            <AddedToCartDialog
-                product={product}
-                isOpen={isAddedDialogOpen}
-                onClose={() => setIsAddedDialogOpen(false)}
+                confirmWithDialog
             />
 
             {product.description && (
