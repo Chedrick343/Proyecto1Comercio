@@ -9,6 +9,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 import type { ProductSnapshot } from '../../activity/analyticsTypes';
 import { getCatalogReturnState } from '../../catalog/catalogReturn';
+import { usePriceTier } from '../../pricing/usePriceTier';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 import styles from './ProductCarousel.module.css';
@@ -41,7 +42,8 @@ const prefersReducedMotion = () =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
- * Muestra un producto del carrusel. Toda la tarjeta enlaza al detalle.
+ * Muestra un producto del carrusel con el precio del usuario actual. Toda la
+ * tarjeta enlaza al detalle.
  *
  * @param props Propiedades del componente.
  * @param props.product Resumen del producto.
@@ -50,6 +52,11 @@ const prefersReducedMotion = () =>
 function CarouselCard({ product }: { product: ProductSnapshot }) {
     const { t } = useTranslation('catalog');
     const location = useLocation();
+    const tier = usePriceTier();
+    // Los resúmenes antiguos no tienen precio B2B; en ese caso se muestra el B2C.
+    const displayedPrice = tier === 'B2B' && product.businessPrice !== undefined
+        ? product.businessPrice
+        : product.price;
 
     return (
         <li className={styles.card}>
@@ -74,7 +81,7 @@ function CarouselCard({ product }: { product: ProductSnapshot }) {
                 </h3>
 
                 <p className={styles.brand}>{product.brand}</p>
-                <p className={styles.price}>{formatCurrency(product.price, product.currency)}</p>
+                <p className={styles.price}>{formatCurrency(displayedPrice, product.currency)}</p>
             </div>
         </li>
     );
