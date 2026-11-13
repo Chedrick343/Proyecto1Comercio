@@ -33,6 +33,7 @@ import NotFoundPage from './components/error/NotFoundPage';
 import errorStateStyles from './components/error/ErrorState.module.css';
 import Footer from './components/footer/footer';
 import { useTrackSearch } from './activity/useTrackSearch';
+import { usePriceTier } from './pricing/usePriceTier';
 import CatalogPersonalization from './components/personalization/CatalogPersonalization';
 
 
@@ -62,7 +63,8 @@ const CATALOG_HITS_PER_PAGE = 1000;
 
 /**
  * Muestra el catálogo: busca en Algolia según el texto de la URL y aplica
- * en el cliente los filtros de categoría y precio.
+ * en el cliente los filtros de categoría y precio. El filtro de precio usa el
+ * precio del tipo de cliente que usa la tienda.
  *
  * @return La página del catálogo con su estado de carga o error.
  */
@@ -72,6 +74,7 @@ function ProductCatalog() {
     const { status, error, refresh } = useInstantSearch();
     const [searchParams, setSearchParams] = useSearchParams();
     const query = readCatalogQuery(searchParams);
+    const priceTier = usePriceTier();
 
     useEffect(() => {
         if (error) {
@@ -99,8 +102,8 @@ function ProductCatalog() {
     );
 
     const products = useMemo(
-        () => filterProducts(allProducts, filters),
-        [allProducts, filters]
+        () => filterProducts(allProducts, filters, priceTier),
+        [allProducts, filters, priceTier]
     );
 
     const isLoading =
