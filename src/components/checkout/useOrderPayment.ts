@@ -52,7 +52,7 @@ export interface SandboxScenarios {
  *     resultado, descartar la orden activa o empezar una orden nueva.
  */
 export function useOrderPayment() {
-    const { removePurchasedItems } = useCart();
+    const { removePurchasedItems, priceTier } = useCart();
     const { addOrder, saveOrder } = useOrders();
     const { track } = useAnalytics();
 
@@ -96,11 +96,12 @@ export function useOrderPayment() {
         const newOrder = createOrder({
             cart: orderItems,
             totals: calculateCartTotals(orderItems),
+            priceTier,
             customer,
             termsAcceptance
         });
 
-        console.log('Orden creada con los productos:', newOrder.items);
+        console.log(`Orden creada con precios ${priceTier}. Productos:`, newOrder.items);
 
         addOrder(newOrder);
         setActiveOrder(newOrder);
