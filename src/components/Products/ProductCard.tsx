@@ -6,8 +6,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import AddToCartControl from '../add-to-cart/AddToCartControl';
+import ProductPrice from '../product-price/ProductPrice';
 import { getMainCategory, type Product } from '../../utils/Products';
-import { formatCurrency } from '../../utils/formatCurrency';
 import { getCatalogReturnState } from '../../catalog/catalogReturn';
 
 import styles from './ProductsGrid.module.css';
@@ -65,9 +65,7 @@ export default function ProductCard({ product, layout }: ProductCardProps) {
                 </h3>
 
                 <div className={styles.cardFooter}>
-                    <p className={styles.price}>
-                        {formatCurrency(product.b2c.price, product.b2c.currency)}
-                    </p>
+                    <ProductPrice product={product} priceClassName={styles.price} />
 
                     <AddToCartControl product={product} fullWidth={!isList} />
                 </div>

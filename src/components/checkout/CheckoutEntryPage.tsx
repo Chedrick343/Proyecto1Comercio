@@ -32,6 +32,7 @@ import {
     isWholeCartAvailable
 } from '../../inventory/cartAvailability';
 import BranchAvailabilityReview, { AVAILABILITY_REVIEW_ID } from './BranchAvailabilityReview';
+import PriceTierNote from '../product-price/PriceTierNote';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
 import CheckoutOrderReview from './CheckoutOrderReview';
@@ -499,6 +500,8 @@ export default function CheckoutEntryPage() {
                                     {t('common:itemCount', { count: orderUnits })}
                                 </span>
                             </div>
+
+                            <PriceTierNote />
 
                             {currentStep === 1 ? (
                                 <BranchAvailabilityReview

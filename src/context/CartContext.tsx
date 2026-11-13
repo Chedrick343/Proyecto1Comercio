@@ -1,5 +1,7 @@
 /**
  * @fileoverview Estado global del carrito de compras y cálculo de sus totales.
+ * El carrito guarda el precio B2C y el B2B de cada producto, y aplica el que
+ * corresponde al usuario actual; así se recalcula solo al cambiar de sesión.
  */
 
 import {
@@ -10,6 +12,9 @@ import {
     type ReactNode
 } from 'react';
 
+import { getCustomerPrice, type PriceTier } from '../pricing/customerPrice';
+import { usePriceTier } from '../pricing/usePriceTier';
+import { getProductById } from '../utils/algolia';
 import type { Product } from '../utils/Products';
 
 /** Clave de localStorage donde se guarda el carrito. */
@@ -20,22 +25,48 @@ export const SHIPPING_RATE = 0.05;
 /** Tasa del impuesto al valor agregado (IVA) aplicada sobre el subtotal. */
 export const IVA_RATE = 0.13;
 
-/** Producto agregado al carrito. */
+/** Producto del carrito con el precio que se le aplica al usuario actual. */
 export interface CartItem {
     /** Identificador del producto (objectID de Algolia). */
     id: string;
     name: string;
+    /** Precio unitario aplicado. */
     price: number;
+    /** Tipo de precio aplicado: B2C o B2B. */
+    priceTier: PriceTier;
     currency: string;
     image: string;
     quantity: number;
+}
+
+/** Producto tal como se guarda en el carrito, con sus dos precios. */
+interface StoredCartItem {
+    id: string;
+    name: string;
+    currency: string;
+    image: string;
+    quantity: number;
+    /** Precio B2C. */
+    retailPrice: number;
+    /**
+     * Precio B2B; null si el producto no tiene un precio de empresa válido, y
+     * undefined si todavía no se conoce (carritos guardados antes de los
+     * precios B2B, que se completan consultando Algolia).
+     */
+    businessPrice?: number | null;
+}
+
+/** Precios actualizados de un producto del carrito. */
+interface RefreshedPrices {
+    retailPrice: number;
+    businessPrice: number | null;
 }
 
 /** Unidades compradas de un producto, para descontarlas del carrito. */
 export type PurchasedUnits = Pick<CartItem, 'id' | 'quantity'>;
 
 /** Contenido del carrito. */
-type CartState = CartItem[];
+type CartState = StoredCartItem[];
 
 /** Acciones que modifican el carrito. */
 type CartAction =
@@ -76,8 +107,48 @@ type CartAction =
           payload: {
               purchasedItems: PurchasedUnits[];
           };
+      }
+    | {
+          type: 'REFRESH_PRICES';
+          payload: {
+              pricesById: Record<string, RefreshedPrices>;
+          };
       };
 
+
+/**
+ * Obtiene los dos precios de un producto del catálogo para guardarlos en el
+ * carrito.
+ *
+ * @param product Producto del catálogo.
+ * @return El precio B2C y el B2B, o null en el B2B si no es válido.
+ */
+function getStoredPrices(product: Product): RefreshedPrices {
+    const businessPrice = getCustomerPrice(product, 'B2B');
+
+    return {
+        retailPrice: product.b2c.price,
+        businessPrice: businessPrice.problem ? null : businessPrice.amount
+    };
+}
+
+/**
+ * Crea el producto que se guarda en el carrito, con sus dos precios.
+ *
+ * @param product Producto del catálogo.
+ * @param quantity Cantidad a agregar.
+ * @return El producto listo para guardarse.
+ */
+function toStoredCartItem(product: Product, quantity: number): StoredCartItem {
+    return {
+        id: String(product.objectID),
+        name: product.title,
+        currency: product.b2c.currency,
+        image: product.image_url,
+        quantity,
+        ...getStoredPrices(product)
+    };
+}
 
 /**
  * Calcula el nuevo estado del carrito a partir de una acción. Agregar un
@@ -110,16 +181,7 @@ function cartReducer(
                 );
             }
 
-            const newItem: CartItem = {
-                id: String(product.objectID),
-                name: product.title,
-                price: product.b2c.price,
-                currency: product.b2c.currency,
-                image: product.image_url,
-                quantity
-            };
-
-            return [...state, newItem];
+            return [...state, toStoredCartItem(product, quantity)];
         }
 
         case 'INCREASE_QUANTITY':
@@ -174,9 +236,58 @@ function cartReducer(
                 .filter((item) => item.quantity > 0);
         }
 
+        case 'REFRESH_PRICES': {
+            const { pricesById } = action.payload;
+
+            return state.map((item) =>
+                pricesById[item.id] ? { ...item, ...pricesById[item.id] } : item
+            );
+        }
+
         default:
             return state;
     }
+}
+
+/**
+ * Convierte un producto recuperado de localStorage al formato actual. Los
+ * carritos guardados antes de los precios B2B solo tienen "price"; se toma
+ * como precio B2C y el precio de empresa queda como desconocido, para
+ * consultarlo después.
+ *
+ * @param item Valor recuperado.
+ * @return El producto en el formato actual, o null si no es válido.
+ */
+function readStoredCartItem(item: unknown): StoredCartItem | null {
+    if (typeof item !== 'object' || item === null) {
+        return null;
+    }
+
+    const storedItem = item as Partial<StoredCartItem> & { price?: unknown };
+    const retailPrice = typeof storedItem.retailPrice === 'number'
+        ? storedItem.retailPrice
+        : storedItem.price;
+
+    if (
+        typeof storedItem.id !== 'string' ||
+        typeof storedItem.name !== 'string' ||
+        typeof storedItem.quantity !== 'number' ||
+        typeof retailPrice !== 'number'
+    ) {
+        return null;
+    }
+
+    return {
+        id: storedItem.id,
+        name: storedItem.name,
+        currency: typeof storedItem.currency === 'string' ? storedItem.currency : 'CRC',
+        image: typeof storedItem.image === 'string' ? storedItem.image : '',
+        quantity: storedItem.quantity,
+        retailPrice,
+        businessPrice: typeof storedItem.businessPrice === 'number' || storedItem.businessPrice === null
+            ? storedItem.businessPrice
+            : undefined
+    };
 }
 
 /**
@@ -193,13 +304,15 @@ function getInitialCart(): CartState {
             return [];
         }
 
-        const parsedCart = JSON.parse(storedCart);
+        const parsedCart: unknown = JSON.parse(storedCart);
 
         if (!Array.isArray(parsedCart)) {
             return [];
         }
 
-        return parsedCart.filter(isValidCartItem);
+        return parsedCart
+            .map(readStoredCartItem)
+            .filter((item): item is StoredCartItem => item !== null);
     } catch (error) {
         console.error(
             'No se pudo recuperar el carrito:',
@@ -209,19 +322,54 @@ function getInitialCart(): CartState {
         return [];
     }
 }
+
 /**
- * Verifica que un valor recuperado tenga la forma de un producto del carrito.
+ * Aplica a un producto del carrito el precio del tipo de cliente actual. Si
+ * el cliente es B2B pero el producto no tiene un precio de empresa conocido y
+ * válido, se usa el precio B2C y la línea queda marcada como B2C.
  *
- * @param item Valor a verificar.
- * @return Verdadero si el valor es un producto del carrito válido.
+ * @param item Producto guardado en el carrito.
+ * @param priceTier Tipo de precio del usuario actual.
+ * @return El producto con su precio aplicado.
  */
-const isValidCartItem = (item: unknown): item is CartItem =>
-    typeof item === 'object' &&
-    item !== null &&
-    typeof (item as CartItem).id === 'string' &&
-    typeof (item as CartItem).name === 'string' &&
-    typeof (item as CartItem).price === 'number' &&
-    typeof (item as CartItem).quantity === 'number';
+function toPricedCartItem(item: StoredCartItem, priceTier: PriceTier): CartItem {
+    const businessPrice = typeof item.businessPrice === 'number' ? item.businessPrice : null;
+    const usesBusinessPrice = priceTier === 'B2B' && businessPrice !== null;
+
+    return {
+        id: item.id,
+        name: item.name,
+        price: usesBusinessPrice ? businessPrice : item.retailPrice,
+        priceTier: usesBusinessPrice ? 'B2B' : 'B2C',
+        currency: item.currency,
+        image: item.image,
+        quantity: item.quantity
+    };
+}
+
+/**
+ * Consulta en Algolia los precios actuales de algunos productos del carrito.
+ * Los productos que no se pudieron consultar quedan fuera del resultado.
+ *
+ * @param productIds Identificadores de los productos.
+ * @return Los precios B2C y B2B de cada producto consultado.
+ */
+async function loadCurrentPrices(productIds: string[]): Promise<Record<string, RefreshedPrices>> {
+    console.log('Consultando precios de empresa de productos guardados antes en el carrito:', productIds);
+
+    const results = await Promise.allSettled(productIds.map((productId) => getProductById(productId)));
+    const pricesById: Record<string, RefreshedPrices> = {};
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+            pricesById[productIds[index]] = getStoredPrices(result.value);
+        } else {
+            console.error(`No se pudieron consultar los precios de ${productIds[index]}:`, result.reason);
+        }
+    });
+
+    return pricesById;
+}
 
 /** Montos que resumen el costo de un grupo de productos. */
 export interface CartTotals {
@@ -253,7 +401,11 @@ export function calculateCartTotals(items: CartItem[]): CartTotals {
 
 /** Valor que expone el contexto del carrito. */
 interface CartContextType {
-    cart: CartState;
+    /** Productos con el precio que le corresponde al usuario actual. */
+    cart: CartItem[];
+
+    /** Tipo de precio que se está aplicando a todo el carrito. */
+    priceTier: PriceTier;
 
     addProduct: (
         product: Product,
@@ -298,6 +450,8 @@ interface CartProviderProps {
 
 /**
  * Proveedor que mantiene el estado del carrito y lo persiste en localStorage.
+ * Debe estar dentro de SessionProvider, porque el precio aplicado depende del
+ * usuario.
  *
  * @param props Propiedades del componente.
  * @param props.children Componentes que tendrán acceso al contexto.
@@ -306,18 +460,59 @@ interface CartProviderProps {
 export function CartProvider({
     children
 }: CartProviderProps) {
-    const [cart, dispatch] = useReducer(
+    const [storedCart, dispatch] = useReducer(
         cartReducer,
         [],
         getInitialCart
     );
+    const priceTier = usePriceTier();
 
     useEffect(() => {
         localStorage.setItem(
             CART_STORAGE_KEY,
-            JSON.stringify(cart)
+            JSON.stringify(storedCart)
         );
-    }, [cart]);
+    }, [storedCart]);
+
+    useEffect(() => {
+        console.log(`Precios del carrito calculados con el tipo de precio ${priceTier}.`);
+    }, [priceTier]);
+
+    // Productos guardados antes de los precios B2B: se consulta su precio de empresa una vez.
+    const unknownPriceIds = storedCart
+        .filter((item) => item.businessPrice === undefined)
+        .map((item) => item.id)
+        .join(',');
+
+    useEffect(() => {
+        if (unknownPriceIds === '') {
+            return;
+        }
+
+        let isCurrentRequest = true;
+
+        loadCurrentPrices(unknownPriceIds.split(',')).then((pricesById) => {
+            if (isCurrentRequest && Object.keys(pricesById).length > 0) {
+                dispatch({ type: 'REFRESH_PRICES', payload: { pricesById } });
+            }
+        });
+
+        return () => {
+            isCurrentRequest = false;
+        };
+    }, [unknownPriceIds]);
+
+    const fallbackPriceIds = priceTier === 'B2B'
+        ? storedCart.filter((item) => item.businessPrice === null).map((item) => item.id).join(', ')
+        : '';
+
+    useEffect(() => {
+        if (fallbackPriceIds !== '') {
+            console.warn(`Productos sin precio B2B válido; se cobran con precio B2C: ${fallbackPriceIds}.`);
+        }
+    }, [fallbackPriceIds]);
+
+    const cart = storedCart.map((item) => toPricedCartItem(item, priceTier));
 
     const addProduct = (
         product: Product,
@@ -380,6 +575,7 @@ export function CartProvider({
         <CartContext.Provider
             value={{
                 cart,
+                priceTier,
                 addProduct,
                 increaseQuantity,
                 decreaseQuantity,

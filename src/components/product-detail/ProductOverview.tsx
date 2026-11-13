@@ -10,9 +10,9 @@ import AddToCartControl from '../add-to-cart/AddToCartControl';
 import BranchPickerDialog from '../branch-picker/BranchPickerDialog';
 import DefaultBranchStockNote from '../branch-picker/DefaultBranchStockNote';
 import { useProductBranchStatuses } from '../branch-picker/useBranchStatuses';
+import ProductPrice from '../product-price/ProductPrice';
 import { IVA_RATE } from '../../context/CartContext';
 import { getStockStatus } from '../../product/productSpecifications';
-import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
 import type { Product } from '../../utils/Products';
 import StarRating from './StarRating';
@@ -57,9 +57,7 @@ export default function ProductOverview({ product }: { product: Product }) {
             <StarRating rating={product.rating} />
 
             <div className={styles.priceBlock}>
-                <p className={styles.price}>
-                    {formatCurrency(product.b2c.price, product.b2c.currency)}
-                </p>
+                <ProductPrice product={product} priceClassName={styles.price} showSavings />
                 <p className={styles.priceNote}>
                     {t('priceNote', { rate: formatRate(IVA_RATE) })}
                 </p>

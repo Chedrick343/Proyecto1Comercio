@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { IVA_RATE, SHIPPING_RATE, useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
+import PriceTierNote from '../product-price/PriceTierNote';
 
 import styles from './carritoSection.module.css';
 
@@ -232,6 +233,8 @@ export default function CarritoSection() {
                             {t('common:summary.title')}
                         </h2>
                     </div>
+
+                    <PriceTierNote />
 
                     <div className={styles.summaryRows}>
 

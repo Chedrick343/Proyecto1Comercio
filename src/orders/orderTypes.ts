@@ -5,6 +5,7 @@
  */
 
 import type { ShippingDetails } from '../components/checkout/checkoutTypes';
+import type { PriceTier } from '../pricing/customerPrice';
 
 /** Estado general de una orden. */
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'FAILED';
@@ -62,6 +63,11 @@ export interface OrderItem {
     name: string;
     image: string;
     unitPrice: number;
+    /**
+     * Tipo de precio con el que se cobró el producto. Es opcional porque las
+     * órdenes guardadas antes de los precios B2B no lo tienen (eran B2C).
+     */
+    priceTier?: PriceTier;
     currency: string;
     quantity: number;
     /** Precio unitario multiplicado por la cantidad. */
@@ -90,6 +96,11 @@ export interface Order extends OrderTotals {
     createdAt: string;
     updatedAt: string;
     currency: string;
+    /**
+     * Tipo de precio con el que se hizo la compra (condición comercial). Es
+     * opcional porque las órdenes guardadas antes de los precios B2B no lo tienen.
+     */
+    priceTier?: PriceTier;
     customer: ShippingDetails;
     /**
      * Constancia de aceptación de términos. Es opcional solo porque las órdenes

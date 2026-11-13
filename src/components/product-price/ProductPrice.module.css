@@ -1,0 +1,57 @@
+.priceGroup {
+    display: grid;
+    justify-items: start;
+    gap: 2px;
+}
+
+.tierTag {
+    padding: 1px 8px;
+    border: 1px solid #c9a246;
+    border-radius: var(--radius-pill);
+    color: #e4c56f;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.retailPrice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+    color: #8c8c8f;
+    font-size: var(--font-size-xs);
+}
+
+.savings {
+    color: #7cc48c;
+    font-weight: 700;
+}
+
+.secondaryPrice {
+    margin: 0;
+    color: #aaa9ad;
+    font-size: var(--font-size-xs);
+}
+
+.tierNote {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+    padding: 8px 12px;
+    border: 1px solid rgba(201, 162, 70, 0.5);
+    border-radius: var(--radius-md);
+    background-color: rgba(201, 162, 70, 0.08);
+    color: #e4c56f;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.unavailable {
+    margin: 0;
+    color: #f3aaa5;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}

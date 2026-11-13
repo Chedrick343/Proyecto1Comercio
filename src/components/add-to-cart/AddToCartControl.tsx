@@ -4,12 +4,13 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCartPlus, FaLock } from 'react-icons/fa';
+import { FaBan, FaCartPlus, FaLock } from 'react-icons/fa';
 
 import { toProductSnapshot } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
 import { useSession } from '../../context/SessionContext';
+import { getCustomerPrice } from '../../pricing/customerPrice';
 import { hasPermission } from '../../session/permissions';
 import type { Product } from '../../utils/Products';
 import AddedToCartDialog from './AddedToCartDialog';
@@ -37,7 +38,8 @@ interface AddToCartControlProps {
  * en un selector de cantidad limitado por el stock total de todas las
  * sucursales; la disponibilidad en la sucursal elegida se valida en el
  * checkout. Los cambios se anuncian a los lectores de pantalla. Quien no
- * puede comprar, como el administrador, ve un aviso en lugar del botón.
+ * puede comprar, como el administrador, ve un aviso en lugar del botón, igual
+ * que cuando el producto no tiene un precio válido para el usuario.
  *
  * @param props Propiedades del componente.
  * @return El control para agregar al carrito.
@@ -49,7 +51,14 @@ export default function AddToCartControl({
     confirmWithDialog = false
 }: AddToCartControlProps) {
     const { t } = useTranslation('product');
-    const { cart, addProduct, increaseQuantity, decreaseQuantity, removeProduct } = useCart();
+    const {
+        cart,
+        priceTier,
+        addProduct,
+        increaseQuantity,
+        decreaseQuantity,
+        removeProduct
+    } = useCart();
     const { track } = useAnalytics();
     const { currentUser } = useSession();
     const [isAddedDialogOpen, setIsAddedDialogOpen] = useState(false);
@@ -66,6 +75,7 @@ export default function AddToCartControl({
     const removesProduct = quantityInCart === 1;
     const isOutOfStock = !product.in_stock;
     const hasReachedStock = quantityInCart >= product.stock_quantity;
+    const hasPriceProblem = getCustomerPrice(product, priceTier).problem !== null;
     const name = product.title;
 
     const containerClassName = [fullWidth && styles.fullWidth, className]
@@ -126,6 +136,17 @@ export default function AddToCartControl({
                 <p className={styles.purchaseDisabledNote}>
                     <FaLock aria-hidden="true" />
                     <span>{t('purchaseDisabled')}</span>
+                </p>
+            </div>
+        );
+    }
+
+    if (hasPriceProblem) {
+        return (
+            <div className={containerClassName}>
+                <p className={styles.purchaseDisabledNote}>
+                    <FaBan aria-hidden="true" />
+                    <span>{t('priceUnavailable')}</span>
                 </p>
             </div>
         );

@@ -5,6 +5,14 @@
   "addToCartShort": "Agregar",
   "addedAnnouncement": "{{name}} se agregó al carrito",
   "purchaseDisabled": "Vista de administrador: compras deshabilitadas",
+  "priceUnavailable": "No disponible para la venta",
+  "price": {
+    "businessTag": "PRECIO EMPRESA",
+    "savings": "Ahorras {{percent}}%",
+    "businessPriceForAdmin": "Precio B2B: {{price}}",
+    "businessCartNote": "Se aplican precios de empresa (B2B) a tu compra.",
+    "unavailable": "Precio no disponible por el momento"
+  },
   "cartControl": {
     "label": "Cantidad de {{name}} en el carrito",
     "inCart": "en el carrito",
