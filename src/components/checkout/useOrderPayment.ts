@@ -7,7 +7,7 @@ import { useRef, useState } from 'react';
 
 import { toPurchasePayload } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
-import { useCart } from '../../context/CartContext';
+import { calculateCartTotals, useCart, type CartItem } from '../../context/CartContext';
 import { useOrders } from '../../context/OrdersContext';
 import { createOrder } from '../../orders/createOrder';
 import {
@@ -43,14 +43,16 @@ export interface SandboxScenarios {
 /**
  * Crea la orden en el primer intento de pago y la reutiliza en los
  * reintentos. Cada intento valida la orden, la cobra y, si el pago se
- * aprueba, reserva el inventario para confirmarla. Si la orden falla después
- * de cobrarse, solicita el reembolso.
+ * aprueba, reserva el inventario para confirmarla. Al confirmarse, solo se
+ * descuentan del carrito los productos comprados, así que lo que no se pudo
+ * comprar queda para otro pedido. Si la orden falla después de cobrarse,
+ * solicita el reembolso.
  *
  * @return El estado del proceso y las acciones para pagar, limpiar el
  *     resultado, descartar la orden activa o empezar una orden nueva.
  */
 export function useOrderPayment() {
-    const { cart, subtotal, iva, shipping, total, clearCart } = useCart();
+    const { removePurchasedItems } = useCart();
     const { addOrder, saveOrder } = useOrders();
     const { track } = useAnalytics();
 
@@ -79,22 +81,26 @@ export function useOrderPayment() {
      *
      * @param customer Datos de envío del cliente.
      * @param termsAcceptance Constancia de aceptación de términos.
+     * @param orderItems Productos que se van a comprar.
      * @return La orden a pagar.
      */
     const getOrCreateOrder = (
         customer: ShippingDetails,
-        termsAcceptance: TermsAcceptance
+        termsAcceptance: TermsAcceptance,
+        orderItems: CartItem[]
     ): Order => {
         if (activeOrder) {
             return activeOrder;
         }
 
         const newOrder = createOrder({
-            cart,
-            totals: { subtotal, iva, shipping, total },
+            cart: orderItems,
+            totals: calculateCartTotals(orderItems),
             customer,
             termsAcceptance
         });
+
+        console.log('Orden creada con los productos:', newOrder.items);
 
         addOrder(newOrder);
         setActiveOrder(newOrder);
@@ -118,7 +124,9 @@ export function useOrderPayment() {
             updateActiveOrder(confirmedOrder);
             setConfirmedOrderNumber(confirmedOrder.orderNumber);
             track('PURCHASE', toPurchasePayload(confirmedOrder));
-            clearCart();
+            removePurchasedItems(
+                confirmedOrder.items.map((item) => ({ id: item.productId, quantity: item.quantity }))
+            );
             return;
         }
 
@@ -144,11 +152,14 @@ export function useOrderPayment() {
      * @param customer Datos de envío del cliente.
      * @param termsAcceptance Constancia de aceptación de términos.
      * @param scenarios Escenarios que deben reproducir los servicios simulados.
+     * @param orderItems Productos que se van a comprar: todo el carrito o
+     *     solo lo disponible en la sucursal elegida.
      */
     const payOrder = async (
         customer: ShippingDetails,
         termsAcceptance: TermsAcceptance,
-        scenarios: SandboxScenarios
+        scenarios: SandboxScenarios,
+        orderItems: CartItem[]
     ) => {
         if (isSubmittingRef.current || confirmedOrderNumber || failedOrder) {
             return;
@@ -159,7 +170,7 @@ export function useOrderPayment() {
         setPaymentResult(null);
 
         try {
-            const order = getOrCreateOrder(customer, termsAcceptance);
+            const order = getOrCreateOrder(customer, termsAcceptance, orderItems);
 
             const validationFailure = await validateOrderForPayment(order, scenarios.order);
 

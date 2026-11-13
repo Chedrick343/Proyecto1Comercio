@@ -4,12 +4,16 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCartPlus, FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaCartPlus, FaLock } from 'react-icons/fa';
 
 import { toProductSnapshot } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
 import { useCart } from '../../context/CartContext';
+import { useSession } from '../../context/SessionContext';
+import { hasPermission } from '../../session/permissions';
 import type { Product } from '../../utils/Products';
+import AddedToCartDialog from './AddedToCartDialog';
+import QuantityStepper from './QuantityStepper';
 
 import styles from './AddToCartControl.module.css';
 
@@ -21,14 +25,19 @@ interface AddToCartControlProps {
     fullWidth?: boolean;
     /** Clase adicional del contenedor. */
     className?: string;
-    /** Se llama cuando el producto se agrega por primera vez. */
-    onAdded?: () => void;
+    /**
+     * Al agregar el producto por primera vez, muestra una confirmación con el
+     * mismo selector de cantidad, para agregar más unidades sin cerrarla.
+     */
+    confirmWithDialog?: boolean;
 }
 
 /**
  * Muestra un botón para agregar el producto. Tras agregarlo, se convierte
- * en un selector de cantidad limitado por el stock disponible. Los cambios
- * se anuncian a los lectores de pantalla.
+ * en un selector de cantidad limitado por el stock total de todas las
+ * sucursales; la disponibilidad en la sucursal elegida se valida en el
+ * checkout. Los cambios se anuncian a los lectores de pantalla. Quien no
+ * puede comprar, como el administrador, ve un aviso en lugar del botón.
  *
  * @param props Propiedades del componente.
  * @return El control para agregar al carrito.
@@ -37,11 +46,13 @@ export default function AddToCartControl({
     product,
     fullWidth = false,
     className,
-    onAdded
+    confirmWithDialog = false
 }: AddToCartControlProps) {
     const { t } = useTranslation('product');
     const { cart, addProduct, increaseQuantity, decreaseQuantity, removeProduct } = useCart();
     const { track } = useAnalytics();
+    const { currentUser } = useSession();
+    const [isAddedDialogOpen, setIsAddedDialogOpen] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     // Counts only the units added during this visit; reloading or navigating resets it,
     // while the cart keeps its full quantity.
@@ -65,13 +76,16 @@ export default function AddToCartControl({
     const trackUnitAdded = () =>
         track('ADD_TO_CART', { ...toProductSnapshot(product), quantity: 1 });
 
-    /** Agrega una unidad del producto al carrito. */
+    /** Agrega la primera unidad del producto al carrito. */
     const handleAdd = () => {
         addProduct(product, 1);
         trackUnitAdded();
         setAddedInThisVisit(1);
         setAnnouncement(t('addedAnnouncement', { name }));
-        onAdded?.();
+
+        if (confirmWithDialog) {
+            setIsAddedDialogOpen(true);
+        }
     };
 
     /** Suma una unidad del producto en el carrito. */
@@ -94,6 +108,29 @@ export default function AddToCartControl({
         decreaseQuantity(productId);
     };
 
+    // El mismo selector se muestra en la página y en la confirmación, así que siempre coinciden.
+    const stepper = (
+        <QuantityStepper
+            name={name}
+            quantity={displayedQuantity}
+            removesProduct={removesProduct}
+            canIncrease={!hasReachedStock}
+            onDecrease={handleDecrease}
+            onIncrease={handleIncrease}
+        />
+    );
+
+    if (!hasPermission(currentUser, 'ADD_TO_CART')) {
+        return (
+            <div className={containerClassName}>
+                <p className={styles.purchaseDisabledNote}>
+                    <FaLock aria-hidden="true" />
+                    <span>{t('purchaseDisabled')}</span>
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div className={containerClassName}>
             {!showStepper ? (
@@ -114,44 +151,20 @@ export default function AddToCartControl({
                     )}
                 </button>
             ) : (
-                <div
-                    className={styles.stepper}
-                    role="group"
-                    aria-label={t('cartControl.label', { name })}
-                >
-                    <button
-                        type="button"
-                        className={styles.stepButton}
-                        onClick={handleDecrease}
-                        aria-label={
-                            removesProduct
-                                ? t('cartControl.remove', { name })
-                                : t('cartControl.decrease', { name })
-                        }
-                    >
-                        {displayedQuantity === 1
-                            ? <FaTrash aria-hidden="true" />
-                            : <FaMinus aria-hidden="true" />}
-                    </button>
-
-                    <span className={styles.quantity} aria-live="polite">
-                        <strong>{displayedQuantity}</strong>{' '}
-                        <span className={styles.inCartLabel}>{t('cartControl.inCart')}</span>
-                    </span>
-
-                    <button
-                        type="button"
-                        className={styles.stepButton}
-                        onClick={handleIncrease}
-                        disabled={hasReachedStock}
-                        aria-label={t('cartControl.increase', { name })}
-                    >
-                        <FaPlus aria-hidden="true" />
-                    </button>
-                </div>
+                stepper
             )}
 
             <span className={styles.srOnly} role="status">{announcement}</span>
+
+            {confirmWithDialog && (
+                <AddedToCartDialog
+                    product={product}
+                    isOpen={isAddedDialogOpen && showStepper}
+                    onClose={() => setIsAddedDialogOpen(false)}
+                >
+                    {stepper}
+                </AddedToCartDialog>
+            )}
         </div>
     );
 }

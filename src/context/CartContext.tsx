@@ -31,6 +31,9 @@ export interface CartItem {
     quantity: number;
 }
 
+/** Unidades compradas de un producto, para descontarlas del carrito. */
+export type PurchasedUnits = Pick<CartItem, 'id' | 'quantity'>;
+
 /** Contenido del carrito. */
 type CartState = CartItem[];
 
@@ -62,7 +65,17 @@ type CartAction =
           };
       }
     | {
-          type: 'CLEAR_CART';
+          type: 'SET_QUANTITY';
+          payload: {
+              id: string;
+              quantity: number;
+          };
+      }
+    | {
+          type: 'REMOVE_PURCHASED_ITEMS';
+          payload: {
+              purchasedItems: PurchasedUnits[];
+          };
       };
 
 
@@ -134,8 +147,32 @@ function cartReducer(
                 (item) => item.id !== action.payload.id
             );
 
-        case 'CLEAR_CART':
-            return [];
+        case 'SET_QUANTITY':
+            return state.map((item) =>
+                item.id === action.payload.id
+                    ? {
+                          ...item,
+                          quantity: Math.max(1, action.payload.quantity)
+                      }
+                    : item
+            );
+
+        case 'REMOVE_PURCHASED_ITEMS': {
+            const { purchasedItems } = action.payload;
+
+            // A cada producto se le restan las unidades compradas; si no queda ninguna, sale del carrito.
+            return state
+                .map((item) => {
+                    const purchasedItem = purchasedItems.find(
+                        (purchased) => purchased.id === item.id
+                    );
+
+                    return purchasedItem
+                        ? { ...item, quantity: item.quantity - purchasedItem.quantity }
+                        : item;
+                })
+                .filter((item) => item.quantity > 0);
+        }
 
         default:
             return state;
@@ -185,6 +222,35 @@ const isValidCartItem = (item: unknown): item is CartItem =>
     typeof (item as CartItem).name === 'string' &&
     typeof (item as CartItem).price === 'number' &&
     typeof (item as CartItem).quantity === 'number';
+
+/** Montos que resumen el costo de un grupo de productos. */
+export interface CartTotals {
+    /** Total de los productos antes de impuestos y envío. */
+    subtotal: number;
+    iva: number;
+    shipping: number;
+    /** Subtotal más IVA y envío. */
+    total: number;
+}
+
+/**
+ * Calcula el subtotal, el IVA, el envío y el total de un grupo de productos,
+ * ya sea todo el carrito o solo la parte que se va a comprar.
+ *
+ * @param items Productos con su precio y cantidad.
+ * @return Los montos calculados.
+ */
+export function calculateCartTotals(items: CartItem[]): CartTotals {
+    const subtotal = items.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+    );
+    const iva = subtotal * IVA_RATE;
+    const shipping = subtotal * SHIPPING_RATE;
+
+    return { subtotal, iva, shipping, total: subtotal + iva + shipping };
+}
+
 /** Valor que expone el contexto del carrito. */
 interface CartContextType {
     cart: CartState;
@@ -200,7 +266,11 @@ interface CartContextType {
 
     removeProduct: (id: string) => void;
 
-    clearCart: () => void;
+    /** Cambia la cantidad de un producto; nunca baja de 1. */
+    setItemQuantity: (id: string, quantity: number) => void;
+
+    /** Resta del carrito las unidades compradas y deja el resto. */
+    removePurchasedItems: (purchasedItems: PurchasedUnits[]) => void;
 
     /** Suma de las cantidades de todos los productos. */
     totalItems: number;
@@ -283,9 +353,19 @@ export function CartProvider({
         });
     };
 
-    const clearCart = () => {
+    const setItemQuantity = (id: string, quantity: number) => {
+        console.log(`Cantidad de ${id} ajustada a ${quantity}.`);
         dispatch({
-            type: 'CLEAR_CART'
+            type: 'SET_QUANTITY',
+            payload: { id, quantity }
+        });
+    };
+
+    const removePurchasedItems = (purchasedItems: PurchasedUnits[]) => {
+        console.log('Se descuentan del carrito los productos comprados:', purchasedItems);
+        dispatch({
+            type: 'REMOVE_PURCHASED_ITEMS',
+            payload: { purchasedItems }
         });
     };
 
@@ -294,17 +374,7 @@ export function CartProvider({
         0
     );
 
-    const subtotal = cart.reduce(
-        (total, item) =>
-            total + item.price * item.quantity,
-        0
-    );
-
-    const iva = subtotal * IVA_RATE;
-
-    const shipping = subtotal * SHIPPING_RATE;
-
-    const total = subtotal + iva + shipping;
+    const { subtotal, iva, shipping, total } = calculateCartTotals(cart);
 
     return (
         <CartContext.Provider
@@ -314,7 +384,8 @@ export function CartProvider({
                 increaseQuantity,
                 decreaseQuantity,
                 removeProduct,
-                clearCart,
+                setItemQuantity,
+                removePurchasedItems,
                 totalItems,
                 subtotal,
                 iva,

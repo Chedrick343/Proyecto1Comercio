@@ -34,6 +34,71 @@
     "policiesTitle": "Información de compra",
     "copyright": "© {{year}} {{brand}}. Todos los derechos reservados."
   },
+  "access": {
+    "signInTitle": "Inicia sesión para continuar",
+    "deniedTitle": "Acceso restringido",
+    "signIn": "Iniciar sesión",
+    "goToCatalog": "Ir al catálogo",
+    "goToAdminPanel": "Ir al panel administrativo",
+    "signInReasons": {
+      "VIEW_CATALOG": "Inicia sesión para ver el catálogo.",
+      "SEARCH_PRODUCTS": "Inicia sesión para buscar productos.",
+      "ADD_TO_CART": "Inicia sesión para usar el carrito.",
+      "CHECKOUT": "Para completar la compra necesitas iniciar sesión. Así la orden queda asociada a tu cuenta y a tus condiciones de compra.",
+      "VIEW_OWN_ORDERS": "Inicia sesión para ver los pedidos de tu cuenta.",
+      "VIEW_ALL_ORDERS": "Solo el administrador de la tienda puede consultar todas las órdenes.",
+      "VIEW_ADMIN_INFORMATION": "El panel administrativo solo está disponible para el administrador de la tienda.",
+      "EDIT_STORE_DATA": "Solo el administrador de la tienda puede modificar su información."
+    },
+    "deniedReasons": {
+      "VIEW_CATALOG": "Tu cuenta no tiene permiso para ver el catálogo.",
+      "SEARCH_PRODUCTS": "Tu cuenta no tiene permiso para buscar productos.",
+      "ADD_TO_CART": "La cuenta de administrador no puede comprar. Úsala para consultar y administrar la tienda.",
+      "CHECKOUT": "La cuenta de administrador no puede realizar compras. Úsala para consultar y administrar la tienda.",
+      "VIEW_OWN_ORDERS": "La cuenta de administrador no tiene pedidos propios. Puedes consultar todas las órdenes desde el panel administrativo.",
+      "VIEW_ALL_ORDERS": "Tu cuenta no tiene permisos para consultar las órdenes de otros clientes.",
+      "VIEW_ADMIN_INFORMATION": "Tu cuenta no tiene permisos para ver el panel administrativo.",
+      "EDIT_STORE_DATA": "Tu cuenta no tiene permisos para modificar la información de la tienda."
+    }
+  },
+  "branch": {
+    "label": "Sucursal de retiro o envío",
+    "shortLabel": "Sucursal",
+    "notSelected": "Sin elegir",
+    "noneSelected": "Aún no eliges una sucursal",
+    "choose": "Elegir sucursal",
+    "change": "Cambiar sucursal",
+    "viewAvailability": "Ver disponibilidad en tiendas",
+    "required": "Elige la sucursal desde donde se retira o envía tu pedido.",
+    "loadingStock": "Consultando disponibilidad...",
+    "unitsAtDefaultBranch_one": "{{count}} unidad disponible en {{branch}}, tu sucursal predeterminada",
+    "unitsAtDefaultBranch_other": "{{count}} unidades disponibles en {{branch}}, tu sucursal predeterminada",
+    "noUnitsAtDefaultBranch": "No hay unidades de este producto en {{branch}}, la sucursal predeterminada de tu dirección.",
+    "defaultTag": "Predeterminada",
+    "availableAt": "Disponible en: {{branches}}",
+    "stockTag": {
+      "available_one": "{{count}} disponible",
+      "available_other": "{{count}} disponibles",
+      "lowStock_one": "Queda {{count}}",
+      "lowStock_other": "Quedan {{count}}",
+      "outOfStock": "No disponible"
+    },
+    "cartTag": {
+      "some": "{{available}} de {{total}} productos",
+      "none": "Ninguno disponible"
+    },
+    "dialog": {
+      "eyebrow": "SUCURSALES",
+      "title": "Disponibilidad en tiendas",
+      "productDescription": "Unidades de {{name}} en cada sucursal. La sucursal de tu pedido se elige al finalizar la compra.",
+      "cartDescription": "Cuántos productos de tu carrito tiene completos cada sucursal. Marca dónde quieres retirar o desde dónde enviar tu pedido.",
+      "listLabel": "Disponibilidad por sucursal",
+      "total_one": "Total en todas las sucursales: {{count}} unidad",
+      "total_other": "Total en todas las sucursales: {{count}} unidades",
+      "done": "Listo",
+      "close": "Cerrar"
+    }
+  },
   "delivery": {
     "recipient": "Recibe",
     "contact": "Contacto",

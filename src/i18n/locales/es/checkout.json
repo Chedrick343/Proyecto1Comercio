@@ -28,7 +28,45 @@
       "canton": "Cantón",
       "address": "Dirección exacta",
       "deliveryNotes": "Indicaciones adicionales"
+    },
+    "addressChoice": {
+      "legend": "Elige la dirección de entrega",
+      "savedTitle": "Dirección guardada",
+      "defaultBranch": "Sucursal predeterminada: {{branch}}",
+      "noDefaultBranch": "Sin sucursal predeterminada",
+      "newTitle": "Usar otra dirección",
+      "newDescription": "Ingresa los datos de entrega para esta compra."
     }
+  },
+  "availability": {
+    "chooseBranch": "Elige una sucursal para revisar la disponibilidad de tus productos.",
+    "loading": "Consultando la disponibilidad de tus productos...",
+    "line": {
+      "enough_one": "Disponible: {{count}} unidad en {{branch}}",
+      "enough_other": "Disponible: {{count}} unidades en {{branch}}",
+      "partial_one": "Solo hay {{count}} unidad en {{branch}}",
+      "partial_other": "Solo hay {{count}} unidades en {{branch}}",
+      "none": "No hay unidades en {{branch}}",
+      "partialSplit": "Se comprarán {{count}}; {{remaining}} quedan en tu carrito para otro pedido",
+      "noneSplit": "Queda en tu carrito para otro pedido",
+      "unknown": "No pudimos consultar la disponibilidad de este producto. Intenta de nuevo en unos minutos."
+    },
+    "actions": {
+      "adjust_one": "Ajustar a {{count}} unidad",
+      "adjust_other": "Ajustar a {{count}} unidades",
+      "remove": "Quitar"
+    },
+    "suggestion": {
+      "wholeCart": "{{branch}} tiene todo tu pedido.",
+      "best": "Ninguna sucursal tiene todo tu pedido. {{branch}} es la que más cubre ({{covered}} de {{total}} productos).",
+      "noneCovers": "Ninguna sucursal tiene todo tu pedido. Esta es la que más cubre.",
+      "use": "Usar {{branch}}"
+    },
+    "splitOption": "Comprar solo lo disponible en {{branch}} y dejar el resto en el carrito para otro pedido",
+    "leftInCart_one": "{{count}} unidad queda en tu carrito para otro pedido.",
+    "leftInCart_other": "{{count}} unidades quedan en tu carrito para otro pedido.",
+    "error": "Algunos productos no tienen unidades suficientes en esta sucursal. Ajusta las cantidades, quítalos, cambia de sucursal o compra solo lo disponible.",
+    "errorNothingToBuy": "Ningún producto de tu carrito tiene unidades en esta sucursal. Elige otra sucursal para continuar."
   },
   "payment": {
     "title": "Método de pago",

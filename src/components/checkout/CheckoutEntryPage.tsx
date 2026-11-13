@@ -16,7 +16,22 @@ import type { IconType } from 'react-icons';
 
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
-import { IVA_RATE, SHIPPING_RATE, useCart } from '../../context/CartContext';
+import { useCartBranchStatuses } from '../branch-picker/useBranchStatuses';
+import { useBranch } from '../../context/BranchContext';
+import {
+    IVA_RATE,
+    SHIPPING_RATE,
+    calculateCartTotals,
+    useCart
+} from '../../context/CartContext';
+import { useSession } from '../../context/SessionContext';
+import {
+    findBestBranch,
+    getCartLinesAtBranch,
+    getPurchasableItems,
+    isWholeCartAvailable
+} from '../../inventory/cartAvailability';
+import BranchAvailabilityReview, { AVAILABILITY_REVIEW_ID } from './BranchAvailabilityReview';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
 import CheckoutOrderReview from './CheckoutOrderReview';
@@ -36,6 +51,9 @@ import {
 import ShippingInformationForm from './ShippingInformationForm';
 import {
     INITIAL_SHIPPING_DETAILS,
+    savedAddressToShippingDetails,
+    type AddressChoice,
+    type PurchaseMode,
     type ShippingDetails,
     type ShippingFieldErrors
 } from './checkoutTypes';
@@ -54,9 +72,11 @@ import styles from './CheckoutEntryPage.module.css';
 const hasErrors = (errors: object) => Object.keys(errors).length > 0;
 
 /**
- * Guía la compra en tres pasos: datos de envío, método de pago y revisión
- * con pago. Redirige al carrito si está vacío y a la confirmación cuando
- * el pago se aprueba.
+ * Guía la compra en tres pasos: entrega, método de pago y revisión con pago.
+ * En la entrega se elige la sucursal y se revisa que tenga unidades
+ * suficientes de cada producto; si no, el usuario ajusta el pedido, cambia de
+ * sucursal o compra solo lo disponible. Redirige al carrito si está vacío y
+ * a la confirmación cuando el pago se aprueba.
  *
  * @return La página del checkout o una redirección.
  */
@@ -78,17 +98,47 @@ export default function CheckoutEntryPage() {
     });
     const [termsAcceptance, setTermsAcceptance] = useState<TermsAcceptance | null>(null);
     const [showTermsError, setShowTermsError] = useState(false);
+    const [showBranchError, setShowBranchError] = useState(false);
+    const { currentUser } = useSession();
+    const savedAddress = currentUser?.savedAddress;
+    const [addressChoice, setAddressChoice] = useState<AddressChoice>(
+        savedAddress ? 'SAVED_ADDRESS' : 'NEW_ADDRESS'
+    );
+    const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('WHOLE_CART');
+    const [showAvailabilityError, setShowAvailabilityError] = useState(false);
 
-    const {
-        cart,
-        totalItems,
-        subtotal,
-        iva,
-        shipping,
-        total
-    } = useCart();
+    const { cart, total } = useCart();
 
     const { t } = useTranslation(['checkout', 'common']);
+    const { selectedBranch, selectBranch } = useBranch();
+    const { statuses: branchStatuses, inventory } = useCartBranchStatuses(cart);
+    // El error desaparece en cuanto el usuario elige una sucursal.
+    const isBranchMissing = showBranchError && selectedBranch === null;
+
+    const branchLines = selectedBranch && !inventory.isLoading
+        ? getCartLinesAtBranch(cart, inventory.productsById, selectedBranch.id)
+        : [];
+    const branchSuggestion = inventory.isLoading ? null : findBestBranch(cart, inventory.productsById);
+
+    // Lo que entra en la orden: todo el carrito, o solo lo disponible en la sucursal.
+    const orderItems = purchaseMode === 'AVAILABLE_ONLY' ? getPurchasableItems(branchLines) : cart;
+    const orderTotals = calculateCartTotals(orderItems);
+    const orderUnits = orderItems.reduce((units, item) => units + item.quantity, 0);
+    const cartUnits = cart.reduce((units, item) => units + item.quantity, 0);
+    const unitsLeftInCart = cartUnits - orderUnits;
+
+    const isAvailabilityValid =
+        branchLines.length > 0 &&
+        branchLines.every((line) => line.availability !== 'UNKNOWN') &&
+        (purchaseMode === 'WHOLE_CART' ? isWholeCartAvailable(branchLines) : orderItems.length > 0);
+    // Igual que con la sucursal, el error desaparece cuando el problema se resuelve.
+    const hasAvailabilityError = showAvailabilityError && selectedBranch !== null && !isAvailabilityValid;
+
+    // Si la sesión cambió y ya no hay dirección guardada, se usa el formulario.
+    const isUsingSavedAddress = addressChoice === 'SAVED_ADDRESS' && savedAddress !== undefined;
+    const deliveryDetails: ShippingDetails = isUsingSavedAddress && currentUser
+        ? savedAddressToShippingDetails(savedAddress, currentUser.email)
+        : shippingDetails;
 
     const {
         paymentResult,
@@ -143,8 +193,36 @@ export default function CheckoutEntryPage() {
     };
 
     /**
-     * Valida los datos de envío y, si son correctos, avanza al paso de pago.
-     * Descarta la orden activa porque sus datos de cliente pudieron cambiar.
+     * Cambia entre la dirección guardada y otra dirección. Al volver a la
+     * dirección guardada, su sucursal predeterminada pasa a ser la sucursal.
+     *
+     * @param choice Dirección elegida.
+     */
+    const handleAddressChoiceChange = (choice: AddressChoice) => {
+        console.log(`Dirección de entrega elegida: ${choice}.`);
+        setAddressChoice(choice);
+        setFieldErrors({});
+
+        if (choice === 'SAVED_ADDRESS' && savedAddress?.defaultBranchId) {
+            selectBranch(savedAddress.defaultBranchId);
+        }
+    };
+
+    /**
+     * Cambia entre comprar todo el carrito y comprar solo lo disponible.
+     *
+     * @param mode Modo de compra elegido.
+     */
+    const handlePurchaseModeChange = (mode: PurchaseMode) => {
+        console.log(`Modo de compra: ${mode}.`);
+        setPurchaseMode(mode);
+    };
+
+    /**
+     * Valida la sucursal, la disponibilidad de los productos en ella y, si se
+     * usa otra dirección, sus datos; si todo es correcto, avanza al paso de
+     * pago. La dirección guardada no se valida porque viene de la cuenta.
+     * Descarta la orden activa porque sus datos pudieron cambiar.
      *
      * @param event Evento de envío del formulario.
      */
@@ -152,15 +230,40 @@ export default function CheckoutEntryPage() {
         event.preventDefault();
         const form = event.currentTarget;
 
-        const validationErrors = validateShippingDetails(shippingDetails);
+        const validationErrors = isUsingSavedAddress ? {} : validateShippingDetails(shippingDetails);
+        const branchIsMissing = selectedBranch === null;
+        const hasAvailabilityProblem = !branchIsMissing && !isAvailabilityValid;
 
-        if (hasErrors(validationErrors)) {
-            flushSync(() => setFieldErrors(validationErrors));
-            focusFirstInvalidField(form);
+        if (hasErrors(validationErrors) || branchIsMissing || hasAvailabilityProblem) {
+            console.log('No se puede continuar con la entrega:', {
+                validationErrors,
+                branchIsMissing,
+                hasAvailabilityProblem,
+                branchLines
+            });
+            flushSync(() => {
+                setFieldErrors(validationErrors);
+                setShowBranchError(branchIsMissing);
+                setShowAvailabilityError(hasAvailabilityProblem);
+            });
+
+            // La revisión de disponibilidad está en el resumen, fuera del formulario.
+            if (hasErrors(validationErrors) || branchIsMissing) {
+                focusFirstInvalidField(form);
+            } else {
+                document.getElementById(AVAILABILITY_REVIEW_ID)?.focus();
+            }
             return;
         }
 
+        console.log(
+            `Datos de entrega válidos (${isUsingSavedAddress ? 'dirección guardada' : 'otra dirección'}). ` +
+            `Sucursal: ${selectedBranch.name}. Modo de compra: ${purchaseMode}.`,
+            { deliveryDetails, orderItems }
+        );
         setFieldErrors({});
+        setShowBranchError(false);
+        setShowAvailabilityError(false);
         discardActiveOrder();
         setCurrentStep(2);
     };
@@ -249,7 +352,7 @@ export default function CheckoutEntryPage() {
             return;
         }
 
-        payOrder(shippingDetails, termsAcceptance, sandboxScenarios);
+        payOrder(deliveryDetails, termsAcceptance, sandboxScenarios, orderItems);
     };
 
     /** Descarta la orden fallida y vuelve a los escenarios sin fallos para intentar de nuevo. */
@@ -342,7 +445,12 @@ export default function CheckoutEntryPage() {
                             <ShippingInformationForm
                                 details={shippingDetails}
                                 errors={fieldErrors}
+                                savedAddress={savedAddress}
+                                addressChoice={isUsingSavedAddress ? 'SAVED_ADDRESS' : 'NEW_ADDRESS'}
+                                branchStatuses={branchStatuses}
+                                isBranchMissing={isBranchMissing}
                                 onDetailsChange={handleDetailsChange}
+                                onAddressChoiceChange={handleAddressChoiceChange}
                                 onSubmit={handleShippingSubmit}
                             />
                         ) : currentStep === 2 ? (
@@ -358,8 +466,8 @@ export default function CheckoutEntryPage() {
                             />
                         ) : (
                             <CheckoutOrderReview
-                                cart={cart}
-                                details={shippingDetails}
+                                cart={orderItems}
+                                details={deliveryDetails}
                                 paymentDescription={
                                     selectedPaymentMethod === 'SAVED_CARD'
                                         ? t('checkout:payment.cardEndingIn', { ...DEFAULT_SAVED_CARD })
@@ -388,46 +496,69 @@ export default function CheckoutEntryPage() {
                             <div className={styles.summaryHeading}>
                                 <h2 id="summary-heading">{t('common:summary.title')}</h2>
                                 <span className={styles.itemCount}>
-                                    {t('common:itemCount', { count: totalItems })}
+                                    {t('common:itemCount', { count: orderUnits })}
                                 </span>
                             </div>
 
-                            <ul className={styles.summaryProductList}>
-                                {cart.map((item) => (
-                                    <li key={item.id} className={styles.summaryProduct}>
-                                        <div className={styles.summaryProductImage}>
-                                            <img src={item.image} alt="" />
-                                            <span>{item.quantity}</span>
-                                        </div>
-                                        <div className={styles.summaryProductInfo}>
-                                            <p>{item.name}</p>
-                                            <span>{formatCurrency(item.price, item.currency)}</span>
-                                        </div>
-                                        <strong>
-                                            {formatCurrency(item.price * item.quantity, item.currency)}
-                                        </strong>
-                                    </li>
-                                ))}
-                            </ul>
+                            {currentStep === 1 ? (
+                                <BranchAvailabilityReview
+                                    cart={cart}
+                                    branch={selectedBranch}
+                                    lines={branchLines}
+                                    isLoading={inventory.isLoading}
+                                    suggestion={branchSuggestion}
+                                    purchaseMode={purchaseMode}
+                                    onPurchaseModeChange={handlePurchaseModeChange}
+                                    hasError={hasAvailabilityError}
+                                />
+                            ) : (
+                                <ul className={styles.summaryProductList}>
+                                    {orderItems.map((item) => (
+                                        <li key={item.id} className={styles.summaryProduct}>
+                                            <div className={styles.summaryProductImage}>
+                                                <img src={item.image} alt="" />
+                                                <span>{item.quantity}</span>
+                                            </div>
+                                            <div className={styles.summaryProductInfo}>
+                                                <p>{item.name}</p>
+                                                <span>{formatCurrency(item.price, item.currency)}</span>
+                                            </div>
+                                            <strong>
+                                                {formatCurrency(item.price * item.quantity, item.currency)}
+                                            </strong>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            {unitsLeftInCart > 0 && (
+                                <p className={styles.leftInCartNote}>
+                                    {t('checkout:availability.leftInCart', { count: unitsLeftInCart })}
+                                </p>
+                            )}
 
                             <dl className={styles.summaryRows}>
                                 <div>
+                                    <dt>{t('common:branch.shortLabel')}</dt>
+                                    <dd>{selectedBranch?.name ?? t('common:branch.notSelected')}</dd>
+                                </div>
+                                <div>
                                     <dt>{t('common:summary.subtotal')}</dt>
-                                    <dd>{formatCurrency(subtotal)}</dd>
+                                    <dd>{formatCurrency(orderTotals.subtotal)}</dd>
                                 </div>
                                 <div>
                                     <dt>{t('common:summary.iva', { rate: formatRate(IVA_RATE) })}</dt>
-                                    <dd>{formatCurrency(iva)}</dd>
+                                    <dd>{formatCurrency(orderTotals.iva)}</dd>
                                 </div>
                                 <div>
                                     <dt>{t('common:summary.shipping', { rate: formatRate(SHIPPING_RATE) })}</dt>
-                                    <dd>{formatCurrency(shipping)}</dd>
+                                    <dd>{formatCurrency(orderTotals.shipping)}</dd>
                                 </div>
                             </dl>
 
                             <div className={styles.totalRow}>
                                 <span>{t('common:summary.total')}</span>
-                                <strong>{formatCurrency(total)}</strong>
+                                <strong>{formatCurrency(orderTotals.total)}</strong>
                             </div>
                         </section>
 

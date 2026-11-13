@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { formatCurrency } from '../../utils/formatCurrency';
+import { useBranch } from '../../context/BranchContext';
 import type { CartItem } from '../../context/CartContext';
 import type { ShippingDetails } from './checkoutTypes';
 import type { PaymentResult } from './paymentGateway';
@@ -83,6 +84,7 @@ export default function CheckoutOrderReview({
     onStartNewOrder
 }: CheckoutOrderReviewProps) {
     const { t } = useTranslation(['checkout', 'common']);
+    const { selectedBranch } = useBranch();
     const [dismissedOrderNumber, setDismissedOrderNumber] = useState<string | null>(null);
     const isCheckoutLocked =
         processingStage !== null || paymentResult === 'PAYMENT_APPROVED' || failedOrder !== null;
@@ -106,6 +108,10 @@ export default function CheckoutOrderReview({
             </div>
 
             <dl className={styles.deliveryDetails}>
+                <div>
+                    <dt>{t('common:branch.shortLabel')}</dt>
+                    <dd>{selectedBranch?.name ?? t('common:branch.notSelected')}</dd>
+                </div>
                 <div>
                     <dt>{t('common:delivery.recipient')}</dt>
                     <dd>{details.fullName}</dd>

@@ -3,6 +3,7 @@
  */
 
 import { liteClient } from 'algoliasearch/lite';
+import { sumLocationsStock } from '../inventory/branchInventory';
 import type { Product } from './Products';
 
 /** Identificador de la aplicación de Algolia. */
@@ -32,15 +33,22 @@ type AlgoliaProductHit = Omit<Partial<Product>, 'b2c' | 'b2b'> & {
 
 /**
  * Convierte un resultado de Algolia en un producto completo, rellenando los
- * campos faltantes con valores por defecto.
+ * campos faltantes con valores por defecto. Si el producto tiene inventario
+ * por sucursal, el stock total se calcula a partir de él.
  *
  * @param hit Resultado devuelto por Algolia.
  * @return El producto con todos sus campos definidos.
  */
 export function normalizeAlgoliaProduct(hit: unknown): Product {
     const productHit = hit as AlgoliaProductHit;
-    const stockQuantity = productHit.stock_quantity ?? 0;
-    const inStock = productHit.in_stock ?? stockQuantity > 0;
+    const locations = productHit.locations ?? [];
+    const hasBranchInventory = locations.length > 0;
+    const stockQuantity = hasBranchInventory
+        ? sumLocationsStock(locations)
+        : productHit.stock_quantity ?? 0;
+    const inStock = hasBranchInventory
+        ? stockQuantity > 0
+        : productHit.in_stock ?? stockQuantity > 0;
     const price = productHit.b2c?.price ?? productHit.price ?? 0;
     const currency = productHit.b2c?.currency ?? productHit.currency ?? 'CRC';
 
@@ -64,7 +72,7 @@ export function normalizeAlgoliaProduct(hit: unknown): Product {
             minimumOrder: productHit.b2b?.minimumOrder ?? 1,
             businessDiscount: productHit.b2b?.businessDiscount ?? 0
         },
-        locations: productHit.locations ?? [],
+        locations,
         in_stock: inStock,
         stock_quantity: stockQuantity,
         rating: productHit.rating ?? 0,

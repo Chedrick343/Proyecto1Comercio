@@ -26,6 +26,7 @@ import OrderConfirmationPage from './components/order/OrderConfirmationPage';
 import AccountPage from './components/user/AccountPage';
 import { ADMIN_PATH } from './components/admin/adminRoutes';
 import LoginPage from './components/login/LoginPage';
+import RequirePermission from './components/access/RequirePermission';
 import { LOGIN_PATH } from './components/login/loginRedirect';
 import ErrorState from './components/error/ErrorState';
 import NotFoundPage from './components/error/NotFoundPage';
@@ -239,15 +240,17 @@ export default function App() {
             <Route
                 path="/carrito"
                 element={
-                    <main className="app">
-                        <div className="top-bar">
-                            <Header />
-                        </div>
+                    <RequirePermission permission="ADD_TO_CART" isPage>
+                        <main className="app">
+                            <div className="top-bar">
+                                <Header />
+                            </div>
 
-                        <CarritoSection />
+                            <CarritoSection />
 
-                        <NavBar />
-                    </main>
+                            <NavBar />
+                        </main>
+                    </RequirePermission>
                 }
             />
 
@@ -275,7 +278,11 @@ export default function App() {
 
             <Route
                 path="/checkout"
-                element={<CheckoutEntryPage />}
+                element={
+                    <RequirePermission permission="CHECKOUT" isPage>
+                        <CheckoutEntryPage />
+                    </RequirePermission>
+                }
             />
 
             <Route

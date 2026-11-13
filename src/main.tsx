@@ -1,7 +1,7 @@
 /**
  * @fileoverview Punto de entrada de la aplicación: monta React con el enrutador y los
- * proveedores globales (sesión, analítica, carrito, órdenes y vista previa del
- * carrito).
+ * proveedores globales (sesión, analítica, sucursal, carrito, órdenes y vista
+ * previa del carrito).
  */
 
 import { StrictMode } from 'react';
@@ -13,6 +13,7 @@ import './index.css';
 import App from './App';
 import { SessionProvider } from './context/SessionContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
+import { BranchProvider } from './context/BranchContext';
 import { CartProvider } from './context/CartContext';
 import { OrdersProvider } from './context/OrdersContext';
 import AppErrorBoundary from './components/error/AppErrorBoundary';
@@ -26,13 +27,15 @@ createRoot(document.getElementById('root')!).render(
                 <ScrollToTop />
                 <SessionProvider>
                     <AnalyticsProvider>
-                        <CartProvider>
-                            <OrdersProvider>
-                                <CartPreviewProvider>
-                                    <App />
-                                </CartPreviewProvider>
-                            </OrdersProvider>
-                        </CartProvider>
+                        <BranchProvider>
+                            <CartProvider>
+                                <OrdersProvider>
+                                    <CartPreviewProvider>
+                                        <App />
+                                    </CartPreviewProvider>
+                                </OrdersProvider>
+                            </CartProvider>
+                        </BranchProvider>
                     </AnalyticsProvider>
                 </SessionProvider>
             </BrowserRouter>
