@@ -2,14 +2,19 @@
  * @fileoverview Página de confirmación y detalle de una orden.
  */
 
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FaCheckCircle, FaReceipt } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 
 import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
+import { ADMIN_PATH } from '../admin/adminRoutes';
 import { useOrders } from '../../context/OrdersContext';
+import { useSession } from '../../context/SessionContext';
+import { canViewOrder } from '../../orders/orderOwner';
 import type { Order } from '../../orders/orderTypes';
+import { hasPermission } from '../../session/permissions';
 import { formatDateTime } from '../../utils/formatDate';
 import OrderDetails from './OrderDetails';
 import ErrorState from '../error/ErrorState';
@@ -82,7 +87,9 @@ function OrderNotFound({ orderNumber }: { orderNumber: string }) {
 }
 
 /**
- * Muestra la orden indicada en la URL, o un error si no existe.
+ * Muestra la orden indicada en la URL, o un error si no existe. Una orden de
+ * otra persona se trata como inexistente, salvo para quien puede consultar
+ * todas las órdenes, como el administrador.
  *
  * @return La página de la orden.
  */
@@ -90,7 +97,18 @@ export default function OrderConfirmationPage() {
     const { t } = useTranslation(['orders', 'common']);
     const { orderNumber = '' } = useParams();
     const { getOrderByNumber } = useOrders();
-    const order = getOrderByNumber(orderNumber);
+    const { currentUser } = useSession();
+    const storedOrder = getOrderByNumber(orderNumber);
+    const order = storedOrder && canViewOrder(storedOrder, currentUser) ? storedOrder : undefined;
+    const canViewAllOrders = hasPermission(currentUser, 'VIEW_ALL_ORDERS');
+
+    useEffect(() => {
+        if (!storedOrder) {
+            console.log(`La orden ${orderNumber} no existe.`);
+        } else if (!order) {
+            console.log(`La orden ${orderNumber} pertenece a otra persona; se muestra como inexistente.`);
+        }
+    }, [orderNumber, storedOrder, order]);
 
     return (
         <main className="app">
@@ -110,9 +128,15 @@ export default function OrderConfirmationPage() {
                     )}
 
                     <div className={styles.actions}>
-                        <Link to="/cuenta/pedidos" className={styles.secondaryAction}>
-                            {t('orders:actions.viewOrders')}
-                        </Link>
+                        {canViewAllOrders ? (
+                            <Link to={ADMIN_PATH} className={styles.secondaryAction}>
+                                {t('orders:actions.goToAdminPanel')}
+                            </Link>
+                        ) : (
+                            <Link to="/cuenta/pedidos" className={styles.secondaryAction}>
+                                {t('orders:actions.viewOrders')}
+                            </Link>
+                        )}
                         <Link to="/" className={styles.primaryAction}>
                             {t('common:actions.continueShopping')}
                         </Link>

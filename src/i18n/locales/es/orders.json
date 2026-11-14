@@ -15,7 +15,8 @@
     }
   },
   "actions": {
-    "viewOrders": "Ver mis pedidos"
+    "viewOrders": "Ver mis pedidos",
+    "goToAdminPanel": "Ir al panel administrativo"
   },
   "confirmation": {
     "eyebrowConfirmed": "COMPRA CONFIRMADA",
@@ -42,7 +43,28 @@
     },
     "failureReason": "Motivo",
     "attempts": "Intentos de pago",
-    "historyTitle": "Historial de estados"
+    "historyTitle": "Historial de estados",
+    "buyerTitle": "Comprador y condiciones comerciales",
+    "buyer": "Cliente",
+    "customerType": "Tipo de cliente",
+    "company": "Empresa",
+    "companyValue": "{{name}} (cédula jurídica {{taxId}})",
+    "priceTier": "Precios aplicados",
+    "branch": "Sucursal",
+    "purchase": "Compra",
+    "wholePurchase": "Completa",
+    "partialPurchase": "Parcial: el resto quedó en el carrito para otro pedido",
+    "legacyOrder": "Esta orden se hizo antes de que la tienda registrara al comprador, la sucursal y las condiciones comerciales."
+  },
+  "buyerRoles": {
+    "GUEST": "Invitado",
+    "B2C": "Cliente B2C",
+    "B2B": "Cliente B2B",
+    "ADMIN": "Administrador"
+  },
+  "priceTiers": {
+    "B2C": "Precio de consumidor final (B2C)",
+    "B2B": "Precio de empresa (B2B)"
   },
   "history": {
     "title": "Mis pedidos",
@@ -52,7 +74,7 @@
   },
   "notFound": {
     "title": "No encontramos este pedido",
-    "description": "No existe un pedido con el número {{orderNumber}} en este dispositivo."
+    "description": "No existe un pedido con el número {{orderNumber}} asociado a tu cuenta. Revisa el número o busca tu compra en \"Mis pedidos\"."
   },
   "failureReasons": {
     "OUT_OF_STOCK": "Producto agotado",
