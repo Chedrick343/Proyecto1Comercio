@@ -353,7 +353,23 @@ export default function CheckoutEntryPage() {
             return;
         }
 
-        payOrder(deliveryDetails, termsAcceptance, sandboxScenarios, orderItems);
+        // El paso de entrega ya exige la sucursal; esto solo cubre que se haya quitado después.
+        if (!selectedBranch) {
+            console.error('No hay sucursal elegida; se vuelve al paso de entrega.');
+            setCurrentStep(1);
+            return;
+        }
+
+        payOrder(
+            {
+                customer: deliveryDetails,
+                termsAcceptance,
+                orderItems,
+                branch: selectedBranch,
+                isPartialPurchase: purchaseMode === 'AVAILABLE_ONLY' && unitsLeftInCart > 0
+            },
+            sandboxScenarios
+        );
     };
 
     /** Descarta la orden fallida y vuelve a los escenarios sin fallos para intentar de nuevo. */
