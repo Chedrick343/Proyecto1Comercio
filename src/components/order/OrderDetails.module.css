@@ -12,9 +12,27 @@
     border-radius: 10px;
 }
 
+.deliveryPanel,
 .historyPanel,
 .productsPanel {
     grid-column: 1 / -1;
+}
+
+.legacyNote {
+    margin: 0;
+    color: #aaa9ad;
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.tierTag {
+    margin-left: 8px;
+    padding: 1px 6px;
+    border: 1px solid #c9a246;
+    border-radius: 999px;
+    color: #e4c56f;
+    font-size: 0.68rem;
+    font-weight: 700;
 }
 
 .panel h2 {
