@@ -18,8 +18,8 @@ import { GoArchive } from 'react-icons/go';
 import type { IconType } from 'react-icons';
 import { useTranslation } from 'react-i18next';
 
-import { useOrders } from '../../context/OrdersContext';
 import { useSession } from '../../context/SessionContext';
+import { useOwnOrders } from '../../orders/useOwnOrders';
 import { hasPermission } from '../../session/permissions';
 import { ADMIN_PATH } from '../admin/adminRoutes';
 import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
@@ -113,7 +113,7 @@ function MenuItemContent({ item }: { item: AccountMenuItem }) {
 function Profile() {
     const { t } = useTranslation(['account', 'auth']);
     const { currentUser } = useSession();
-    const { orders } = useOrders();
+    const orders = useOwnOrders();
     const canViewOwnOrders = hasPermission(currentUser, 'VIEW_OWN_ORDERS');
 
     return (
