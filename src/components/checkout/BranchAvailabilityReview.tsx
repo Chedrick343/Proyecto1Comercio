@@ -5,12 +5,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { FaCompressAlt, FaStore, FaTrash } from 'react-icons/fa';
+import { FaCompressAlt, FaExpandAlt, FaStore, FaTrash } from 'react-icons/fa';
 
 import { useBranch } from '../../context/BranchContext';
 import { useCart, type CartItem } from '../../context/CartContext';
 import type { Branch } from '../../inventory/branches';
 import type { BranchSuggestion, CartLineAtBranch } from '../../inventory/cartAvailability';
+import { isBelowMinimum } from '../../pricing/businessMinimum';
 import { formatCurrency } from '../../utils/formatCurrency';
 import type { PurchaseMode } from './checkoutTypes';
 
@@ -50,7 +51,8 @@ interface BranchAvailabilityReviewProps {
  * Muestra cada producto con su precio y su estado en la sucursal elegida. Si a
  * alguno le faltan unidades, ofrece ajustar la cantidad, quitarlo, cambiar a
  * la sucursal que mejor cubre el pedido o comprar solo lo disponible y dejar
- * el resto en el carrito.
+ * el resto en el carrito. Para un cliente B2B, también señala los productos
+ * que no alcanzan su mínimo de compra y ofrece ajustarlos al mínimo.
  *
  * @param props Propiedades del componente.
  * @return La lista de productos con su disponibilidad.
@@ -123,6 +125,39 @@ export default function BranchAvailabilityReview({
     const getUnitsToBuy = (item: CartItem, line: CartLineAtBranch | undefined) =>
         isAvailableOnly && line ? Math.min(item.quantity, line.availableUnits) : item.quantity;
 
+    /**
+     * Indica si lo que se va a comprar de un producto no alcanza su mínimo B2B.
+     * Un producto que no se compra (0 unidades) no cuenta, porque queda en el
+     * carrito.
+     *
+     * @param item Producto del carrito.
+     * @param unitsToBuy Unidades que entran en la orden.
+     * @return Verdadero si se compra, pero por debajo del mínimo.
+     */
+    const isBelowMinimumToBuy = (item: CartItem, unitsToBuy: number) =>
+        unitsToBuy > 0 && isBelowMinimum(unitsToBuy, item.minimumQuantity);
+
+    const hasMinimumProblem = branch !== null && cart.some((item) =>
+        isBelowMinimumToBuy(item, getUnitsToBuy(item, findLine(item.id)))
+    );
+
+    /**
+     * Elige el mensaje de error que explica por qué no se puede continuar.
+     *
+     * @return El texto del error.
+     */
+    const getErrorMessage = () => {
+        if (!hasSomethingToBuy) {
+            return t('availability.errorNothingToBuy');
+        }
+
+        if (hasMinimumProblem) {
+            return t('availability.errorMinimum');
+        }
+
+        return t('availability.error');
+    };
+
     return (
         <div
             id={AVAILABILITY_REVIEW_ID}
@@ -137,10 +172,23 @@ export default function BranchAvailabilityReview({
                 {cart.map((item) => {
                     const line = branch ? findLine(item.id) : undefined;
                     const unitsToBuy = getUnitsToBuy(item, line);
-                    const showActions =
+                    const isBelowItemMinimum =
+                        line !== undefined && isBelowMinimumToBuy(item, unitsToBuy);
+                    const hasStockProblem =
                         line !== undefined &&
                         !isAvailableOnly &&
                         (line.availability === 'PARTIAL' || line.availability === 'NONE');
+                    // Solo se ofrece ajustar si la cantidad resultante cumple el mínimo B2B.
+                    const canAdjustToAvailable =
+                        hasStockProblem &&
+                        line.availability === 'PARTIAL' &&
+                        line.availableUnits >= item.minimumQuantity;
+                    const canAdjustToMinimum =
+                        isBelowItemMinimum &&
+                        !isAvailableOnly &&
+                        line.availability === 'ENOUGH' &&
+                        line.availableUnits >= item.minimumQuantity;
+                    const showActions = hasStockProblem || isBelowItemMinimum;
 
                     return (
                         <li key={item.id} className={styles.line}>
@@ -161,9 +209,15 @@ export default function BranchAvailabilityReview({
                                     </span>
                                 )}
 
-                                {showActions && (
+                                {isBelowItemMinimum && (
+                                    <span className={`${styles.lineStatus} ${styles.statusNone}`}>
+                                        {t('availability.line.belowMinimum', { count: item.minimumQuantity })}
+                                    </span>
+                                )}
+
+                                {showActions && line && (
                                     <div className={styles.lineActions}>
-                                        {line.availability === 'PARTIAL' && (
+                                        {canAdjustToAvailable && (
                                             <button
                                                 type="button"
                                                 className={styles.fixButton}
@@ -171,6 +225,16 @@ export default function BranchAvailabilityReview({
                                             >
                                                 <FaCompressAlt aria-hidden="true" />
                                                 {t('availability.actions.adjust', { count: line.availableUnits })}
+                                            </button>
+                                        )}
+                                        {canAdjustToMinimum && (
+                                            <button
+                                                type="button"
+                                                className={styles.fixButton}
+                                                onClick={() => setItemQuantity(item.id, item.minimumQuantity)}
+                                            >
+                                                <FaExpandAlt aria-hidden="true" />
+                                                {t('availability.actions.adjustToMinimum', { count: item.minimumQuantity })}
                                             </button>
                                         )}
                                         <button
@@ -236,7 +300,7 @@ export default function BranchAvailabilityReview({
 
             {hasError && (
                 <p className={styles.error} role="alert">
-                    {hasSomethingToBuy ? t('availability.error') : t('availability.errorNothingToBuy')}
+                    {getErrorMessage()}
                 </p>
             )}
         </div>

@@ -31,6 +31,7 @@ import {
     getPurchasableItems,
     isWholeCartAvailable
 } from '../../inventory/cartAvailability';
+import { isBelowMinimum } from '../../pricing/businessMinimum';
 import BranchAvailabilityReview, { AVAILABILITY_REVIEW_ID } from './BranchAvailabilityReview';
 import PriceTierNote from '../product-price/PriceTierNote';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -128,10 +129,16 @@ export default function CheckoutEntryPage() {
     const cartUnits = cart.reduce((units, item) => units + item.quantity, 0);
     const unitsLeftInCart = cartUnits - orderUnits;
 
+    // Condición B2B: cada producto de la orden debe alcanzar su mínimo de compra.
+    const meetsMinimums = orderItems.every(
+        (item) => !isBelowMinimum(item.quantity, item.minimumQuantity)
+    );
+
     const isAvailabilityValid =
         branchLines.length > 0 &&
         branchLines.every((line) => line.availability !== 'UNKNOWN') &&
-        (purchaseMode === 'WHOLE_CART' ? isWholeCartAvailable(branchLines) : orderItems.length > 0);
+        (purchaseMode === 'WHOLE_CART' ? isWholeCartAvailable(branchLines) : orderItems.length > 0) &&
+        meetsMinimums;
     // Igual que con la sucursal, el error desaparece cuando el problema se resuelve.
     const hasAvailabilityError = showAvailabilityError && selectedBranch !== null && !isAvailabilityValid;
 

@@ -49,11 +49,13 @@
       "none": "No hay unidades en {{branch}}",
       "partialSplit": "Se comprarán {{count}}; {{remaining}} quedan en tu carrito para otro pedido",
       "noneSplit": "Queda en tu carrito para otro pedido",
-      "unknown": "No pudimos consultar la disponibilidad de este producto. Intenta de nuevo en unos minutos."
+      "unknown": "No pudimos consultar la disponibilidad de este producto. Intenta de nuevo en unos minutos.",
+      "belowMinimum": "No alcanza la compra mínima para empresas: {{count}} unidades"
     },
     "actions": {
       "adjust_one": "Ajustar a {{count}} unidad",
       "adjust_other": "Ajustar a {{count}} unidades",
+      "adjustToMinimum": "Ajustar al mínimo ({{count}})",
       "remove": "Quitar"
     },
     "suggestion": {
@@ -66,7 +68,8 @@
     "leftInCart_one": "{{count}} unidad queda en tu carrito para otro pedido.",
     "leftInCart_other": "{{count}} unidades quedan en tu carrito para otro pedido.",
     "error": "Algunos productos no tienen unidades suficientes en esta sucursal. Ajusta las cantidades, quítalos, cambia de sucursal o compra solo lo disponible.",
-    "errorNothingToBuy": "Ningún producto de tu carrito tiene unidades en esta sucursal. Elige otra sucursal para continuar."
+    "errorNothingToBuy": "Ningún producto de tu carrito tiene unidades en esta sucursal. Elige otra sucursal para continuar.",
+    "errorMinimum": "Como cliente empresa, cada producto debe alcanzar su compra mínima. Ajusta las cantidades o quita los productos indicados para continuar."
   },
   "payment": {
     "title": "Método de pago",
@@ -119,6 +122,8 @@
   "review": {
     "title": "Revisión del pedido",
     "editDelivery": "Editar entrega",
+    "company": "Empresa",
+    "companyValue": "{{name}} (cédula jurídica {{taxId}})",
     "paymentMethod": "Método de pago",
     "changePayment": "Cambiar",
     "products": "Productos",

@@ -26,7 +26,7 @@ interface QuantityStepperProps {
 
 /**
  * Muestra la cantidad entre un botón para quitar una unidad (un basurero si
- * es la última) y otro para agregar una.
+ * quitarla saca el producto del carrito) y otro para agregar una.
  *
  * @param props Propiedades del componente.
  * @return El selector de cantidad.
@@ -58,7 +58,7 @@ export default function QuantityStepper({
                         : t('cartControl.decrease', { name })
                 }
             >
-                {quantity === 1
+                {removesProduct
                     ? <FaTrash aria-hidden="true" />
                     : <FaMinus aria-hidden="true" />}
             </button>

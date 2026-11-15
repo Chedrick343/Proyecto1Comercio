@@ -244,10 +244,84 @@
         color 0.2s ease;
 }
 
-.quantitySelector button:hover {
+.quantitySelector button:hover:not(:disabled) {
     background-color: #c9a246;
 
     color: #242425;
+}
+
+.quantitySelector button:disabled {
+    color: #5c5c60;
+
+    cursor: not-allowed;
+}
+
+
+/* =================================
+   MÍNIMO DE COMPRA B2B
+   ================================= */
+
+.minimumNote {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 6px 12px;
+
+    margin: 4px 0 0;
+
+    color: #e4c56f;
+
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.minimumNoteError {
+    color: #f3aaa5;
+}
+
+.adjustMinimumButton {
+    min-height: 28px;
+
+    padding: 0 12px;
+
+    border: 1px solid #c9a246;
+    border-radius: 999px;
+
+    background-color: transparent;
+
+    color: #e4c56f;
+
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.adjustMinimumButton:hover {
+    background-color: rgba(201, 162, 70, 0.15);
+}
+
+.minimumBlockedNote {
+    margin: 0 0 12px;
+
+    padding: 10px 12px;
+
+    color: #f3c5c2;
+    background-color: #3b2524;
+
+    border-left: 3px solid #c65c54;
+
+    font-size: 0.86rem;
+}
+
+.checkoutButtonDisabled {
+    background-color: #3a3a3a;
+
+    color: #8c8c8f;
+
+    cursor: not-allowed;
 }
 
 .quantitySelector button svg {

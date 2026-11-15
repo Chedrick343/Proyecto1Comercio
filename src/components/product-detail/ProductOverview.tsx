@@ -10,6 +10,7 @@ import AddToCartControl from '../add-to-cart/AddToCartControl';
 import BranchPickerDialog from '../branch-picker/BranchPickerDialog';
 import DefaultBranchStockNote from '../branch-picker/DefaultBranchStockNote';
 import { useProductBranchStatuses } from '../branch-picker/useBranchStatuses';
+import BusinessMinimumNote from '../product-price/BusinessMinimumNote';
 import ProductPrice from '../product-price/ProductPrice';
 import { IVA_RATE } from '../../context/CartContext';
 import { getStockStatus } from '../../product/productSpecifications';
@@ -61,6 +62,7 @@ export default function ProductOverview({ product }: { product: Product }) {
                 <p className={styles.priceNote}>
                     {t('priceNote', { rate: formatRate(IVA_RATE) })}
                 </p>
+                <BusinessMinimumNote product={product} />
             </div>
 
             <div className={styles.availability}>
