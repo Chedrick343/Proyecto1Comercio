@@ -12,17 +12,62 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { IVA_RATE, SHIPPING_RATE, useCart } from '../../context/CartContext';
+import { IVA_RATE, SHIPPING_RATE, useCart, type CartItem } from '../../context/CartContext';
+import { isBelowMinimum } from '../../pricing/businessMinimum';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatRate } from '../../utils/formatRate';
 import PriceTierNote from '../product-price/PriceTierNote';
 
 import styles from './carritoSection.module.css';
 
+/** Propiedades de BusinessMinimumLine. */
+interface BusinessMinimumLineProps {
+    item: CartItem;
+    /** Cambia la cantidad del producto. */
+    onAdjust: (id: string, quantity: number) => void;
+}
+
+/**
+ * Indica el mínimo de compra B2B de un producto del carrito. Si la cantidad
+ * no lo alcanza, lo marca como error y ofrece ajustarla al mínimo.
+ *
+ * @param props Propiedades del componente.
+ * @return La línea del mínimo de compra.
+ */
+function BusinessMinimumLine({ item, onAdjust }: BusinessMinimumLineProps) {
+    const { t } = useTranslation('cart');
+
+    if (!isBelowMinimum(item.quantity, item.minimumQuantity)) {
+        return (
+            <p className={styles.minimumNote}>
+                {t('minimum.note', { count: item.minimumQuantity })}
+            </p>
+        );
+    }
+
+    return (
+        <p className={`${styles.minimumNote} ${styles.minimumNoteError}`}>
+            {t('minimum.below', {
+                count: item.minimumQuantity,
+                missing: item.minimumQuantity - item.quantity
+            })}
+            <button
+                type="button"
+                className={styles.adjustMinimumButton}
+                onClick={() => onAdjust(item.id, item.minimumQuantity)}
+            >
+                {t('minimum.adjust', { count: item.minimumQuantity })}
+            </button>
+        </p>
+    );
+}
+
 /**
  * Muestra los productos del carrito con controles de cantidad y el resumen
- * de la compra. Si el carrito está vacío, lo indica y avisa cuando se llegó
- * aquí porque el checkout se bloqueó por falta de productos.
+ * de la compra. Para un cliente B2B, indica el mínimo de compra de cada
+ * producto y no deja continuar mientras alguno no lo alcance. Si el carrito
+ * está vacío, lo indica y avisa cuando se llegó aquí porque el checkout se
+ * bloqueó por falta de productos.
  *
  * @return La sección del carrito.
  */
@@ -32,6 +77,7 @@ export default function CarritoSection() {
         increaseQuantity,
         decreaseQuantity,
         removeProduct,
+        setItemQuantity,
         subtotal,
         iva,
         shipping,
@@ -39,6 +85,9 @@ export default function CarritoSection() {
     } = useCart();
 
     const { t } = useTranslation(['cart', 'common']);
+    const hasItemsBelowMinimum = cart.some((item) =>
+        isBelowMinimum(item.quantity, item.minimumQuantity)
+    );
 
     const location = useLocation();
     const wasRedirectedFromCheckout = Boolean(
@@ -141,6 +190,10 @@ export default function CarritoSection() {
                                         </span>
                                     </p>
 
+                                    {item.minimumQuantity > 1 && (
+                                        <BusinessMinimumLine item={item} onAdjust={setItemQuantity} />
+                                    )}
+
                                     <div className={styles.itemBottom}>
 
                                         <div
@@ -155,6 +208,7 @@ export default function CarritoSection() {
                                                         item.id
                                                     )
                                                 }
+                                                disabled={item.quantity <= item.minimumQuantity}
                                                 aria-label={t('cart:item.decrease', { name: item.name })}
                                             >
                                                 <FaMinus />
@@ -282,12 +336,26 @@ export default function CarritoSection() {
                         </strong>
                     </div>
 
-                    <Link
-                        to="/checkout"
-                        className={styles.checkoutButton}
-                    >
-                        {t('cart:checkout')}
-                    </Link>
+                    {hasItemsBelowMinimum ? (
+                        <>
+                            <p className={styles.minimumBlockedNote} role="alert">
+                                {t('cart:minimum.checkoutBlocked')}
+                            </p>
+                            <span
+                                className={`${styles.checkoutButton} ${styles.checkoutButtonDisabled}`}
+                                aria-disabled="true"
+                            >
+                                {t('cart:checkout')}
+                            </span>
+                        </>
+                    ) : (
+                        <Link
+                            to="/checkout"
+                            className={styles.checkoutButton}
+                        >
+                            {t('cart:checkout')}
+                        </Link>
+                    )}
 
                     <p className={styles.shippingNote}>
                         {t('cart:shippingNote')}
