@@ -12,6 +12,7 @@ import {
     type ReactNode
 } from 'react';
 
+import { getBusinessMinimum } from '../pricing/businessMinimum';
 import { getCustomerPrice, type PriceTier } from '../pricing/customerPrice';
 import { usePriceTier } from '../pricing/usePriceTier';
 import { getProductById } from '../utils/algolia';
@@ -37,6 +38,8 @@ export interface CartItem {
     currency: string;
     image: string;
     quantity: number;
+    /** Unidades mínimas que debe comprar el usuario actual (mínimo B2B, o 1). */
+    minimumQuantity: number;
 }
 
 /** Producto tal como se guarda en el carrito, con sus dos precios. */
@@ -54,12 +57,18 @@ interface StoredCartItem {
      * precios B2B, que se completan consultando Algolia).
      */
     businessPrice?: number | null;
+    /**
+     * Mínimo de compra B2B; undefined si todavía no se conoce (carritos
+     * guardados antes de esta condición, que también se completan en Algolia).
+     */
+    businessMinimum?: number;
 }
 
-/** Precios actualizados de un producto del carrito. */
-interface RefreshedPrices {
+/** Condiciones comerciales de un producto que se guardan en el carrito. */
+interface ItemConditions {
     retailPrice: number;
     businessPrice: number | null;
+    businessMinimum: number;
 }
 
 /** Unidades compradas de un producto, para descontarlas del carrito. */
@@ -109,31 +118,32 @@ type CartAction =
           };
       }
     | {
-          type: 'REFRESH_PRICES';
+          type: 'REFRESH_CONDITIONS';
           payload: {
-              pricesById: Record<string, RefreshedPrices>;
+              conditionsById: Record<string, ItemConditions>;
           };
       };
 
 
 /**
- * Obtiene los dos precios de un producto del catálogo para guardarlos en el
- * carrito.
+ * Obtiene las condiciones comerciales de un producto del catálogo para
+ * guardarlas en el carrito.
  *
  * @param product Producto del catálogo.
- * @return El precio B2C y el B2B, o null en el B2B si no es válido.
+ * @return El precio B2C, el B2B (null si no es válido) y el mínimo B2B.
  */
-function getStoredPrices(product: Product): RefreshedPrices {
+function getItemConditions(product: Product): ItemConditions {
     const businessPrice = getCustomerPrice(product, 'B2B');
 
     return {
         retailPrice: product.b2c.price,
-        businessPrice: businessPrice.problem ? null : businessPrice.amount
+        businessPrice: businessPrice.problem ? null : businessPrice.amount,
+        businessMinimum: getBusinessMinimum(product)
     };
 }
 
 /**
- * Crea el producto que se guarda en el carrito, con sus dos precios.
+ * Crea el producto que se guarda en el carrito, con sus condiciones comerciales.
  *
  * @param product Producto del catálogo.
  * @param quantity Cantidad a agregar.
@@ -146,7 +156,7 @@ function toStoredCartItem(product: Product, quantity: number): StoredCartItem {
         currency: product.b2c.currency,
         image: product.image_url,
         quantity,
-        ...getStoredPrices(product)
+        ...getItemConditions(product)
     };
 }
 
@@ -236,11 +246,11 @@ function cartReducer(
                 .filter((item) => item.quantity > 0);
         }
 
-        case 'REFRESH_PRICES': {
-            const { pricesById } = action.payload;
+        case 'REFRESH_CONDITIONS': {
+            const { conditionsById } = action.payload;
 
             return state.map((item) =>
-                pricesById[item.id] ? { ...item, ...pricesById[item.id] } : item
+                conditionsById[item.id] ? { ...item, ...conditionsById[item.id] } : item
             );
         }
 
@@ -252,8 +262,8 @@ function cartReducer(
 /**
  * Convierte un producto recuperado de localStorage al formato actual. Los
  * carritos guardados antes de los precios B2B solo tienen "price"; se toma
- * como precio B2C y el precio de empresa queda como desconocido, para
- * consultarlo después.
+ * como precio B2C, y el precio y el mínimo de empresa quedan como
+ * desconocidos, para consultarlos después.
  *
  * @param item Valor recuperado.
  * @return El producto en el formato actual, o null si no es válido.
@@ -286,7 +296,8 @@ function readStoredCartItem(item: unknown): StoredCartItem | null {
         retailPrice,
         businessPrice: typeof storedItem.businessPrice === 'number' || storedItem.businessPrice === null
             ? storedItem.businessPrice
-            : undefined
+            : undefined,
+        businessMinimum: typeof storedItem.businessMinimum === 'number' ? storedItem.businessMinimum : undefined
     };
 }
 
@@ -324,13 +335,14 @@ function getInitialCart(): CartState {
 }
 
 /**
- * Aplica a un producto del carrito el precio del tipo de cliente actual. Si
- * el cliente es B2B pero el producto no tiene un precio de empresa conocido y
- * válido, se usa el precio B2C y la línea queda marcada como B2C.
+ * Aplica a un producto del carrito el precio y el mínimo de compra del tipo
+ * de cliente actual. Si el cliente es B2B pero el producto no tiene un precio
+ * de empresa conocido y válido, se usa el precio B2C, la línea queda marcada
+ * como B2C y no se le exige el mínimo B2B.
  *
  * @param item Producto guardado en el carrito.
  * @param priceTier Tipo de precio del usuario actual.
- * @return El producto con su precio aplicado.
+ * @return El producto con su precio y su mínimo aplicados.
  */
 function toPricedCartItem(item: StoredCartItem, priceTier: PriceTier): CartItem {
     const businessPrice = typeof item.businessPrice === 'number' ? item.businessPrice : null;
@@ -343,32 +355,33 @@ function toPricedCartItem(item: StoredCartItem, priceTier: PriceTier): CartItem 
         priceTier: usesBusinessPrice ? 'B2B' : 'B2C',
         currency: item.currency,
         image: item.image,
-        quantity: item.quantity
+        quantity: item.quantity,
+        minimumQuantity: usesBusinessPrice ? item.businessMinimum ?? 1 : 1
     };
 }
 
 /**
- * Consulta en Algolia los precios actuales de algunos productos del carrito.
- * Los productos que no se pudieron consultar quedan fuera del resultado.
+ * Consulta en Algolia las condiciones comerciales actuales de algunos
+ * productos del carrito. Los que no se pudieron consultar quedan fuera.
  *
  * @param productIds Identificadores de los productos.
- * @return Los precios B2C y B2B de cada producto consultado.
+ * @return Los precios B2C y B2B y el mínimo B2B de cada producto consultado.
  */
-async function loadCurrentPrices(productIds: string[]): Promise<Record<string, RefreshedPrices>> {
-    console.log('Consultando precios de empresa de productos guardados antes en el carrito:', productIds);
+async function loadCurrentConditions(productIds: string[]): Promise<Record<string, ItemConditions>> {
+    console.log('Consultando condiciones de empresa de productos guardados antes en el carrito:', productIds);
 
     const results = await Promise.allSettled(productIds.map((productId) => getProductById(productId)));
-    const pricesById: Record<string, RefreshedPrices> = {};
+    const conditionsById: Record<string, ItemConditions> = {};
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
-            pricesById[productIds[index]] = getStoredPrices(result.value);
+            conditionsById[productIds[index]] = getItemConditions(result.value);
         } else {
-            console.error(`No se pudieron consultar los precios de ${productIds[index]}:`, result.reason);
+            console.error(`No se pudieron consultar las condiciones de ${productIds[index]}:`, result.reason);
         }
     });
 
-    return pricesById;
+    return conditionsById;
 }
 
 /** Montos que resumen el costo de un grupo de productos. */
@@ -478,29 +491,29 @@ export function CartProvider({
         console.log(`Precios del carrito calculados con el tipo de precio ${priceTier}.`);
     }, [priceTier]);
 
-    // Productos guardados antes de los precios B2B: se consulta su precio de empresa una vez.
-    const unknownPriceIds = storedCart
-        .filter((item) => item.businessPrice === undefined)
+    // Productos guardados antes de las condiciones B2B: se consultan una sola vez en Algolia.
+    const unknownConditionIds = storedCart
+        .filter((item) => item.businessPrice === undefined || item.businessMinimum === undefined)
         .map((item) => item.id)
         .join(',');
 
     useEffect(() => {
-        if (unknownPriceIds === '') {
+        if (unknownConditionIds === '') {
             return;
         }
 
         let isCurrentRequest = true;
 
-        loadCurrentPrices(unknownPriceIds.split(',')).then((pricesById) => {
-            if (isCurrentRequest && Object.keys(pricesById).length > 0) {
-                dispatch({ type: 'REFRESH_PRICES', payload: { pricesById } });
+        loadCurrentConditions(unknownConditionIds.split(',')).then((conditionsById) => {
+            if (isCurrentRequest && Object.keys(conditionsById).length > 0) {
+                dispatch({ type: 'REFRESH_CONDITIONS', payload: { conditionsById } });
             }
         });
 
         return () => {
             isCurrentRequest = false;
         };
-    }, [unknownPriceIds]);
+    }, [unknownConditionIds]);
 
     const fallbackPriceIds = priceTier === 'B2B'
         ? storedCart.filter((item) => item.businessPrice === null).map((item) => item.id).join(', ')
