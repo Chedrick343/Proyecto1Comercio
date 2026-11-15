@@ -6,6 +6,10 @@
   "addedAnnouncement": "{{name}} se agregó al carrito",
   "purchaseDisabled": "Vista de administrador: compras deshabilitadas",
   "priceUnavailable": "No disponible para la venta",
+  "addMinimum": "Agregar {{count}} unidades",
+  "addMinimumShort": "Agregar {{count}}",
+  "notEnoughForMinimum": "Sin stock para el mínimo de {{count}}",
+  "businessMinimum": "Compra mínima para empresas: {{count}} unidades",
   "price": {
     "businessTag": "PRECIO EMPRESA",
     "savings": "Ahorras {{percent}}%",
