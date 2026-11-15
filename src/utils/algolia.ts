@@ -4,6 +4,7 @@
 
 import { liteClient } from 'algoliasearch/lite';
 import { sumLocationsStock } from '../inventory/branchInventory';
+import { applyInventoryAdjustments } from '../inventory/inventoryAdjustments';
 import type { Product } from './Products';
 
 /** Identificador de la aplicación de Algolia. */
@@ -33,15 +34,17 @@ type AlgoliaProductHit = Omit<Partial<Product>, 'b2c' | 'b2b'> & {
 
 /**
  * Convierte un resultado de Algolia en un producto completo, rellenando los
- * campos faltantes con valores por defecto. Si el producto tiene inventario
- * por sucursal, el stock total se calcula a partir de él.
+ * campos faltantes con valores por defecto. Al inventario por sucursal se le
+ * aplican los ajustes simulados (como las compras confirmadas), y el stock
+ * total se calcula a partir de él.
  *
  * @param hit Resultado devuelto por Algolia.
  * @return El producto con todos sus campos definidos.
  */
 export function normalizeAlgoliaProduct(hit: unknown): Product {
     const productHit = hit as AlgoliaProductHit;
-    const locations = productHit.locations ?? [];
+    const objectID = productHit.objectID ?? productHit.sku ?? productHit.title ?? 'unknown-product';
+    const locations = applyInventoryAdjustments(objectID, productHit.locations ?? []);
     const hasBranchInventory = locations.length > 0;
     const stockQuantity = hasBranchInventory
         ? sumLocationsStock(locations)
@@ -53,7 +56,7 @@ export function normalizeAlgoliaProduct(hit: unknown): Product {
     const currency = productHit.b2c?.currency ?? productHit.currency ?? 'CRC';
 
     return {
-        objectID: productHit.objectID ?? productHit.sku ?? productHit.title ?? 'unknown-product',
+        objectID,
         sku: productHit.sku ?? productHit.objectID ?? '',
         title: productHit.title ?? '',
         description: productHit.description ?? '',
