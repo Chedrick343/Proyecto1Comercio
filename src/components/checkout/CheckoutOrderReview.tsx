@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useBranch } from '../../context/BranchContext';
+import { useSession } from '../../context/SessionContext';
 import type { CartItem } from '../../context/CartContext';
 import type { ShippingDetails } from './checkoutTypes';
 import type { PaymentResult } from './paymentGateway';
@@ -55,7 +56,8 @@ interface CheckoutOrderReviewProps {
 }
 
 /**
- * Muestra los productos, los datos de entrega y el método de pago para
+ * Muestra los productos, los datos de entrega (con la empresa, si el cliente
+ * es B2B) y el método de pago para
  * revisarlos, junto con la aceptación de términos, el selector de escenarios
  * de los servicios simulados y el botón de pago. Los pagos no aprobados y las
  * órdenes fallidas se informan con diálogos; si se cierra el de la orden
@@ -85,6 +87,8 @@ export default function CheckoutOrderReview({
 }: CheckoutOrderReviewProps) {
     const { t } = useTranslation(['checkout', 'common']);
     const { selectedBranch } = useBranch();
+    const { currentUser } = useSession();
+    const company = currentUser?.company;
     const [dismissedOrderNumber, setDismissedOrderNumber] = useState<string | null>(null);
     const isCheckoutLocked =
         processingStage !== null || paymentResult === 'PAYMENT_APPROVED' || failedOrder !== null;
@@ -108,6 +112,14 @@ export default function CheckoutOrderReview({
             </div>
 
             <dl className={styles.deliveryDetails}>
+                {company && (
+                    <div>
+                        <dt>{t('checkout:review.company')}</dt>
+                        <dd>
+                            {t('checkout:review.companyValue', { name: company.name, taxId: company.taxId })}
+                        </dd>
+                    </div>
+                )}
                 <div>
                     <dt>{t('common:branch.shortLabel')}</dt>
                     <dd>{selectedBranch?.name ?? t('common:branch.notSelected')}</dd>
