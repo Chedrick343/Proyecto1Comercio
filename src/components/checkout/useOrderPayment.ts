@@ -11,6 +11,7 @@ import { calculateCartTotals, useCart, type CartItem } from '../../context/CartC
 import { useOrders } from '../../context/OrdersContext';
 import { useSession } from '../../context/SessionContext';
 import type { Branch } from '../../inventory/branches';
+import { discountOrderInventory } from '../../inventory/inventoryAdjustments';
 import { createOrder } from '../../orders/createOrder';
 import { createOrderBuyer } from '../../orders/orderOwner';
 import {
@@ -59,8 +60,9 @@ export interface OrderRequest {
 /**
  * Crea la orden en el primer intento de pago y la reutiliza en los
  * reintentos. Cada intento valida la orden, la cobra y, si el pago se
- * aprueba, reserva el inventario para confirmarla. Al confirmarse, solo se
- * descuentan del carrito los productos comprados, así que lo que no se pudo
+ * aprueba, reserva el inventario para confirmarla. Al confirmarse, sus
+ * unidades se descuentan del inventario simulado de la sucursal, y del
+ * carrito solo salen los productos comprados, así que lo que no se pudo
  * comprar queda para otro pedido. Si la orden falla después de cobrarse,
  * solicita el reembolso.
  *
@@ -143,6 +145,7 @@ export function useOrderPayment() {
             updateActiveOrder(confirmedOrder);
             setConfirmedOrderNumber(confirmedOrder.orderNumber);
             track('PURCHASE', toPurchasePayload(confirmedOrder));
+            discountOrderInventory(confirmedOrder);
             removePurchasedItems(
                 confirmedOrder.items.map((item) => ({ id: item.productId, quantity: item.quantity }))
             );
