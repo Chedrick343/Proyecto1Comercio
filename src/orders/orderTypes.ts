@@ -131,6 +131,11 @@ export interface Order extends OrderTotals {
      * en el carrito para otro pedido.
      */
     isPartialPurchase?: boolean;
+    /**
+     * Lo agrega el Cloudflare Worker al guardar la orden en el índice: indica
+     * si ya descontó su stock en el índice de productos.
+     */
+    stockDiscounted?: boolean;
     customer: ShippingDetails;
     /**
      * Constancia de aceptación de términos. Es opcional solo porque las órdenes
