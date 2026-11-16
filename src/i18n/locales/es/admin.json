@@ -1,4 +1,41 @@
 {
+  "sections": {
+    "label": "Secciones del panel administrativo",
+    "orders": "Órdenes",
+    "usage": "Métricas de uso"
+  },
+  "orders": {
+    "title": "Órdenes de la tienda",
+    "description": "Todas las órdenes registradas, de cualquier cliente y navegador, guardadas en el índice de órdenes de Algolia.",
+    "reload": "Actualizar",
+    "reloading": "Actualizando...",
+    "reloadFailed": "No pudimos leer el índice de órdenes. Se muestran las órdenes guardadas en este navegador.",
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Número de orden, cliente, correo o empresa",
+      "customerType": "Tipo de cliente",
+      "branch": "Sucursal",
+      "orderStatus": "Estado de la orden",
+      "all": "Todos"
+    },
+    "count_one": "Mostrando {{count}} de {{total}} órdenes",
+    "count_other": "Mostrando {{count}} de {{total}} órdenes",
+    "empty": "Todavía no hay órdenes registradas.",
+    "noMatches": "Ninguna orden coincide con los filtros.",
+    "notRecorded": "No registrado",
+    "noCompany": "Sin empresa",
+    "columns": {
+      "orderNumber": "Número de orden",
+      "date": "Fecha",
+      "customer": "Cliente",
+      "customerType": "Tipo de cliente",
+      "company": "Empresa",
+      "branch": "Sucursal",
+      "total": "Total",
+      "orderStatus": "Estado de la orden",
+      "paymentStatus": "Estado del pago"
+    }
+  },
   "usage": {
     "title": "Métricas de uso",
     "description": "Calculadas con la actividad registrada en este navegador: usuarios con sesión e invitados.",
