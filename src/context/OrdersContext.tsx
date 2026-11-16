@@ -1,5 +1,7 @@
 /**
  * @fileoverview Estado global de las órdenes de compra y su historial de pagos.
+ * Las órdenes se guardan en localStorage y en el índice de órdenes de Algolia
+ * (por medio del Cloudflare Worker); al iniciar, se combinan las de ambos.
  */
 
 import {
@@ -10,8 +12,12 @@ import {
     type ReactNode
 } from 'react';
 
+import { discountOrderInventory } from '../inventory/inventoryAdjustments';
 import { isValidOrderChange } from '../orders/orderStateMachine';
 import type { Order } from '../orders/orderTypes';
+import { isValidOrder } from '../orders/orderValidation';
+import { loadOrdersFromIndex, saveOrderToIndex } from '../services/ordersIndex/ordersIndexService';
+import { searchClient } from '../utils/algolia';
 
 /** Clave de localStorage donde se guardan las órdenes. */
 const ORDERS_STORAGE_KEY = 'orders-v1';
@@ -32,7 +38,39 @@ type OrdersAction =
           payload: {
               order: Order;
           };
+      }
+    | {
+          type: 'MERGE_ORDERS';
+          payload: {
+              orders: Order[];
+          };
       };
+
+/**
+ * Combina las órdenes locales con las del índice. Si una orden está en ambos
+ * lados, se queda la versión con la fecha de actualización más reciente.
+ *
+ * @param localOrders Órdenes guardadas en este navegador.
+ * @param indexOrders Órdenes leídas del índice de Algolia.
+ * @return Todas las órdenes, de la más reciente a la más antigua.
+ */
+function mergeOrders(localOrders: Order[], indexOrders: Order[]): Order[] {
+    const ordersByNumber = new Map<string, Order>();
+
+    localOrders.forEach((order) => ordersByNumber.set(order.orderNumber, order));
+
+    indexOrders.forEach((order) => {
+        const localOrder = ordersByNumber.get(order.orderNumber);
+
+        if (!localOrder || order.updatedAt > localOrder.updatedAt) {
+            ordersByNumber.set(order.orderNumber, order);
+        }
+    });
+
+    return [...ordersByNumber.values()].sort((first, second) =>
+        second.createdAt.localeCompare(first.createdAt)
+    );
+}
 
 /**
  * Calcula el nuevo estado de las órdenes a partir de una acción. Al guardar
@@ -68,36 +106,13 @@ function ordersReducer(
             });
         }
 
+        case 'MERGE_ORDERS':
+            return mergeOrders(state, action.payload.orders);
+
         default:
             return state;
     }
 }
-
-/**
- * Verifica si un valor es un objeto no nulo.
- *
- * @param value Valor a verificar.
- * @return Verdadero si el valor es un objeto.
- */
-const isObject = (value: unknown): value is Record<string, unknown> =>
-    typeof value === 'object' && value !== null;
-
-/**
- * Verifica que un valor recuperado tenga la forma de una orden.
- *
- * @param order Valor a verificar.
- * @return Verdadero si el valor es una orden válida.
- */
-const isValidOrder = (order: unknown): order is Order =>
-    isObject(order) &&
-    typeof order.orderNumber === 'string' &&
-    typeof order.createdAt === 'string' &&
-    typeof order.total === 'number' &&
-    typeof order.orderStatus === 'string' &&
-    typeof order.paymentStatus === 'string' &&
-    isObject(order.customer) &&
-    Array.isArray(order.items) &&
-    order.items.every(isObject);
 
 /**
  * Recupera las órdenes guardadas en localStorage.
@@ -130,6 +145,39 @@ function getInitialOrders(): OrdersState {
     }
 }
 
+/**
+ * Envíos al Worker pendientes, encadenados para que lleguen en orden: una
+ * orden se reenvía en cada cambio de estado, y una versión vieja no debe
+ * llegar después de una nueva.
+ */
+let pendingSync: Promise<void> = Promise.resolve();
+
+/**
+ * Guarda una orden en el índice. Si la orden está confirmada y el Worker no
+ * pudo descontar su stock en Algolia, se descuenta en el inventario simulado
+ * de este navegador para no vender las mismas unidades otra vez.
+ *
+ * @param order Orden a guardar.
+ */
+function syncOrderToIndex(order: Order) {
+    pendingSync = pendingSync.then(async () => {
+        const { stockDiscounted } = await saveOrderToIndex(order);
+
+        if (order.orderStatus !== 'CONFIRMED') {
+            return;
+        }
+
+        if (stockDiscounted) {
+            // Los resultados guardados en memoria tienen el stock anterior.
+            await searchClient?.clearCache();
+            return;
+        }
+
+        console.log(`El stock de ${order.orderNumber} no se descontó en Algolia; se descuenta localmente.`);
+        discountOrderInventory(order);
+    });
+}
+
 /** Valor que expone el contexto de órdenes. */
 interface OrdersContextType {
     orders: OrdersState;
@@ -140,6 +188,9 @@ interface OrdersContextType {
     saveOrder: (order: Order) => void;
 
     getOrderByNumber: (orderNumber: string) => Order | undefined;
+
+    /** Vuelve a leer el índice de órdenes; devuelve si se pudo leer. */
+    reloadOrders: () => Promise<boolean>;
 }
 
 /** Contexto de órdenes; es undefined fuera de OrdersProvider. */
@@ -153,7 +204,8 @@ interface OrdersProviderProps {
 }
 
 /**
- * Proveedor que mantiene las órdenes y lo persiste en localStorage.
+ * Proveedor que mantiene las órdenes, las persiste en localStorage y las
+ * sincroniza con el índice de órdenes de Algolia.
  *
  * @param props Propiedades del componente.
  * @param props.children Componentes que tendrán acceso al contexto.
@@ -182,11 +234,39 @@ export function OrdersProvider({
         }
     }, [orders]);
 
+    // Al iniciar, se traen las órdenes del índice (de cualquier navegador) y se combinan con las locales.
+    useEffect(() => {
+        loadOrdersFromIndex()
+            .then((indexOrders) => {
+                dispatch({ type: 'MERGE_ORDERS', payload: { orders: indexOrders } });
+            })
+            .catch((error: unknown) => {
+                console.error('No se pudieron leer las órdenes del índice; se usan las de este navegador:', error);
+            });
+    }, []);
+
+    /**
+     * Vuelve a leer las órdenes del índice y las combina con las locales.
+     *
+     * @return Verdadero si se pudo leer el índice.
+     */
+    const reloadOrders = async (): Promise<boolean> => {
+        try {
+            const indexOrders = await loadOrdersFromIndex();
+            dispatch({ type: 'MERGE_ORDERS', payload: { orders: indexOrders } });
+            return true;
+        } catch (error) {
+            console.error('No se pudieron volver a leer las órdenes del índice:', error);
+            return false;
+        }
+    };
+
     const addOrder = (order: Order) => {
         dispatch({
             type: 'ADD_ORDER',
             payload: { order }
         });
+        syncOrderToIndex(order);
     };
 
     const saveOrder = (order: Order) => {
@@ -194,6 +274,7 @@ export function OrdersProvider({
             type: 'SAVE_ORDER',
             payload: { order }
         });
+        syncOrderToIndex(order);
     };
 
     const getOrderByNumber = (orderNumber: string) =>
@@ -205,7 +286,8 @@ export function OrdersProvider({
                 orders,
                 addOrder,
                 saveOrder,
-                getOrderByNumber
+                getOrderByNumber,
+                reloadOrders
             }}
         >
             {children}
