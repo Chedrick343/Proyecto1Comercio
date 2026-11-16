@@ -1,5 +1,5 @@
 /**
- * @fileoverview Acceso a los índices de Algolia: productos y usuarios.
+ * @fileoverview Acceso a los índices de Algolia: productos, usuarios y órdenes.
  */
 
 import { liteClient } from 'algoliasearch/lite';
@@ -15,6 +15,8 @@ const searchApiKey = import.meta.env.VITE_ALGOLIA_SEARCH_API_KEY;
 export const indexName = import.meta.env.VITE_ALGOLIA_INDEX_NAME;
 /** Nombre del índice de usuarios en Algolia. */
 export const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME;
+/** Nombre del índice de órdenes en Algolia. */
+export const ordersIndexName = import.meta.env.VITE_ALGOLIA_ORDERS_INDEX_NAME;
 
 /** Cliente de búsqueda, o null si faltan las variables de entorno. */
 export const searchClient = applicationId && searchApiKey
