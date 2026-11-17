@@ -16,6 +16,7 @@ import { getBusinessMinimum } from '../pricing/businessMinimum';
 import { getCustomerPrice, type PriceTier } from '../pricing/customerPrice';
 import { usePriceTier } from '../pricing/usePriceTier';
 import { getProductById } from '../utils/algolia';
+import { useSession } from './SessionContext';
 import type { Product } from '../utils/Products';
 
 /** Clave de localStorage donde se guarda el carrito. */
@@ -361,14 +362,15 @@ function toPricedCartItem(item: StoredCartItem, priceTier: PriceTier): CartItem 
 }
 
 /**
- * Consulta en Algolia las condiciones comerciales actuales de algunos
- * productos del carrito. Los que no se pudieron consultar quedan fuera.
+ * Consulta en Algolia las condiciones comerciales actuales de los productos
+ * del carrito. Los que no se pudieron consultar quedan con los valores que
+ * ya tenían.
  *
  * @param productIds Identificadores de los productos.
  * @return Los precios B2C y B2B y el mínimo B2B de cada producto consultado.
  */
 async function loadCurrentConditions(productIds: string[]): Promise<Record<string, ItemConditions>> {
-    console.log('Consultando condiciones de empresa de productos guardados antes en el carrito:', productIds);
+    console.log('Consultando en Algolia los precios y el mínimo vigentes de los productos del carrito:', productIds);
 
     const results = await Promise.allSettled(productIds.map((productId) => getProductById(productId)));
     const conditionsById: Record<string, ItemConditions> = {};
@@ -479,6 +481,7 @@ export function CartProvider({
         getInitialCart
     );
     const priceTier = usePriceTier();
+    const { currentUser } = useSession();
 
     useEffect(() => {
         localStorage.setItem(
@@ -491,20 +494,19 @@ export function CartProvider({
         console.log(`Precios del carrito calculados con el tipo de precio ${priceTier}.`);
     }, [priceTier]);
 
-    // Productos guardados antes de las condiciones B2B: se consultan una sola vez en Algolia.
-    const unknownConditionIds = storedCart
-        .filter((item) => item.businessPrice === undefined || item.businessMinimum === undefined)
-        .map((item) => item.id)
-        .join(',');
+    // El administrador puede cambiar precios y mínimos en Algolia: se consultan
+    // los vigentes al abrir la tienda, al cambiar de usuario y al cambiar los productos.
+    const cartProductIds = storedCart.map((item) => item.id).join(',');
+    const currentUserId = currentUser?.id ?? '';
 
     useEffect(() => {
-        if (unknownConditionIds === '') {
+        if (cartProductIds === '') {
             return;
         }
 
         let isCurrentRequest = true;
 
-        loadCurrentConditions(unknownConditionIds.split(',')).then((conditionsById) => {
+        loadCurrentConditions(cartProductIds.split(',')).then((conditionsById) => {
             if (isCurrentRequest && Object.keys(conditionsById).length > 0) {
                 dispatch({ type: 'REFRESH_CONDITIONS', payload: { conditionsById } });
             }
@@ -513,7 +515,7 @@ export function CartProvider({
         return () => {
             isCurrentRequest = false;
         };
-    }, [unknownConditionIds]);
+    }, [cartProductIds, currentUserId]);
 
     const fallbackPriceIds = priceTier === 'B2B'
         ? storedCart.filter((item) => item.businessPrice === null).map((item) => item.id).join(', ')
