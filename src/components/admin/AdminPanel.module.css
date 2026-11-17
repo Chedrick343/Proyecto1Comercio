@@ -1,0 +1,37 @@
+.panel {
+    display: grid;
+    gap: var(--space-5);
+}
+
+.tabs {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #474747;
+}
+
+.tab {
+    flex-shrink: 0;
+    padding: 10px var(--space-4);
+    border-bottom: 2px solid transparent;
+    color: #aaa9ad;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    color: #f7f2e9;
+}
+
+.tab:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+.tabActive {
+    border-bottom-color: #c9a246;
+    color: #e4c56f;
+}

@@ -188,6 +188,9 @@ interface OrdersContextType {
     saveOrder: (order: Order) => void;
 
     getOrderByNumber: (orderNumber: string) => Order | undefined;
+
+    /** Vuelve a leer el índice de órdenes; devuelve si se pudo leer. */
+    reloadOrders: () => Promise<boolean>;
 }
 
 /** Contexto de órdenes; es undefined fuera de OrdersProvider. */
@@ -242,6 +245,22 @@ export function OrdersProvider({
             });
     }, []);
 
+    /**
+     * Vuelve a leer las órdenes del índice y las combina con las locales.
+     *
+     * @return Verdadero si se pudo leer el índice.
+     */
+    const reloadOrders = async (): Promise<boolean> => {
+        try {
+            const indexOrders = await loadOrdersFromIndex();
+            dispatch({ type: 'MERGE_ORDERS', payload: { orders: indexOrders } });
+            return true;
+        } catch (error) {
+            console.error('No se pudieron volver a leer las órdenes del índice:', error);
+            return false;
+        }
+    };
+
     const addOrder = (order: Order) => {
         dispatch({
             type: 'ADD_ORDER',
@@ -267,7 +286,8 @@ export function OrdersProvider({
                 orders,
                 addOrder,
                 saveOrder,
-                getOrderByNumber
+                getOrderByNumber,
+                reloadOrders
             }}
         >
             {children}
