@@ -58,6 +58,11 @@
     transition: transform 0.2s ease;
 }
 
+/* Sin ícono, el texto no necesita el espacio del avatar */
+.triggerNoIcon {
+    padding-left: var(--space-4);
+}
+
 .triggerOpen .chevron {
     transform: rotate(180deg);
 }
@@ -186,7 +191,7 @@
     text-overflow: ellipsis;
 }
 
-.optionCount {
+.optionDetail {
     color: #8f8e93;
     font-size: var(--font-size-xs);
 }
@@ -205,6 +210,30 @@
     font-size: var(--font-size-xs);
     text-align: center;
     border-top: 1px solid #313134;
+}
+
+/* Etiqueta encima y ancho completo, para los filtros de las tablas */
+.selectStacked {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+}
+
+.selectStacked .label {
+    font-size: var(--font-size-xs);
+}
+
+.selectStacked .trigger {
+    width: 100%;
+    min-height: 40px;
+}
+
+.selectStacked .popup {
+    left: 0;
+    right: auto;
+    width: 100%;
+    min-width: 220px;
 }
 
 @media (max-width: 599px) {

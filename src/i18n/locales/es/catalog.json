@@ -49,8 +49,6 @@
     }
   },
   "pagination": {
-    "label": "Paginación de productos",
-    "previous": "Página anterior",
-    "next": "Página siguiente"
+    "label": "Paginación de productos"
   }
 }

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import styles from './ProductsGrid.module.css';
 import type { Product } from '../../utils/Products';
 import ProductCard, { type ProductCardLayout } from './ProductCard';
+import Pagination from '../pagination/Pagination';
 import {
     CATALOG_PAGE_PARAM,
     formatCatalogPageParam,
@@ -27,73 +28,6 @@ interface ProductsGridProps {
 
 /** Cantidad de productos por página. */
 const PRODUCTS_PER_PAGE = 12;
-
-/** Cantidad de páginas que se muestran a cada lado de la página actual. */
-const SIBLING_COUNT = 1;
-
-/** Marcador de páginas omitidas en la paginación. */
-const ELLIPSIS = 'ellipsis' as const;
-
-/** Elemento de la paginación: un número de página o puntos suspensivos. */
-type PageItem = number | typeof ELLIPSIS;
-
-
-/**
- * Calcula los elementos de la paginación. Siempre incluye la primera y la
- * última página, las vecinas de la actual y puntos suspensivos donde se
- * omiten páginas. Si hay pocas páginas, las muestra todas.
- *
- * @param currentPage Página actual.
- * @param totalPages Total de páginas.
- * @return Los números de página y puntos suspensivos, en orden.
- */
-const getPageNumbers = (
-    currentPage: number,
-    totalPages: number
-): PageItem[] => {
-
-    // Si son pocas páginas, las mostramos todas sin puntos suspensivos
-    const totalVisibleSlots = SIBLING_COUNT * 2 + 5;
-
-    if (totalPages <= totalVisibleSlots) {
-        return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    const leftSibling = Math.max(currentPage - SIBLING_COUNT, 1);
-    const rightSibling = Math.min(currentPage + SIBLING_COUNT, totalPages);
-
-    const showLeftEllipsis = leftSibling > 2;
-    const showRightEllipsis = rightSibling < totalPages - 1;
-
-    const pages: PageItem[] = [1];
-
-    if (showLeftEllipsis) {
-        pages.push(ELLIPSIS);
-    } else {
-        for (let page = 2; page < leftSibling; page += 1) {
-            pages.push(page);
-        }
-    }
-
-    for (let page = leftSibling; page <= rightSibling; page += 1) {
-        if (page !== 1 && page !== totalPages) {
-            pages.push(page);
-        }
-    }
-
-    if (showRightEllipsis) {
-        pages.push(ELLIPSIS);
-    } else {
-        for (let page = rightSibling + 1; page < totalPages; page += 1) {
-            pages.push(page);
-        }
-    }
-
-    pages.push(totalPages);
-
-    return pages;
-};
-
 
 /**
  * Muestra los productos en cuadrícula o lista, con paginación. La página
@@ -138,12 +72,6 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
         const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
         return allProducts.slice(start, start + PRODUCTS_PER_PAGE);
     }, [allProducts, currentPage]);
-
-
-    const pageItems = useMemo(
-        () => getPageNumbers(currentPage, totalPages),
-        [currentPage, totalPages]
-    );
 
 
     /**
@@ -232,54 +160,12 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                 PAGINACIÓN
             ===================== */}
 
-            <nav className={styles.pagination} aria-label={t('pagination.label')}>
-
-                <button
-                    className={styles.pageButton}
-                    onClick={() => goToPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    aria-label={t('pagination.previous')}
-                >
-                    ◀
-                </button>
-
-                <div className={styles.pageNumbers}>
-                    {pageItems.map((item, index) =>
-                        item === ELLIPSIS ? (
-                            <span
-                                key={`ellipsis-${index}`}
-                                className={styles.pageEllipsis}
-                                aria-hidden="true"
-                            >
-                                …
-                            </span>
-                        ) : (
-                            <button
-                                key={item}
-                                className={
-                                    item === currentPage
-                                        ? `${styles.pageNumber} ${styles.pageNumberActive}`
-                                        : styles.pageNumber
-                                }
-                                onClick={() => goToPage(item)}
-                                aria-current={item === currentPage ? 'page' : undefined}
-                            >
-                                {item}
-                            </button>
-                        )
-                    )}
-                </div>
-
-                <button
-                    className={styles.pageButton}
-                    onClick={() => goToPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    aria-label={t('pagination.next')}
-                >
-                    ▶
-                </button>
-
-            </nav>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                label={t('pagination.label')}
+            />
 
         </section>
 

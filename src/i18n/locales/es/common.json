@@ -104,5 +104,10 @@
     "contact": "Contacto",
     "address": "Dirección",
     "notes": "Indicaciones"
+  },
+  "pagination": {
+    "previous": "Página anterior",
+    "next": "Página siguiente",
+    "status": "Página {{current}} de {{total}}"
   }
 }
