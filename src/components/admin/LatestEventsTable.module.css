@@ -72,3 +72,68 @@
 .detail {
     overflow-wrap: anywhere;
 }
+
+/* En pantallas pequeñas cada evento se muestra como un elemento de lista:
+   el tipo y la hora arriba, y debajo quién lo hizo y el detalle */
+@media (max-width: 599px) {
+    .table {
+        min-width: 0;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            'event date'
+            'subject subject'
+            'detail detail';
+        gap: 4px var(--space-3);
+        padding: var(--space-3) 0;
+        border-bottom: 1px solid #2a2a2d;
+    }
+
+    .table tbody tr:last-child {
+        border-bottom: 0;
+    }
+
+    .table td {
+        padding: 0;
+        border-bottom: 0;
+    }
+
+    .table tbody tr:hover td {
+        background-color: transparent;
+    }
+
+    .event {
+        grid-area: event;
+    }
+
+    .event .eventType {
+        padding-left: 0;
+    }
+
+    .date {
+        grid-area: date;
+        font-size: var(--font-size-xs);
+    }
+
+    .subject {
+        grid-area: subject;
+        overflow: hidden;
+        color: #aaa9ad;
+        font-size: var(--font-size-xs);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .detail {
+        grid-area: detail;
+        color: #e8e3db;
+        font-size: var(--font-size-sm);
+    }
+}
