@@ -10,6 +10,7 @@ import {
     type ReactNode
 } from 'react';
 
+import { clearAdminToken } from '../services/adminSession/adminSessionService';
 import { getPermissions } from '../session/permissions';
 import { isUser, type User } from '../session/userTypes';
 
@@ -87,6 +88,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
     const endSession = () => {
         console.log(`Sesión cerrada: ${currentUser?.email ?? 'sin usuario'}. Ahora se navega como invitado.`);
+        clearAdminToken();
         setCurrentUser(null);
     };
 
