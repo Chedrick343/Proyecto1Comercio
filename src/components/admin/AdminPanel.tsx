@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 import RequirePermission from '../access/RequirePermission';
 import AdminOrdersList from './AdminOrdersList';
+import AdminProductsList from './AdminProductsList';
 import {
     ADMIN_PATH,
     ADMIN_SECTION_PARAM,
@@ -59,6 +60,10 @@ function AdminSectionTabs({ activeSection }: { activeSection: AdminSection }) {
  * @return El contenido de la sección.
  */
 function AdminSectionContent({ section }: { section: AdminSection }) {
+    if (section === 'products') {
+        return <AdminProductsList />;
+    }
+
     if (section === 'usage') {
         return <UsageDashboard />;
     }
@@ -67,9 +72,9 @@ function AdminSectionContent({ section }: { section: AdminSection }) {
 }
 
 /**
- * Muestra las secciones del panel al administrador: la consulta de órdenes y
- * las métricas de uso. A cualquier otra persona le muestra un mensaje de
- * acceso denegado.
+ * Muestra las secciones del panel al administrador: órdenes, productos con su
+ * inventario por sucursal y métricas de uso. A cualquier otra persona le
+ * muestra un mensaje de acceso denegado.
  *
  * @return El panel o el mensaje de acceso denegado.
  */

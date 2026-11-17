@@ -2,6 +2,7 @@
   "sections": {
     "label": "Secciones del panel administrativo",
     "orders": "Órdenes",
+    "products": "Productos e inventario",
     "usage": "Métricas de uso"
   },
   "orders": {
@@ -12,11 +13,11 @@
     "reloadFailed": "No pudimos leer el índice de órdenes. Se muestran las órdenes guardadas en este navegador.",
     "filters": {
       "search": "Buscar",
-      "searchPlaceholder": "Número de orden, cliente, correo o empresa",
       "customerType": "Tipo de cliente",
       "branch": "Sucursal",
       "orderStatus": "Estado de la orden",
-      "all": "Todos"
+      "all": "Todos",
+      "searchPlaceholder": "Número de orden, cliente, correo o empresa"
     },
     "count_one": "Mostrando {{count}} de {{total}} órdenes",
     "count_other": "Mostrando {{count}} de {{total}} órdenes",
@@ -34,6 +35,80 @@
       "total": "Total",
       "orderStatus": "Estado de la orden",
       "paymentStatus": "Estado del pago"
+    },
+    "paginationLabel": "Paginación de órdenes",
+    "summary": {
+      "label": "Resumen de órdenes",
+      "orders": "Órdenes",
+      "ordersDetail": "Registradas en el índice y en este navegador",
+      "confirmed": "Confirmadas",
+      "confirmedDetail_one": "{{count}} pendiente o fallida",
+      "confirmedDetail_other": "{{count}} pendientes o fallidas",
+      "sales": "Ventas confirmadas",
+      "salesDetail": "Total con IVA y envío",
+      "business": "Órdenes de empresas",
+      "businessDetail": "Compradas con precios B2B"
+    }
+  },
+  "products": {
+    "title": "Productos e inventario",
+    "description": "Precios, compra mínima para empresas, stock y estado de cada producto. Toca una fila para ver las unidades por sucursal.",
+    "loading": "Cargando productos...",
+    "loadError": "No pudimos cargar el catálogo de Algolia. Intenta de nuevo en unos minutos.",
+    "count_one": "Mostrando {{count}} de {{total}} productos",
+    "count_other": "Mostrando {{count}} de {{total}} productos",
+    "noMatches": "Ningún producto coincide con los filtros.",
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nombre, SKU o marca",
+      "category": "Categoría",
+      "allCategories": "Todas",
+      "availability": "Disponibilidad",
+      "availabilityOptions": {
+        "ALL": "Todos",
+        "OUT_OF_STOCK": "Agotados en todas las sucursales",
+        "MISSING_IN_BRANCH": "Sin unidades en alguna sucursal",
+        "LOW_STOCK": "Con stock bajo en alguna sucursal"
+      }
+    },
+    "columns": {
+      "product": "Producto",
+      "category": "Categoría",
+      "retailPrice": "Precio B2C",
+      "businessPrice": "Precio B2B",
+      "businessMinimum": "Mínimo B2B",
+      "totalStock": "Stock total",
+      "status": "Estado",
+      "open": "Abrir"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "invalidPrice": "Precio inválido"
+    },
+    "paginationLabel": "Paginación de productos",
+    "branchStockTitle": "Unidades por sucursal",
+    "totalStockLabel": "Total del producto",
+    "units_one": "{{count}} unidad",
+    "units_other": "{{count}} unidades",
+    "toggleBranchStock": "Ver las unidades por sucursal de {{name}}",
+    "summary": {
+      "label": "Resumen del catálogo",
+      "products": "Productos",
+      "productsDetail_one": "{{count}} activo",
+      "productsDetail_other": "{{count}} activos",
+      "outOfStock": "Agotados",
+      "outOfStockDetail": "Sin unidades en ninguna sucursal",
+      "lowStock": "Stock bajo",
+      "lowStockDetail": "5 o menos en alguna sucursal",
+      "invalidPrice": "Precio inválido",
+      "invalidPriceDetail": "No se pueden vender a algún cliente"
+    },
+    "openProduct": "Abrir el producto {{name}}",
+    "shortLabels": {
+      "retailPrice": "B2C",
+      "businessPrice": "B2B",
+      "businessMinimum": "Mín."
     }
   },
   "usage": {
@@ -155,5 +230,8 @@
       "cancel": "Cancelar",
       "confirm": "Borrar actividad"
     }
-  }
+  },
+  "filtersToggle": "Filtros",
+  "filtersToggleActive_one": "Filtros ({{count}} activo)",
+  "filtersToggleActive_other": "Filtros ({{count}} activos)"
 }

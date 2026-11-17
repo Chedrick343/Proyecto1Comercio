@@ -9,11 +9,12 @@ export const ADMIN_PATH = '/cuenta/admin';
 export const ADMIN_SECTION_PARAM = 'seccion';
 
 /** Sección del panel administrativo. */
-export type AdminSection = 'orders' | 'usage';
+export type AdminSection = 'orders' | 'products' | 'usage';
 
 /** Valor del parámetro de la URL de cada sección, en el orden de las pestañas. */
 export const ADMIN_SECTION_SLUGS: Record<AdminSection, string> = {
     orders: 'ordenes',
+    products: 'productos',
     usage: 'metricas'
 };
 
