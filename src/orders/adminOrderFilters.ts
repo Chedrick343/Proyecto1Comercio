@@ -4,6 +4,7 @@
 
 import type { AccessLevel } from '../session/permissions';
 import type { Order, OrderStatus } from './orderTypes';
+import { normalizeText } from '../utils/normalizeText';
 
 /** Valor de un filtro que no restringe nada. */
 export const ALL_FILTER = 'ALL';
@@ -27,15 +28,6 @@ export const INITIAL_ADMIN_ORDER_FILTERS: AdminOrderFilters = {
     branchId: ALL_FILTER,
     orderStatus: ALL_FILTER
 };
-
-/**
- * Normaliza un texto para buscar sin distinguir mayúsculas ni tildes.
- *
- * @param text Texto a normalizar.
- * @return El texto en minúsculas, sin tildes ni espacios en los extremos.
- */
-const normalizeText = (text: string): string =>
-    text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 
 /**
  * Indica si una orden contiene el texto buscado.
