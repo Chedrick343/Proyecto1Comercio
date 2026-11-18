@@ -31,7 +31,9 @@
     "resultCount_other": "{{count}} resultados",
     "viewMode": "Tipo de vista",
     "viewAsGrid": "Ver en cuadrícula",
-    "viewAsList": "Ver en lista"
+    "viewAsList": "Ver en lista",
+    "adminNotice": "Estás viendo la tienda como administrador: puedes consultar los productos y sus dos precios, pero no comprar.",
+    "adminNoticeLink": "Ir al panel administrativo"
   },
   "product": {
     "outOfStock": "Agotado",

@@ -3,10 +3,13 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { FaThLarge, FaList } from 'react-icons/fa';
+import { Link, useSearchParams } from 'react-router-dom';
+import { FaThLarge, FaList, FaLock } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import styles from './ProductsGrid.module.css';
+import { useSession } from '../../context/SessionContext';
+import { hasPermission } from '../../session/permissions';
+import { ADMIN_PATH } from '../admin/adminRoutes';
 import type { Product } from '../../utils/Products';
 import ProductCard, { type ProductCardLayout } from './ProductCard';
 import Pagination from '../pagination/Pagination';
@@ -39,6 +42,8 @@ const PRODUCTS_PER_PAGE = 12;
 export default function ProductsGrid({ products }: ProductsGridProps) {
 
     const { t } = useTranslation('catalog');
+    const { currentUser } = useSession();
+    const canBuy = hasPermission(currentUser, 'ADD_TO_CART');
     const allProducts = products;
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -141,6 +146,16 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                     </div>
                 </div>
             </header>
+
+            {!canBuy && (
+                <p className={styles.adminNotice}>
+                    <FaLock aria-hidden="true" />
+                    <span>
+                        {t('grid.adminNotice')}{' '}
+                        <Link to={ADMIN_PATH} className={styles.adminNoticeLink}>{t('grid.adminNoticeLink')}</Link>
+                    </span>
+                </p>
+            )}
 
 
             <div className={styles.scrollArea}>
