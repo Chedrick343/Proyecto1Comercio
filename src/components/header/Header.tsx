@@ -13,7 +13,6 @@ import { hasPermission } from '../../session/permissions';
 import { getFirstName } from '../../session/userTypes';
 import CartBadge from '../cart-badge/CartBadge';
 import { isCartPreviewAvailable, useCartPreview } from '../cart-preview/cartPreviewContext';
-import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
 
 import styles from './Header.module.css';
 
@@ -72,21 +71,21 @@ function CartButton() {
 
 /**
  * Acceso a la cuenta. Con sesión iniciada muestra el nombre y el rol del
- * usuario y enlaza a su cuenta; como invitado, enlaza al inicio de sesión.
+ * usuario; como invitado muestra "Cuenta". En ambos casos enlaza a la cuenta,
+ * donde el invitado ve sus pedidos y la opción de iniciar sesión.
  *
- * @return El enlace a la cuenta o al inicio de sesión.
+ * @return El enlace a la cuenta.
  */
 function AccountButton() {
     const { t } = useTranslation(['common', 'auth']);
     const { currentUser } = useSession();
-    const location = useLocation();
     const className = `${styles.headerButton} ${styles.accountButton}`;
 
     if (!currentUser) {
         return (
-            <Link to={LOGIN_PATH} state={createLoginRedirectState(location)} className={className}>
+            <Link to="/cuenta" className={className}>
                 <FaUser className={styles.headerIcon} aria-hidden="true" />
-                <span className={styles.headerLabel}>{t('auth:session.signIn')}</span>
+                <span className={styles.headerLabel}>{t('common:nav.account')}</span>
             </Link>
         );
     }
