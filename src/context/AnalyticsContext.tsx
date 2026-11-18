@@ -31,6 +31,7 @@ import {
     toUserSubject
 } from '../activity/eventPayloads';
 import { getGuestSessionId } from '../session/guestSession';
+import { hasPermission } from '../session/permissions';
 import { useSession } from './SessionContext';
 
 /** Valor que expone el contexto de analítica. */
@@ -68,8 +69,9 @@ interface AnalyticsProviderProps {
 
 /**
  * Proveedor que guarda los eventos en localStorage y los asocia al usuario
- * con sesión iniciada o, si no hay, al invitado de este navegador. Debe estar
- * dentro de SessionProvider.
+ * con sesión iniciada o, si no hay, al invitado de este navegador. La
+ * actividad del administrador no se registra, porque las métricas describen
+ * a los clientes. Debe estar dentro de SessionProvider.
  *
  * @param props Propiedades del componente.
  * @param props.children Componentes que tendrán acceso al contexto.
@@ -95,10 +97,20 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
             payload: AnalyticsEventPayloads[T],
             subject: AnalyticsSubject = activeSubject
         ) => {
+            // El administrador no es un cliente: su actividad no debe sumar en las métricas.
+            const isAdminLogin = type === 'LOGIN' && (payload as { role?: string }).role === 'ADMIN';
+            const isAdminActivity = subject.type === 'user' && subject.id === currentUser?.id
+                && hasPermission(currentUser, 'VIEW_ADMIN_INFORMATION');
+
+            if (isAdminLogin || isAdminActivity) {
+                console.log(`Evento ${type} del administrador; no se registra en las métricas.`);
+                return;
+            }
+
             const event = createAnalyticsEvent(type, payload, subject);
             setAllEvents((previousEvents) => [...previousEvents, event].slice(-MAX_STORED_EVENTS));
         },
-        [activeSubject]
+        [activeSubject, currentUser]
     );
 
     const clearAllEvents = useCallback(() => setAllEvents([]), []);

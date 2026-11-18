@@ -24,7 +24,7 @@
     "empty": "Todavía no hay órdenes registradas.",
     "noMatches": "Ninguna orden coincide con los filtros.",
     "notRecorded": "No registrado",
-    "noCompany": "Sin empresa",
+    "noCompany": "—",
     "columns": {
       "orderNumber": "Número de orden",
       "date": "Fecha",
@@ -33,14 +33,13 @@
       "company": "Empresa",
       "branch": "Sucursal",
       "total": "Total",
-      "orderStatus": "Estado de la orden",
-      "paymentStatus": "Estado del pago"
+      "statuses": "Estado (orden y pago)"
     },
     "paginationLabel": "Paginación de órdenes",
     "summary": {
       "label": "Resumen de órdenes",
       "orders": "Órdenes",
-      "ordersDetail": "Registradas en el índice y en este navegador",
+      "ordersDetail": "Registradas en el índice de Algolia",
       "confirmed": "Confirmadas",
       "confirmedDetail_one": "{{count}} pendiente o fallida",
       "confirmedDetail_other": "{{count}} pendientes o fallidas",
@@ -66,9 +65,14 @@
       "availability": "Disponibilidad",
       "availabilityOptions": {
         "ALL": "Todos",
-        "OUT_OF_STOCK": "Agotados en todas las sucursales",
-        "MISSING_IN_BRANCH": "Sin unidades en alguna sucursal",
-        "LOW_STOCK": "Con stock bajo en alguna sucursal"
+        "OUT_OF_STOCK": "Agotados",
+        "MISSING_IN_BRANCH": "Falta en una sucursal",
+        "LOW_STOCK": "Stock bajo"
+      },
+      "availabilityDetails": {
+        "OUT_OF_STOCK": "Sin unidades en ninguna sucursal",
+        "MISSING_IN_BRANCH": "Hay unidades, pero alguna sucursal está en 0",
+        "LOW_STOCK": "5 o menos unidades en alguna sucursal"
       }
     },
     "columns": {

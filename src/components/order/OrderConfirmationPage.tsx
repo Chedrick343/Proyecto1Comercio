@@ -72,16 +72,20 @@ function OrderHeading({ order }: { order: Order }) {
  *
  * @param props Propiedades del componente.
  * @param props.orderNumber Número de orden buscado.
+ * @param props.isAdmin Indica si quien busca es el administrador, que no
+ *     tiene pedidos propios y busca entre todas las órdenes.
  * @return El mensaje de error.
  */
-function OrderNotFound({ orderNumber }: { orderNumber: string }) {
+function OrderNotFound({ orderNumber, isAdmin }: { orderNumber: string; isAdmin: boolean }) {
     const { t } = useTranslation('orders');
 
     return (
         <ErrorState
             icon={FaReceipt}
             title={t('notFound.title')}
-            description={t('notFound.description', { orderNumber })}
+            description={isAdmin
+                ? t('notFound.adminDescription', { orderNumber })
+                : t('notFound.description', { orderNumber })}
         />
     );
 }
@@ -124,22 +128,25 @@ export default function OrderConfirmationPage() {
                             <OrderDetails order={order} />
                         </>
                     ) : (
-                        <OrderNotFound orderNumber={orderNumber} />
+                        <OrderNotFound orderNumber={orderNumber} isAdmin={canViewAllOrders} />
                     )}
 
+                    {/* El administrador no compra: solo vuelve a su panel. */}
                     <div className={styles.actions}>
                         {canViewAllOrders ? (
-                            <Link to={ADMIN_PATH} className={styles.secondaryAction}>
+                            <Link to={ADMIN_PATH} className={styles.primaryAction}>
                                 {t('orders:actions.goToAdminPanel')}
                             </Link>
                         ) : (
-                            <Link to="/cuenta/pedidos" className={styles.secondaryAction}>
-                                {t('orders:actions.viewOrders')}
-                            </Link>
+                            <>
+                                <Link to="/cuenta/pedidos" className={styles.secondaryAction}>
+                                    {t('orders:actions.viewOrders')}
+                                </Link>
+                                <Link to="/" className={styles.primaryAction}>
+                                    {t('common:actions.continueShopping')}
+                                </Link>
+                            </>
                         )}
-                        <Link to="/" className={styles.primaryAction}>
-                            {t('common:actions.continueShopping')}
-                        </Link>
                     </div>
                 </div>
             </section>

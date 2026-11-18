@@ -1,7 +1,11 @@
 /**
  * @fileoverview Estado global de las órdenes de compra y su historial de pagos.
- * Las órdenes se guardan en localStorage y en el índice de órdenes de Algolia
- * (por medio del Cloudflare Worker); al iniciar, se combinan las de ambos.
+ * Las órdenes creadas en este navegador se guardan en localStorage y en el
+ * índice de órdenes de Algolia (por medio del Cloudflare Worker). Del índice
+ * se leen solo las que le corresponden al usuario actual: todas para el
+ * administrador y las propias para los demás. Esas se mantienen en memoria y
+ * no se guardan en el navegador. El administrador ve solo las del índice;
+ * los clientes ven además las que crearon en este navegador.
  */
 
 import {
@@ -9,21 +13,34 @@ import {
     useContext,
     useEffect,
     useReducer,
+    useState,
     type ReactNode
 } from 'react';
 
 import { discountOrderInventory } from '../inventory/inventoryAdjustments';
+import { getOrderOwnerId } from '../orders/orderOwner';
 import { isValidOrderChange } from '../orders/orderStateMachine';
 import type { Order } from '../orders/orderTypes';
 import { isValidOrder } from '../orders/orderValidation';
 import { loadOrdersFromIndex, saveOrderToIndex } from '../services/ordersIndex/ordersIndexService';
+import { hasPermission } from '../session/permissions';
 import { searchClient } from '../utils/algolia';
+import { useSession } from './SessionContext';
 
 /** Clave de localStorage donde se guardan las órdenes. */
 const ORDERS_STORAGE_KEY = 'orders-v1';
 
-/** Órdenes registradas, de la más reciente a la más antigua. */
+/** Órdenes creadas en este navegador, de la más reciente a la más antigua. */
 type OrdersState = Order[];
+
+/** Alcance de las órdenes leídas del índice: un dueño, o todas. */
+const ALL_ORDERS_SCOPE = 'ALL';
+
+/** Órdenes leídas del índice, junto con el alcance con el que se leyeron. */
+interface IndexOrders {
+    scope: string;
+    orders: Order[];
+}
 
 /** Acciones que modifican las órdenes. */
 type OrdersAction =
@@ -37,12 +54,6 @@ type OrdersAction =
           type: 'SAVE_ORDER';
           payload: {
               order: Order;
-          };
-      }
-    | {
-          type: 'MERGE_ORDERS';
-          payload: {
-              orders: Order[];
           };
       };
 
@@ -105,9 +116,6 @@ function ordersReducer(
                 return savedOrder;
             });
         }
-
-        case 'MERGE_ORDERS':
-            return mergeOrders(state, action.payload.orders);
 
         default:
             return state;
@@ -214,17 +222,29 @@ interface OrdersProviderProps {
 export function OrdersProvider({
     children
 }: OrdersProviderProps) {
-    const [orders, dispatch] = useReducer(
+    const [localOrders, dispatch] = useReducer(
         ordersReducer,
         [],
         getInitialOrders
     );
+    const [indexOrders, setIndexOrders] = useState<IndexOrders>({ scope: '', orders: [] });
+    const { currentUser } = useSession();
+    const ownerId = hasPermission(currentUser, 'VIEW_ALL_ORDERS') ? null : getOrderOwnerId(currentUser);
+    const scope = ownerId ?? ALL_ORDERS_SCOPE;
+
+    // Las órdenes leídas con otra sesión no se muestran mientras llegan las nuevas.
+    const visibleIndexOrders = indexOrders.scope === scope ? indexOrders.orders : [];
+    // El administrador consulta solo el índice, la fuente de las órdenes de la tienda;
+    // los clientes ven además las suyas recién creadas en este navegador.
+    const orders = scope === ALL_ORDERS_SCOPE
+        ? mergeOrders([], visibleIndexOrders)
+        : mergeOrders(localOrders, visibleIndexOrders);
 
     useEffect(() => {
         try {
             localStorage.setItem(
                 ORDERS_STORAGE_KEY,
-                JSON.stringify(orders)
+                JSON.stringify(localOrders)
             );
         } catch (error) {
             console.error(
@@ -232,28 +252,36 @@ export function OrdersProvider({
                 error
             );
         }
-    }, [orders]);
+    }, [localOrders]);
 
-    // Al iniciar, se traen las órdenes del índice (de cualquier navegador) y se combinan con las locales.
+    // Al iniciar y al cambiar de sesión, se traen del índice las órdenes que le corresponden al usuario.
     useEffect(() => {
-        loadOrdersFromIndex()
-            .then((indexOrders) => {
-                dispatch({ type: 'MERGE_ORDERS', payload: { orders: indexOrders } });
+        let isCurrentRequest = true;
+
+        loadOrdersFromIndex(scope === ALL_ORDERS_SCOPE ? null : scope)
+            .then((loadedOrders) => {
+                if (isCurrentRequest) {
+                    setIndexOrders({ scope, orders: loadedOrders });
+                }
             })
             .catch((error: unknown) => {
                 console.error('No se pudieron leer las órdenes del índice; se usan las de este navegador:', error);
             });
-    }, []);
+
+        return () => {
+            isCurrentRequest = false;
+        };
+    }, [scope]);
 
     /**
-     * Vuelve a leer las órdenes del índice y las combina con las locales.
+     * Vuelve a leer del índice las órdenes que le corresponden al usuario.
      *
      * @return Verdadero si se pudo leer el índice.
      */
     const reloadOrders = async (): Promise<boolean> => {
         try {
-            const indexOrders = await loadOrdersFromIndex();
-            dispatch({ type: 'MERGE_ORDERS', payload: { orders: indexOrders } });
+            const loadedOrders = await loadOrdersFromIndex(ownerId);
+            setIndexOrders({ scope, orders: loadedOrders });
             return true;
         } catch (error) {
             console.error('No se pudieron volver a leer las órdenes del índice:', error);

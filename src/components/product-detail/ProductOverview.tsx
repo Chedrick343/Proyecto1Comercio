@@ -13,7 +13,9 @@ import { useProductBranchStatuses } from '../branch-picker/useBranchStatuses';
 import BusinessMinimumNote from '../product-price/BusinessMinimumNote';
 import ProductPrice from '../product-price/ProductPrice';
 import { IVA_RATE } from '../../context/CartContext';
+import { useSession } from '../../context/SessionContext';
 import { getStockStatus } from '../../product/productSpecifications';
+import { hasPermission } from '../../session/permissions';
 import { formatRate } from '../../utils/formatRate';
 import type { Product } from '../../utils/Products';
 import StarRating from './StarRating';
@@ -32,7 +34,8 @@ const STOCK_STATUS_CLASS = {
  * control para agregar al carrito. Cualquier persona puede consultar las
  * unidades en cada sucursal; la sucursal de la compra se elige en el
  * checkout. Si el usuario tiene una sucursal predeterminada, también se
- * indica cuántas unidades hay en ella.
+ * indica cuántas unidades hay en ella. La nota de impuestos y envío solo la
+ * ve quien puede comprar.
  *
  * @param props Propiedades del componente.
  * @param props.product Producto a mostrar.
@@ -41,6 +44,8 @@ const STOCK_STATUS_CLASS = {
 export default function ProductOverview({ product }: { product: Product }) {
     const { t } = useTranslation(['product', 'common']);
     const [isBranchStockOpen, setIsBranchStockOpen] = useState(false);
+    const { currentUser } = useSession();
+    const canBuy = hasPermission(currentUser, 'ADD_TO_CART');
 
     const stockStatus = getStockStatus(product);
     const branchStatuses = useProductBranchStatuses(product);
@@ -59,9 +64,11 @@ export default function ProductOverview({ product }: { product: Product }) {
 
             <div className={styles.priceBlock}>
                 <ProductPrice product={product} priceClassName={styles.price} showSavings />
-                <p className={styles.priceNote}>
-                    {t('priceNote', { rate: formatRate(IVA_RATE) })}
-                </p>
+                {canBuy && (
+                    <p className={styles.priceNote}>
+                        {t('priceNote', { rate: formatRate(IVA_RATE) })}
+                    </p>
+                )}
                 <BusinessMinimumNote product={product} />
             </div>
 

@@ -18,7 +18,7 @@ import {
 import type { Order, OrderStatus } from '../../orders/orderTypes';
 import type { AccessLevel } from '../../session/permissions';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { formatDateTime } from '../../utils/formatDate';
+import { formatShortDateTime } from '../../utils/formatDate';
 import { OrderStatusBadge, PaymentStatusBadge } from '../order/OrderStatusBadge';
 import Pagination from '../pagination/Pagination';
 import DropdownSelect from '../select/DropdownSelect';
@@ -103,7 +103,7 @@ function OrderRow({ order }: { order: Order }) {
                     {order.orderNumber}
                 </Link>
             </td>
-            <td data-label={t('admin:orders.columns.date')} className={styles.cellDate}>{formatDateTime(order.createdAt)}</td>
+            <td data-label={t('admin:orders.columns.date')} className={styles.cellDate}>{formatShortDateTime(order.createdAt)}</td>
             <td data-label={t('admin:orders.columns.customer')} className={styles.cellCustomer}>
                 <span className={styles.primaryText}>{order.buyer?.name ?? order.customer.fullName}</span>
                 <span className={styles.secondaryText}>{order.buyer?.email ?? order.customer.email}</span>
@@ -121,11 +121,11 @@ function OrderRow({ order }: { order: Order }) {
             <td data-label={t('admin:orders.columns.total')} className={`${styles.strongCell} ${styles.cellTotal}`}>
                 {formatCurrency(order.total, order.currency)}
             </td>
-            <td data-label={t('admin:orders.columns.orderStatus')} className={styles.cellOrderStatus}>
-                <OrderStatusBadge status={order.orderStatus} />
-            </td>
-            <td data-label={t('admin:orders.columns.paymentStatus')} className={styles.cellPaymentStatus}>
-                <PaymentStatusBadge status={order.paymentStatus} />
+            <td data-label={t('admin:orders.columns.statuses')} className={styles.cellStatuses}>
+                <span className={styles.statusStack}>
+                    <OrderStatusBadge status={order.orderStatus} />
+                    <PaymentStatusBadge status={order.paymentStatus} />
+                </span>
             </td>
         </tr>
     );
@@ -262,8 +262,7 @@ export default function AdminOrdersList() {
                                 <th scope="col">{t('admin:orders.columns.company')}</th>
                                 <th scope="col">{t('admin:orders.columns.branch')}</th>
                                 <th scope="col">{t('admin:orders.columns.total')}</th>
-                                <th scope="col">{t('admin:orders.columns.orderStatus')}</th>
-                                <th scope="col">{t('admin:orders.columns.paymentStatus')}</th>
+                                <th scope="col">{t('admin:orders.columns.statuses')}</th>
                             </tr>
                         </thead>
                         <tbody>

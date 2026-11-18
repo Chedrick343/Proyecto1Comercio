@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 
 import AddToCartControl from '../add-to-cart/AddToCartControl';
 import ProductPrice from '../product-price/ProductPrice';
+import { useSession } from '../../context/SessionContext';
+import { hasPermission } from '../../session/permissions';
 import { getMainCategory, type Product } from '../../utils/Products';
 import { getCatalogReturnState } from '../../catalog/catalogReturn';
 
@@ -23,7 +25,9 @@ interface ProductCardProps {
 
 /**
  * Muestra un producto con su imagen, precio y control para agregarlo al
- * carrito. Toda la tarjeta enlaza al detalle del producto.
+ * carrito. Quien no puede comprar, como el administrador, ve la tarjeta sin
+ * ese control; el aviso se muestra una sola vez en el catálogo. Toda la
+ * tarjeta enlaza al detalle del producto.
  *
  * @param props Propiedades del componente.
  * @return La tarjeta del producto.
@@ -32,6 +36,8 @@ export default function ProductCard({ product, layout }: ProductCardProps) {
     const { t } = useTranslation('catalog');
     const location = useLocation();
     const isList = layout === 'list';
+    const { currentUser } = useSession();
+    const canBuy = hasPermission(currentUser, 'ADD_TO_CART');
 
     return (
         <article className={isList ? `${styles.card} ${styles.listCard}` : styles.card}>
@@ -67,7 +73,7 @@ export default function ProductCard({ product, layout }: ProductCardProps) {
                 <div className={styles.cardFooter}>
                     <ProductPrice product={product} priceClassName={styles.price} />
 
-                    <AddToCartControl product={product} fullWidth={!isList} />
+                    {canBuy && <AddToCartControl product={product} fullWidth={!isList} />}
                 </div>
             </div>
         </article>

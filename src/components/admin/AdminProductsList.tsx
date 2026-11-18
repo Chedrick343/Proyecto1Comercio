@@ -245,10 +245,13 @@ export default function AdminProductsList() {
                         onChange={(value) => changeFilter(() => setAvailability(value as AvailabilityFilter))}
                         options={AVAILABILITY_FILTERS.map((filter) => ({
                             value: filter,
-                            label: t(`products.filters.availabilityOptions.${filter}`)
+                            label: t(`products.filters.availabilityOptions.${filter}`),
+                            detail: filter === ALL_FILTER
+                                ? undefined
+                                : t(`products.filters.availabilityDetails.${filter}`)
                         }))}
                     />
-                    </CollapsibleFilters>
+                </CollapsibleFilters>
             </div>
 
             <p className={styles.count}>
