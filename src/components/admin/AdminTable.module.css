@@ -102,7 +102,7 @@
 }
 
 .table th {
-    padding: 12px;
+    padding: 12px 9px;
     border-bottom: 1px solid #474747;
     color: #aaa9ad;
     font-size: var(--font-size-xs);
@@ -112,7 +112,7 @@
 }
 
 .table td {
-    padding: 12px;
+    padding: 12px 9px;
     border-top: 1px solid #3a3a3a;
     color: #f1ede5;
     vertical-align: middle;
@@ -384,6 +384,19 @@
     width: 1%;
 }
 
+/* La fecha corta cabe en una línea; así la tabla de órdenes no se desborda */
+.cellDate {
+    white-space: nowrap;
+}
+
+/* Estado de la orden y del pago en la misma columna, uno encima del otro */
+.statusStack {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+}
+
 .visuallyHidden {
     position: absolute;
     width: 1px;
@@ -482,7 +495,7 @@
             'customer customer'
             'type company'
             'date branch'
-            'orderStatus paymentStatus';
+            'statuses statuses';
     }
 
     .cellOrder {
@@ -529,15 +542,15 @@
         text-align: right;
     }
 
-    .cellOrderStatus {
-        grid-area: orderStatus;
+    .cellStatuses {
+        grid-area: statuses;
         padding-top: var(--space-1) !important;
     }
 
-    .cellPaymentStatus {
-        grid-area: paymentStatus;
-        padding-top: var(--space-1) !important;
-        text-align: right;
+    .statusStack {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: var(--space-2);
     }
 
     /* Productos: producto y botón, categoría, precios y mínimo, stock y estado */
