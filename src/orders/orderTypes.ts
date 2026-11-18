@@ -5,6 +5,9 @@
  */
 
 import type { ShippingDetails } from '../components/checkout/checkoutTypes';
+import type { PriceTier } from '../pricing/customerPrice';
+import type { AccessLevel } from '../session/permissions';
+import type { Company } from '../session/userTypes';
 
 /** Estado general de una orden. */
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'FAILED';
@@ -62,10 +65,33 @@ export interface OrderItem {
     name: string;
     image: string;
     unitPrice: number;
+    /**
+     * Tipo de precio con el que se cobró el producto. Es opcional porque las
+     * órdenes guardadas antes de los precios B2B no lo tienen (eran B2C).
+     */
+    priceTier?: PriceTier;
     currency: string;
     quantity: number;
     /** Precio unitario multiplicado por la cantidad. */
     lineSubtotal: number;
+}
+
+/** Quién hizo la compra, tal como era al momento de la orden. */
+export interface OrderBuyer {
+    /** Identificador del usuario, o el del invitado (guest-...) si no inició sesión. */
+    userId: string;
+    /** Rol con el que compró; GUEST si no había iniciado sesión. */
+    role: AccessLevel;
+    name: string;
+    email: string;
+    /** Empresa del comprador; solo existe para clientes B2B. */
+    company?: Company;
+}
+
+/** Sucursal desde la que se retira o despacha la orden. */
+export interface OrderBranch {
+    id: string;
+    name: string;
 }
 
 /** Montos que resumen el costo de una orden. */
@@ -90,6 +116,26 @@ export interface Order extends OrderTotals {
     createdAt: string;
     updatedAt: string;
     currency: string;
+    /**
+     * Dueño de la orden; repite buyer.userId en la raíz porque el índice de
+     * órdenes filtra por este campo. Es opcional, igual que los campos
+     * siguientes, porque las órdenes guardadas antes del Proyecto III no lo tienen.
+     */
+    userId?: string;
+    buyer?: OrderBuyer;
+    branch?: OrderBranch;
+    /** Tipo de precio con el que se hizo la compra (condición comercial). */
+    priceTier?: PriceTier;
+    /**
+     * Indica si se compró solo lo disponible en la sucursal y el resto quedó
+     * en el carrito para otro pedido.
+     */
+    isPartialPurchase?: boolean;
+    /**
+     * Lo agrega el Cloudflare Worker al guardar la orden en el índice: indica
+     * si ya descontó su stock en el índice de productos.
+     */
+    stockDiscounted?: boolean;
     customer: ShippingDetails;
     /**
      * Constancia de aceptación de términos. Es opcional solo porque las órdenes

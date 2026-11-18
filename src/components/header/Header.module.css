@@ -11,15 +11,18 @@
     min-width: 0;
 }
 
-/* Mobile: the buttons sit on top of the logo bar */
+/* Mobile: the buttons sit on top of the logo bar, account on the left and cart on the right */
 .headerActions {
     position: absolute;
     top: 0;
+    left: var(--space-4);
     right: var(--space-4);
     height: var(--header-height-mobile);
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
+    pointer-events: none;
 }
 
 .headerButton {
@@ -39,6 +42,7 @@
     font: inherit;
     text-decoration: none;
     cursor: pointer;
+    pointer-events: auto;
 }
 
 .headerIcon {
@@ -67,6 +71,7 @@
     display: none;
     width: auto;
     min-width: 64px;
+    margin-right: auto;
 }
 
 .accountName {
@@ -74,6 +79,28 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* With an active session the account stays visible on mobile so the role is always shown */
+.accountButton.signedIn {
+    display: flex;
+}
+
+.roleTag {
+    padding: 2px 7px;
+    border: 1px solid #c9a246;
+    border-radius: var(--radius-pill);
+    color: #e4c56f;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+}
+
+@media (max-width: 860px) {
+    .signedIn .accountName {
+        display: none;
+    }
 }
 
 @media (min-width: 861px) {
@@ -94,16 +121,19 @@
         height: auto;
         gap: 4px;
         margin-left: auto;
+        pointer-events: auto;
     }
 
     .accountButton {
         display: flex;
+        margin-right: 0;
     }
 }
 
 @media (max-width: 380px) {
     .headerActions {
         gap: 0;
+        left: 4px;
         right: 4px;
     }
 

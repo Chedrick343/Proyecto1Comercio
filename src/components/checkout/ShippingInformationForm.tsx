@@ -1,11 +1,19 @@
 /**
- * @fileoverview Paso del checkout para ingresar los datos de envío.
+ * @fileoverview Paso del checkout para indicar la dirección de entrega y la
+ * sucursal de retiro o envío.
  */
 
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { COSTA_RICAN_PROVINCES } from './checkoutTypes';
+import { FaHome, FaPlus } from 'react-icons/fa';
+
+import { findBranchById } from '../../inventory/branches';
+import type { SavedAddress } from '../../session/userTypes';
+import BranchPicker from '../branch-picker/BranchPicker';
+import type { BranchStatus } from '../branch-picker/BranchPickerDialog';
+import ShippingAddressFields from './ShippingAddressFields';
 import type {
+    AddressChoice,
     ShippingDetails,
     ShippingFieldErrors
 } from './checkoutTypes';
@@ -14,38 +22,69 @@ import styles from './CheckoutEntryPage.module.css';
 
 /** Propiedades de ShippingInformationForm. */
 interface ShippingInformationFormProps {
+    /** Datos de la otra dirección, tal como se ingresan en el formulario. */
     details: ShippingDetails;
     errors: ShippingFieldErrors;
-    /** Se llama cuando cambia un campo del formulario. */
+    /** Dirección guardada del usuario, o undefined si no tiene (como el invitado). */
+    savedAddress?: SavedAddress;
+    /** Dirección elegida: la guardada o una nueva. */
+    addressChoice: AddressChoice;
+    /** Disponibilidad del carrito en cada sucursal, para elegir la sucursal. */
+    branchStatuses: BranchStatus[];
+    /** Indica que se intentó continuar sin elegir una sucursal. */
+    isBranchMissing: boolean;
+    /** Se llama cuando cambia un campo de la otra dirección. */
     onDetailsChange: (field: keyof ShippingDetails, value: string) => void;
+    onAddressChoiceChange: (choice: AddressChoice) => void;
     /** Se llama al enviar el formulario. */
     onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
 /**
- * Muestra el formulario de contacto y dirección de entrega, con los errores
- * de validación junto a cada campo.
+ * Muestra la dirección de entrega y la sucursal de retiro o envío. Si el
+ * usuario tiene una dirección guardada, se ofrece como opción predeterminada,
+ * igual que la tarjeta guardada en el paso de pago; si no, se muestra
+ * directamente el formulario de dirección. La sucursal se elige solo en la
+ * tarjeta de sucursal.
  *
  * @param props Propiedades del componente.
- * @return El formulario de envío.
+ * @return El formulario de entrega.
  */
 export default function ShippingInformationForm({
     details,
     errors,
+    savedAddress,
+    addressChoice,
+    branchStatuses,
+    isBranchMissing,
     onDetailsChange,
+    onAddressChoiceChange,
     onSubmit
 }: ShippingInformationFormProps) {
-    const { t } = useTranslation('checkout');
+    const { t } = useTranslation(['checkout', 'common']);
+
+    const addressFields = (
+        <ShippingAddressFields
+            details={details}
+            errors={errors}
+            onDetailsChange={onDetailsChange}
+        />
+    );
+
     /**
-     * Obtiene la clase de un campo según si tiene errores.
+     * Obtiene la clase de una opción de dirección según si está elegida.
      *
-     * @param field Campo del formulario.
-     * @return La clase del campo, marcada como inválida si corresponde.
+     * @param choice Opción a evaluar.
+     * @return La clase de la opción.
      */
-    const fieldClassName = (field: keyof ShippingDetails) =>
-        errors[field]
-            ? `${styles.formControl} ${styles.formControlInvalid}`
-            : styles.formControl;
+    const choiceClassName = (choice: AddressChoice) =>
+        addressChoice === choice
+            ? `${styles.paymentChoice} ${styles.paymentChoiceSelected}`
+            : styles.paymentChoice;
+
+    const savedAddressBranch = savedAddress?.defaultBranchId
+        ? findBranchById(savedAddress.defaultBranchId)
+        : undefined;
 
     return (
         <form className={styles.formPanel} noValidate onSubmit={onSubmit}>
@@ -54,143 +93,82 @@ export default function ShippingInformationForm({
                 <span>{t('form.requiredHint')}</span>
             </div>
 
-            {Object.keys(errors).length > 0 && (
+            {(Object.keys(errors).length > 0 || isBranchMissing) && (
                 <p className={styles.validationSummary} role="alert">
                     {t('form.validationSummary')}
                 </p>
             )}
 
-            <div className={styles.formGrid}>
-                <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <label htmlFor="checkout-full-name">{t('shipping.fields.fullName')} *</label>
-                    <input
-                        id="checkout-full-name"
-                        className={fieldClassName('fullName')}
-                        type="text"
-                        autoComplete="name"
-                        value={details.fullName}
-                        aria-invalid={Boolean(errors.fullName)}
-                        aria-describedby={errors.fullName ? 'checkout-full-name-error' : undefined}
-                        onChange={(event) => onDetailsChange('fullName', event.target.value)}
-                    />
-                    {errors.fullName && (
-                        <span id="checkout-full-name-error" className={styles.fieldError}>
-                            {t(`validation.${errors.fullName}`)}
-                        </span>
-                    )}
-                </div>
+            {!savedAddress ? (
+                addressFields
+            ) : (
+                <fieldset className={styles.paymentMethodList}>
+                    <legend className={styles.visuallyHidden}>
+                        {t('shipping.addressChoice.legend')}
+                    </legend>
 
-                <div className={styles.formField}>
-                    <label htmlFor="checkout-email">{t('shipping.fields.email')} *</label>
-                    <input
-                        id="checkout-email"
-                        className={fieldClassName('email')}
-                        type="email"
-                        autoComplete="email"
-                        value={details.email}
-                        aria-invalid={Boolean(errors.email)}
-                        aria-describedby={errors.email ? 'checkout-email-error' : undefined}
-                        onChange={(event) => onDetailsChange('email', event.target.value)}
-                    />
-                    {errors.email && (
-                        <span id="checkout-email-error" className={styles.fieldError}>
-                            {t(`validation.${errors.email}`)}
-                        </span>
-                    )}
-                </div>
+                    <div className={choiceClassName('SAVED_ADDRESS')}>
+                        <label className={styles.paymentChoiceHeading}>
+                            <input
+                                type="radio"
+                                name="address-choice"
+                                value="SAVED_ADDRESS"
+                                checked={addressChoice === 'SAVED_ADDRESS'}
+                                onChange={() => onAddressChoiceChange('SAVED_ADDRESS')}
+                            />
+                            <FaHome aria-hidden="true" />
+                            <span className={styles.paymentMethodText}>
+                                <strong>
+                                    {t('shipping.addressChoice.savedTitle')}
+                                    <span className={styles.defaultBadge}>{t('common:branch.defaultTag')}</span>
+                                </strong>
+                                <span>{savedAddress.fullName} · {savedAddress.phone}</span>
+                                <span>
+                                    {savedAddress.address}, {savedAddress.canton}, {savedAddress.province}
+                                </span>
+                                <span>
+                                    {savedAddressBranch
+                                        ? t('shipping.addressChoice.defaultBranch', { branch: savedAddressBranch.name })
+                                        : t('shipping.addressChoice.noDefaultBranch')}
+                                </span>
+                            </span>
+                        </label>
+                    </div>
 
-                <div className={styles.formField}>
-                    <label htmlFor="checkout-phone">{t('shipping.fields.phone')} *</label>
-                    <input
-                        id="checkout-phone"
-                        className={fieldClassName('phone')}
-                        type="tel"
-                        autoComplete="tel"
-                        inputMode="tel"
-                        value={details.phone}
-                        aria-invalid={Boolean(errors.phone)}
-                        aria-describedby={errors.phone ? 'checkout-phone-error' : undefined}
-                        onChange={(event) => onDetailsChange('phone', event.target.value)}
-                    />
-                    {errors.phone && (
-                        <span id="checkout-phone-error" className={styles.fieldError}>
-                            {t(`validation.${errors.phone}`)}
-                        </span>
-                    )}
-                </div>
+                    <div className={choiceClassName('NEW_ADDRESS')}>
+                        <label className={styles.paymentChoiceHeading}>
+                            <input
+                                type="radio"
+                                name="address-choice"
+                                value="NEW_ADDRESS"
+                                checked={addressChoice === 'NEW_ADDRESS'}
+                                onChange={() => onAddressChoiceChange('NEW_ADDRESS')}
+                            />
+                            <FaPlus aria-hidden="true" />
+                            <span className={styles.paymentMethodText}>
+                                <strong>{t('shipping.addressChoice.newTitle')}</strong>
+                                <span>{t('shipping.addressChoice.newDescription')}</span>
+                            </span>
+                        </label>
 
-                <div className={styles.formField}>
-                    <label htmlFor="checkout-province">{t('shipping.fields.province')} *</label>
-                    <select
-                        id="checkout-province"
-                        className={fieldClassName('province')}
-                        value={details.province}
-                        aria-invalid={Boolean(errors.province)}
-                        aria-describedby={errors.province ? 'checkout-province-error' : undefined}
-                        onChange={(event) => onDetailsChange('province', event.target.value)}
-                    >
-                        <option value="">{t('shipping.selectProvince')}</option>
-                        {COSTA_RICAN_PROVINCES.map((province) => (
-                            <option key={province} value={province}>
-                                {province}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.province && (
-                        <span id="checkout-province-error" className={styles.fieldError}>
-                            {t(`validation.${errors.province}`)}
-                        </span>
-                    )}
-                </div>
+                        {addressChoice === 'NEW_ADDRESS' && (
+                            <div className={styles.newAddressDetails}>
+                                {addressFields}
+                            </div>
+                        )}
+                    </div>
+                </fieldset>
+            )}
 
-                <div className={styles.formField}>
-                    <label htmlFor="checkout-canton">{t('shipping.fields.canton')} *</label>
-                    <input
-                        id="checkout-canton"
-                        className={fieldClassName('canton')}
-                        type="text"
-                        autoComplete="address-level2"
-                        value={details.canton}
-                        aria-invalid={Boolean(errors.canton)}
-                        aria-describedby={errors.canton ? 'checkout-canton-error' : undefined}
-                        onChange={(event) => onDetailsChange('canton', event.target.value)}
-                    />
-                    {errors.canton && (
-                        <span id="checkout-canton-error" className={styles.fieldError}>
-                            {t(`validation.${errors.canton}`)}
-                        </span>
-                    )}
-                </div>
-
-                <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <label htmlFor="checkout-address">{t('shipping.fields.address')} *</label>
-                    <textarea
-                        id="checkout-address"
-                        className={`${fieldClassName('address')} ${styles.addressInput}`}
-                        autoComplete="street-address"
-                        rows={3}
-                        value={details.address}
-                        aria-invalid={Boolean(errors.address)}
-                        aria-describedby={errors.address ? 'checkout-address-error' : undefined}
-                        onChange={(event) => onDetailsChange('address', event.target.value)}
-                    />
-                    {errors.address && (
-                        <span id="checkout-address-error" className={styles.fieldError}>
-                            {t(`validation.${errors.address}`)}
-                        </span>
-                    )}
-                </div>
-
-                <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <label htmlFor="checkout-notes">{t('shipping.fields.deliveryNotes')}</label>
-                    <textarea
-                        id="checkout-notes"
-                        className={`${styles.formControl} ${styles.addressInput}`}
-                        rows={2}
-                        value={details.deliveryNotes}
-                        onChange={(event) => onDetailsChange('deliveryNotes', event.target.value)}
-                    />
-                </div>
+            <div className={styles.branchField}>
+                <BranchPicker
+                    id="checkout-branch"
+                    statuses={branchStatuses}
+                    dialogDescription={t('common:branch.dialog.cartDescription')}
+                    isRequired
+                    hasError={isBranchMissing}
+                    errorMessage={t('common:branch.required')}
+                />
             </div>
 
             <div className={styles.formActions}>

@@ -11,6 +11,13 @@
     "remove": "Eliminar",
     "removeNamed": "Eliminar {{name}} del carrito"
   },
+  "minimum": {
+    "note": "Mínimo para empresas: {{count}} unidades",
+    "below_one": "Mínimo para empresas: {{count}} unidades. Te falta {{missing}}.",
+    "below_other": "Mínimo para empresas: {{count}} unidades. Te faltan {{missing}}.",
+    "adjust": "Ajustar a {{count}}",
+    "checkoutBlocked": "Algunos productos no alcanzan la compra mínima para empresas. Ajusta sus cantidades para continuar."
+  },
   "empty": {
     "title": "Tu carrito está vacío",
     "description": "Todavía no has agregado productos a tu carrito.",

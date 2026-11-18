@@ -1,8 +1,10 @@
 /**
- * @fileoverview Acceso a los índices de Algolia: productos y usuarios.
+ * @fileoverview Acceso a los índices de Algolia: productos, usuarios y órdenes.
  */
 
 import { liteClient } from 'algoliasearch/lite';
+import { sumLocationsStock } from '../inventory/branchInventory';
+import { applyInventoryAdjustments } from '../inventory/inventoryAdjustments';
 import type { Product } from './Products';
 
 /** Identificador de la aplicación de Algolia. */
@@ -13,6 +15,8 @@ const searchApiKey = import.meta.env.VITE_ALGOLIA_SEARCH_API_KEY;
 export const indexName = import.meta.env.VITE_ALGOLIA_INDEX_NAME;
 /** Nombre del índice de usuarios en Algolia. */
 export const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME;
+/** Nombre del índice de órdenes en Algolia. */
+export const ordersIndexName = import.meta.env.VITE_ALGOLIA_ORDERS_INDEX_NAME;
 
 /** Cliente de búsqueda, o null si faltan las variables de entorno. */
 export const searchClient = applicationId && searchApiKey
@@ -32,20 +36,29 @@ type AlgoliaProductHit = Omit<Partial<Product>, 'b2c' | 'b2b'> & {
 
 /**
  * Convierte un resultado de Algolia en un producto completo, rellenando los
- * campos faltantes con valores por defecto.
+ * campos faltantes con valores por defecto. Al inventario por sucursal se le
+ * aplican los ajustes simulados (como las compras confirmadas), y el stock
+ * total se calcula a partir de él.
  *
  * @param hit Resultado devuelto por Algolia.
  * @return El producto con todos sus campos definidos.
  */
 export function normalizeAlgoliaProduct(hit: unknown): Product {
     const productHit = hit as AlgoliaProductHit;
-    const stockQuantity = productHit.stock_quantity ?? 0;
-    const inStock = productHit.in_stock ?? stockQuantity > 0;
+    const objectID = productHit.objectID ?? productHit.sku ?? productHit.title ?? 'unknown-product';
+    const locations = applyInventoryAdjustments(objectID, productHit.locations ?? []);
+    const hasBranchInventory = locations.length > 0;
+    const stockQuantity = hasBranchInventory
+        ? sumLocationsStock(locations)
+        : productHit.stock_quantity ?? 0;
+    const inStock = hasBranchInventory
+        ? stockQuantity > 0
+        : productHit.in_stock ?? stockQuantity > 0;
     const price = productHit.b2c?.price ?? productHit.price ?? 0;
     const currency = productHit.b2c?.currency ?? productHit.currency ?? 'CRC';
 
     return {
-        objectID: productHit.objectID ?? productHit.sku ?? productHit.title ?? 'unknown-product',
+        objectID,
         sku: productHit.sku ?? productHit.objectID ?? '',
         title: productHit.title ?? '',
         description: productHit.description ?? '',
@@ -64,7 +77,7 @@ export function normalizeAlgoliaProduct(hit: unknown): Product {
             minimumOrder: productHit.b2b?.minimumOrder ?? 1,
             businessDiscount: productHit.b2b?.businessDiscount ?? 0
         },
-        locations: productHit.locations ?? [],
+        locations,
         in_stock: inStock,
         stock_quantity: stockQuantity,
         rating: productHit.rating ?? 0,

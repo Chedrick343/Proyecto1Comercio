@@ -7,9 +7,12 @@ import { useRef, useState } from 'react';
 
 import { toPurchasePayload } from '../../activity/eventPayloads';
 import { useAnalytics } from '../../context/AnalyticsContext';
-import { useCart } from '../../context/CartContext';
+import { calculateCartTotals, useCart, type CartItem } from '../../context/CartContext';
 import { useOrders } from '../../context/OrdersContext';
+import { useSession } from '../../context/SessionContext';
+import type { Branch } from '../../inventory/branches';
 import { createOrder } from '../../orders/createOrder';
+import { createOrderBuyer } from '../../orders/orderOwner';
 import {
     confirmOrder,
     failOrder,
@@ -40,17 +43,34 @@ export interface SandboxScenarios {
     order: OrderScenario;
 }
 
+/** Lo que se va a comprar y en qué condiciones, tal como quedó en el checkout. */
+export interface OrderRequest {
+    /** Datos de entrega del cliente. */
+    customer: ShippingDetails;
+    termsAcceptance: TermsAcceptance;
+    /** Productos que se van a comprar: todo el carrito o solo lo disponible. */
+    orderItems: CartItem[];
+    /** Sucursal de retiro o envío. */
+    branch: Branch;
+    /** Indica si se compra solo lo disponible y el resto queda en el carrito. */
+    isPartialPurchase: boolean;
+}
+
 /**
  * Crea la orden en el primer intento de pago y la reutiliza en los
  * reintentos. Cada intento valida la orden, la cobra y, si el pago se
- * aprueba, reserva el inventario para confirmarla. Si la orden falla después
- * de cobrarse, solicita el reembolso.
+ * aprueba, reserva el inventario para confirmarla. Al confirmarse, del
+ * carrito solo salen los productos comprados, así que lo que no se pudo
+ * comprar queda para otro pedido; el stock de la sucursal lo descuenta el
+ * contexto de órdenes al guardarla. Si la orden falla después de cobrarse,
+ * solicita el reembolso.
  *
  * @return El estado del proceso y las acciones para pagar, limpiar el
  *     resultado, descartar la orden activa o empezar una orden nueva.
  */
 export function useOrderPayment() {
-    const { cart, subtotal, iva, shipping, total, clearCart } = useCart();
+    const { removePurchasedItems, priceTier } = useCart();
+    const { currentUser } = useSession();
     const { addOrder, saveOrder } = useOrders();
     const { track } = useAnalytics();
 
@@ -77,24 +97,30 @@ export function useOrderPayment() {
     /**
      * Devuelve la orden activa, o la crea y registra si aún no existe.
      *
-     * @param customer Datos de envío del cliente.
-     * @param termsAcceptance Constancia de aceptación de términos.
+     * @param request Productos, datos de entrega y condiciones de la compra.
      * @return La orden a pagar.
      */
-    const getOrCreateOrder = (
-        customer: ShippingDetails,
-        termsAcceptance: TermsAcceptance
-    ): Order => {
+    const getOrCreateOrder = (request: OrderRequest): Order => {
         if (activeOrder) {
             return activeOrder;
         }
 
         const newOrder = createOrder({
-            cart,
-            totals: { subtotal, iva, shipping, total },
-            customer,
-            termsAcceptance
+            cart: request.orderItems,
+            totals: calculateCartTotals(request.orderItems),
+            priceTier,
+            buyer: createOrderBuyer(currentUser, request.customer),
+            branch: { id: request.branch.id, name: request.branch.name },
+            isPartialPurchase: request.isPartialPurchase,
+            customer: request.customer,
+            termsAcceptance: request.termsAcceptance
         });
+
+        console.log(
+            `Orden ${newOrder.orderNumber} creada para ${newOrder.buyer?.userId} ` +
+            `(${newOrder.buyer?.role}), sucursal ${newOrder.branch?.name}, precios ${priceTier}.`,
+            newOrder
+        );
 
         addOrder(newOrder);
         setActiveOrder(newOrder);
@@ -118,7 +144,9 @@ export function useOrderPayment() {
             updateActiveOrder(confirmedOrder);
             setConfirmedOrderNumber(confirmedOrder.orderNumber);
             track('PURCHASE', toPurchasePayload(confirmedOrder));
-            clearCart();
+            removePurchasedItems(
+                confirmedOrder.items.map((item) => ({ id: item.productId, quantity: item.quantity }))
+            );
             return;
         }
 
@@ -141,15 +169,10 @@ export function useOrderPayment() {
      * Valida, cobra y confirma la orden. Se ignora si ya hay un proceso en
      * curso o si la orden ya terminó (confirmada o fallida).
      *
-     * @param customer Datos de envío del cliente.
-     * @param termsAcceptance Constancia de aceptación de términos.
+     * @param request Productos, datos de entrega y condiciones de la compra.
      * @param scenarios Escenarios que deben reproducir los servicios simulados.
      */
-    const payOrder = async (
-        customer: ShippingDetails,
-        termsAcceptance: TermsAcceptance,
-        scenarios: SandboxScenarios
-    ) => {
+    const payOrder = async (request: OrderRequest, scenarios: SandboxScenarios) => {
         if (isSubmittingRef.current || confirmedOrderNumber || failedOrder) {
             return;
         }
@@ -159,7 +182,7 @@ export function useOrderPayment() {
         setPaymentResult(null);
 
         try {
-            const order = getOrCreateOrder(customer, termsAcceptance);
+            const order = getOrCreateOrder(request);
 
             const validationFailure = await validateOrderForPayment(order, scenarios.order);
 

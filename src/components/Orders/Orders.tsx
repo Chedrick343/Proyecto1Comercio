@@ -7,8 +7,8 @@ import { FaChevronRight } from 'react-icons/fa';
 import { GoArchive } from 'react-icons/go';
 import { useTranslation } from 'react-i18next';
 
-import { useOrders } from '../../context/OrdersContext';
 import type { Order } from '../../orders/orderTypes';
+import { useOwnOrders } from '../../orders/useOwnOrders';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDateTime } from '../../utils/formatDate';
 import { OrderStatusBadge, PaymentStatusBadge } from '../order/OrderStatusBadge';
@@ -107,13 +107,14 @@ function EmptyOrders() {
 }
 
 /**
- * Muestra las órdenes registradas, de la más reciente a la más antigua.
+ * Muestra las órdenes de quien usa la tienda, de la más reciente a la más
+ * antigua.
  *
  * @return El panel del historial de órdenes.
  */
 export default function Orders() {
     const { t } = useTranslation('orders');
-    const { orders } = useOrders();
+    const orders = useOwnOrders();
 
     return (
         <section className={styles.ordersPanel} aria-labelledby="orders-heading">

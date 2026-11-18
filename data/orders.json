@@ -1,0 +1,491 @@
+[
+  {
+    "objectID": "ORD-20261110-A7K2Q9",
+    "orderNumber": "ORD-20261110-A7K2Q9",
+    "createdAt": "2026-11-10T15:24:10.000Z",
+    "updatedAt": "2026-11-10T15:26:10.000Z",
+    "currency": "CRC",
+    "userId": "cliente@post.cr",
+    "buyer": {
+      "userId": "cliente@post.cr",
+      "role": "B2C",
+      "name": "Ana Rodríguez Vargas",
+      "email": "cliente@post.cr"
+    },
+    "branch": {
+      "id": "CR-SJ",
+      "name": "San José"
+    },
+    "priceTier": "B2C",
+    "isPartialPurchase": false,
+    "customer": {
+      "fullName": "Ana Rodríguez Vargas",
+      "email": "cliente@post.cr",
+      "phone": "8834-2210",
+      "province": "San José",
+      "canton": "Montes de Oca",
+      "address": "San Pedro, del Mall San Pedro 200 m sur, casa esquinera color beige",
+      "deliveryNotes": "Portón negro, tocar el timbre."
+    },
+    "termsAcceptance": {
+      "acceptedAt": "2026-11-10T15:24:10.000Z",
+      "termsVersion": "2026-10"
+    },
+    "items": [
+      {
+        "productId": "joya-012",
+        "name": "Moments Dije Pandora Corazón Rojo de plata esterlina",
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQX8JnnMAjyZ114a_ATao65K1nvvRhSMU09Gqc9eQJjA-Awbt8EmcywSJqF&s=10",
+        "unitPrice": 290000,
+        "priceTier": "B2C",
+        "currency": "CRC",
+        "quantity": 1,
+        "lineSubtotal": 290000
+      },
+      {
+        "productId": "joya-289",
+        "name": "Iconic Reloj Guess de acero inoxidable en rojo con movimiento cuarzo y caja de 41mm",
+        "image": "https://www.todo-relojes.com/48464-thickbox_default/reloj-guess-iconic-40th-gw0813l2.jpg",
+        "unitPrice": 40000,
+        "priceTier": "B2C",
+        "currency": "CRC",
+        "quantity": 2,
+        "lineSubtotal": 80000
+      }
+    ],
+    "subtotal": 370000,
+    "iva": 48100,
+    "shipping": 18500,
+    "total": 436600,
+    "orderStatus": "CONFIRMED",
+    "paymentStatus": "APPROVED",
+    "paymentAttempts": 1,
+    "transactionId": "TXN-20261110A7K2Q9",
+    "paymentMessage": "Transacción aprobada.",
+    "statusHistory": [
+      {
+        "changedAt": "2026-11-10T15:24:10.000Z",
+        "event": "CREATED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "PENDING"
+      },
+      {
+        "changedAt": "2026-11-10T15:25:10.000Z",
+        "event": "PAYMENT_APPROVED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "APPROVED"
+      },
+      {
+        "changedAt": "2026-11-10T15:26:10.000Z",
+        "event": "ORDER_CONFIRMED",
+        "orderStatus": "CONFIRMED",
+        "paymentStatus": "APPROVED"
+      }
+    ]
+  },
+  {
+    "objectID": "ORD-20261111-B3M8X1",
+    "orderNumber": "ORD-20261111-B3M8X1",
+    "createdAt": "2026-11-11T16:05:42.000Z",
+    "updatedAt": "2026-11-11T16:07:42.000Z",
+    "currency": "CRC",
+    "userId": "compras@joyeriaaurora.cr",
+    "buyer": {
+      "userId": "compras@joyeriaaurora.cr",
+      "role": "B2B",
+      "name": "Carlos Méndez Solano",
+      "email": "compras@joyeriaaurora.cr",
+      "company": {
+        "name": "Joyería Aurora S.A.",
+        "taxId": "3-101-458721"
+      }
+    },
+    "branch": {
+      "id": "CR-ALA",
+      "name": "Alajuela"
+    },
+    "priceTier": "B2B",
+    "isPartialPurchase": false,
+    "customer": {
+      "fullName": "Carlos Méndez Solano",
+      "email": "compras@joyeriaaurora.cr",
+      "phone": "2440-7815",
+      "province": "Alajuela",
+      "canton": "Alajuela",
+      "address": "Centro Comercial Plaza Real, local 14, frente al Parque Central",
+      "deliveryNotes": "Recibir en horario de oficina, de 8 a. m. a 5 p. m."
+    },
+    "termsAcceptance": {
+      "acceptedAt": "2026-11-11T16:05:42.000Z",
+      "termsVersion": "2026-10"
+    },
+    "items": [
+      {
+        "productId": "joya-045",
+        "name": "Constella Anillo Swarovski de oro 18k de metal chapado en oro en blanco",
+        "image": "https://asset.swarovski.com/images/$size_1450/t_swa103/b_rgb:ffffff,c_scale,dpr_2.0,f_auto,w_675/5640966_png/anillo-constella--conjunto-%282%29--talla-redonda--blanco--acabado-en-oro-de-18-quilates-swarovski-5640966.png",
+        "unitPrice": 93000,
+        "priceTier": "B2B",
+        "currency": "CRC",
+        "quantity": 5,
+        "lineSubtotal": 465000
+      },
+      {
+        "productId": "joya-200",
+        "name": "B.zero1 Collar Bvlgari de oro blanco 18k en plateado con cadena y circonita",
+        "image": "https://medias.collectorsquare.com/images/products/333164/00pp-bulgari-b-zero1-necklace-in-white-gold-and-diamonds.jpg",
+        "unitPrice": 994000,
+        "priceTier": "B2B",
+        "currency": "CRC",
+        "quantity": 6,
+        "lineSubtotal": 5964000
+      }
+    ],
+    "subtotal": 6429000,
+    "iva": 835770,
+    "shipping": 321450,
+    "total": 7586220,
+    "orderStatus": "CONFIRMED",
+    "paymentStatus": "APPROVED",
+    "paymentAttempts": 1,
+    "transactionId": "TXN-20261111B3M8X1",
+    "paymentMessage": "Transacción aprobada.",
+    "statusHistory": [
+      {
+        "changedAt": "2026-11-11T16:05:42.000Z",
+        "event": "CREATED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "PENDING"
+      },
+      {
+        "changedAt": "2026-11-11T16:06:42.000Z",
+        "event": "PAYMENT_APPROVED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "APPROVED"
+      },
+      {
+        "changedAt": "2026-11-11T16:07:42.000Z",
+        "event": "ORDER_CONFIRMED",
+        "orderStatus": "CONFIRMED",
+        "paymentStatus": "APPROVED"
+      }
+    ]
+  },
+  {
+    "objectID": "ORD-20261112-C9P4T6",
+    "orderNumber": "ORD-20261112-C9P4T6",
+    "createdAt": "2026-11-12T13:47:03.000Z",
+    "updatedAt": "2026-11-12T13:49:03.000Z",
+    "currency": "CRC",
+    "userId": "guest-6f1d2c84-3b7a-4e59-9c0d-7a2e5b1f8c43",
+    "buyer": {
+      "userId": "guest-6f1d2c84-3b7a-4e59-9c0d-7a2e5b1f8c43",
+      "role": "GUEST",
+      "name": "María Fernanda Quesada",
+      "email": "mfquesada@correo.cr"
+    },
+    "branch": {
+      "id": "CR-CAR",
+      "name": "Cartago"
+    },
+    "priceTier": "B2C",
+    "isPartialPurchase": true,
+    "customer": {
+      "fullName": "María Fernanda Quesada",
+      "email": "mfquesada@correo.cr",
+      "phone": "8701-5523",
+      "province": "Cartago",
+      "canton": "Cartago",
+      "address": "Barrio El Molino, de la Basílica 300 m norte, casa 12",
+      "deliveryNotes": ""
+    },
+    "termsAcceptance": {
+      "acceptedAt": "2026-11-12T13:47:03.000Z",
+      "termsVersion": "2026-10"
+    },
+    "items": [
+      {
+        "productId": "joya-033",
+        "name": "TOUS Bear Pulsera Tous de plata con eslabones en azul con ónix",
+        "image": "https://m.media-amazon.com/images/I/412CSCoVQNL._AC_UY1000_.jpg",
+        "unitPrice": 137000,
+        "priceTier": "B2C",
+        "currency": "CRC",
+        "quantity": 1,
+        "lineSubtotal": 137000
+      },
+      {
+        "productId": "joya-045",
+        "name": "Constella Anillo Swarovski de oro 18k de metal chapado en oro en blanco",
+        "image": "https://asset.swarovski.com/images/$size_1450/t_swa103/b_rgb:ffffff,c_scale,dpr_2.0,f_auto,w_675/5640966_png/anillo-constella--conjunto-%282%29--talla-redonda--blanco--acabado-en-oro-de-18-quilates-swarovski-5640966.png",
+        "unitPrice": 109000,
+        "priceTier": "B2C",
+        "currency": "CRC",
+        "quantity": 1,
+        "lineSubtotal": 109000
+      }
+    ],
+    "subtotal": 246000,
+    "iva": 31980,
+    "shipping": 12300,
+    "total": 290280,
+    "orderStatus": "CONFIRMED",
+    "paymentStatus": "APPROVED",
+    "paymentAttempts": 1,
+    "transactionId": "TXN-20261112C9P4T6",
+    "paymentMessage": "Transacción aprobada.",
+    "statusHistory": [
+      {
+        "changedAt": "2026-11-12T13:47:03.000Z",
+        "event": "CREATED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "PENDING"
+      },
+      {
+        "changedAt": "2026-11-12T13:48:03.000Z",
+        "event": "PAYMENT_APPROVED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "APPROVED"
+      },
+      {
+        "changedAt": "2026-11-12T13:49:03.000Z",
+        "event": "ORDER_CONFIRMED",
+        "orderStatus": "CONFIRMED",
+        "paymentStatus": "APPROVED"
+      }
+    ]
+  },
+  {
+    "objectID": "ORD-20261112-D2R7W5",
+    "orderNumber": "ORD-20261112-D2R7W5",
+    "createdAt": "2026-11-12T20:12:55.000Z",
+    "updatedAt": "2026-11-12T20:15:55.000Z",
+    "currency": "CRC",
+    "userId": "cliente@post.cr",
+    "buyer": {
+      "userId": "cliente@post.cr",
+      "role": "B2C",
+      "name": "Ana Rodríguez Vargas",
+      "email": "cliente@post.cr"
+    },
+    "branch": {
+      "id": "CR-SJ",
+      "name": "San José"
+    },
+    "priceTier": "B2C",
+    "isPartialPurchase": false,
+    "customer": {
+      "fullName": "Ana Rodríguez Vargas",
+      "email": "cliente@post.cr",
+      "phone": "8834-2210",
+      "province": "San José",
+      "canton": "Montes de Oca",
+      "address": "San Pedro, del Mall San Pedro 200 m sur, casa esquinera color beige",
+      "deliveryNotes": "Portón negro, tocar el timbre."
+    },
+    "termsAcceptance": {
+      "acceptedAt": "2026-11-12T20:12:55.000Z",
+      "termsVersion": "2026-10"
+    },
+    "items": [
+      {
+        "productId": "joya-150",
+        "name": "Angelic Aretes Swarovski de metal chapado en oro en rojo tipo aros con circonita",
+        "image": "https://asset.swarovski.com/images/$size_360/t_swa103/b_rgb:ffffff,c_scale,dpr_auto,f_auto,w_auto/5686637_png/pendientes-de-bot%C3%B3n-una-angelic--talla-redonda--tono-dorado--acabado-en-oro-de-18-quilates-swarovski-5686637.png",
+        "unitPrice": 72000,
+        "priceTier": "B2C",
+        "currency": "CRC",
+        "quantity": 1,
+        "lineSubtotal": 72000
+      }
+    ],
+    "subtotal": 72000,
+    "iva": 9360,
+    "shipping": 3600,
+    "total": 84960,
+    "orderStatus": "FAILED",
+    "paymentStatus": "DECLINED",
+    "paymentAttempts": 3,
+    "paymentMessage": "La tarjeta fue rechazada por el banco emisor.",
+    "failureReason": "MAX_ATTEMPTS",
+    "statusHistory": [
+      {
+        "changedAt": "2026-11-12T20:12:55.000Z",
+        "event": "CREATED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "PENDING"
+      },
+      {
+        "changedAt": "2026-11-12T20:13:55.000Z",
+        "event": "PAYMENT_DECLINED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "DECLINED"
+      },
+      {
+        "changedAt": "2026-11-12T20:14:55.000Z",
+        "event": "PAYMENT_DECLINED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "DECLINED"
+      },
+      {
+        "changedAt": "2026-11-12T20:15:55.000Z",
+        "event": "PAYMENT_DECLINED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "DECLINED"
+      },
+      {
+        "changedAt": "2026-11-12T20:15:55.000Z",
+        "event": "ORDER_FAILED",
+        "orderStatus": "FAILED",
+        "paymentStatus": "DECLINED",
+        "failureReason": "MAX_ATTEMPTS"
+      }
+    ]
+  },
+  {
+    "objectID": "ORD-20261113-E5H1N8",
+    "orderNumber": "ORD-20261113-E5H1N8",
+    "createdAt": "2026-11-13T14:30:18.000Z",
+    "updatedAt": "2026-11-13T14:30:18.000Z",
+    "currency": "CRC",
+    "userId": "compras@joyeriaaurora.cr",
+    "buyer": {
+      "userId": "compras@joyeriaaurora.cr",
+      "role": "B2B",
+      "name": "Carlos Méndez Solano",
+      "email": "compras@joyeriaaurora.cr",
+      "company": {
+        "name": "Joyería Aurora S.A.",
+        "taxId": "3-101-458721"
+      }
+    },
+    "branch": {
+      "id": "CR-SJ",
+      "name": "San José"
+    },
+    "priceTier": "B2B",
+    "isPartialPurchase": false,
+    "customer": {
+      "fullName": "Carlos Méndez Solano",
+      "email": "compras@joyeriaaurora.cr",
+      "phone": "2440-7815",
+      "province": "Alajuela",
+      "canton": "Alajuela",
+      "address": "Centro Comercial Plaza Real, local 14, frente al Parque Central",
+      "deliveryNotes": "Recibir en horario de oficina, de 8 a. m. a 5 p. m."
+    },
+    "termsAcceptance": {
+      "acceptedAt": "2026-11-13T14:30:18.000Z",
+      "termsVersion": "2026-10"
+    },
+    "items": [
+      {
+        "productId": "joya-001",
+        "name": "Millenia Pulsera Swarovski de metal chapado en oro rosa con cristales Swarovski",
+        "image": "https://asset.swarovski.com/images/$size_2000/t_swa103/b_rgb:ffffff,c_scale,dpr_1.0,f_auto,w_2000/5683428_png/pulsera-millenia--talla-octogonal--rosa--acabado-en-oro-de-18-quilates-swarovski-5683428.png",
+        "unitPrice": 95000,
+        "priceTier": "B2B",
+        "currency": "CRC",
+        "quantity": 10,
+        "lineSubtotal": 950000
+      }
+    ],
+    "subtotal": 950000,
+    "iva": 123500,
+    "shipping": 47500,
+    "total": 1121000,
+    "orderStatus": "PENDING",
+    "paymentStatus": "PENDING",
+    "paymentAttempts": 0,
+    "statusHistory": [
+      {
+        "changedAt": "2026-11-13T14:30:18.000Z",
+        "event": "CREATED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "PENDING"
+      }
+    ]
+  },
+  {
+    "objectID": "ORD-20261113-F8L3V2",
+    "orderNumber": "ORD-20261113-F8L3V2",
+    "createdAt": "2026-11-13T18:51:37.000Z",
+    "updatedAt": "2026-11-13T18:54:37.000Z",
+    "currency": "CRC",
+    "userId": "cliente@post.cr",
+    "buyer": {
+      "userId": "cliente@post.cr",
+      "role": "B2C",
+      "name": "Ana Rodríguez Vargas",
+      "email": "cliente@post.cr"
+    },
+    "branch": {
+      "id": "CR-LIM",
+      "name": "Limón"
+    },
+    "priceTier": "B2C",
+    "isPartialPurchase": false,
+    "customer": {
+      "fullName": "Ana Rodríguez Vargas",
+      "email": "cliente@post.cr",
+      "phone": "8834-2210",
+      "province": "San José",
+      "canton": "Montes de Oca",
+      "address": "San Pedro, del Mall San Pedro 200 m sur, casa esquinera color beige",
+      "deliveryNotes": "Portón negro, tocar el timbre."
+    },
+    "termsAcceptance": {
+      "acceptedAt": "2026-11-13T18:51:37.000Z",
+      "termsVersion": "2026-10"
+    },
+    "items": [
+      {
+        "productId": "joya-101",
+        "name": "Bonds Pulsera Folli Follie de chapado en oro rosa en multicolor con zafiro",
+        "image": "https://www.rabat.net/media/catalog/product/cache/beb85bc3697c1ba67687c9ae7308ce12/p/u/pulsera-esclava-railes-de-oro-rosa-con-zafiros-multicolor-coleccion-rabat-rainbow-p524800135-m.jpg",
+        "unitPrice": 75000,
+        "priceTier": "B2C",
+        "currency": "CRC",
+        "quantity": 1,
+        "lineSubtotal": 75000
+      }
+    ],
+    "subtotal": 75000,
+    "iva": 9750,
+    "shipping": 3750,
+    "total": 88500,
+    "orderStatus": "FAILED",
+    "paymentStatus": "REFUNDED",
+    "paymentAttempts": 1,
+    "transactionId": "TXN-20261113F8L3V2",
+    "paymentMessage": "Transacción aprobada.",
+    "failureReason": "CONFIRMATION_ERROR",
+    "statusHistory": [
+      {
+        "changedAt": "2026-11-13T18:51:37.000Z",
+        "event": "CREATED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "PENDING"
+      },
+      {
+        "changedAt": "2026-11-13T18:52:37.000Z",
+        "event": "PAYMENT_APPROVED",
+        "orderStatus": "PENDING",
+        "paymentStatus": "APPROVED"
+      },
+      {
+        "changedAt": "2026-11-13T18:53:37.000Z",
+        "event": "ORDER_FAILED",
+        "orderStatus": "FAILED",
+        "paymentStatus": "APPROVED",
+        "failureReason": "CONFIRMATION_ERROR"
+      },
+      {
+        "changedAt": "2026-11-13T18:54:37.000Z",
+        "event": "PAYMENT_REFUNDED",
+        "orderStatus": "FAILED",
+        "paymentStatus": "REFUNDED"
+      }
+    ]
+  }
+]

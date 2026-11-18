@@ -1,5 +1,6 @@
 /**
- * @fileoverview Perfil y menú de la cuenta del cliente.
+ * @fileoverview Perfil y menú de la cuenta. Cada opción se muestra solo a
+ * quien le corresponde según su rol.
  */
 
 import { useState } from 'react';
@@ -18,9 +19,10 @@ import { GoArchive } from 'react-icons/go';
 import type { IconType } from 'react-icons';
 import { useTranslation } from 'react-i18next';
 
-import { useOrders } from '../../context/OrdersContext';
 import { useSession } from '../../context/SessionContext';
-import { isAdmin } from '../../session/userTypes';
+import { useOwnOrders } from '../../orders/useOwnOrders';
+import { hasPermission } from '../../session/permissions';
+import type { User } from '../../session/userTypes';
 import { ADMIN_PATH } from '../admin/adminRoutes';
 import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
 import LogoutConfirmDialog from './LogoutConfirmDialog';
@@ -39,6 +41,12 @@ export type AccountMenuItemId =
 /** Estilo especial de una opción del menú. */
 type MenuItemTone = 'premium' | 'danger';
 
+/**
+ * A quién se muestra una opción: a todos, solo a quien tiene cuenta, o solo
+ * a los clientes con cuenta (B2C y B2B).
+ */
+type MenuItemAudience = 'everyone' | 'registered' | 'customers';
+
 /** Opción del menú con su ícono y destino. */
 interface AccountMenuItem {
     id: AccountMenuItemId;
@@ -46,22 +54,46 @@ interface AccountMenuItem {
     /** Ruta destino; las opciones sin ruta aún no están disponibles. */
     path?: string;
     tone?: MenuItemTone;
+    audience?: MenuItemAudience;
 }
 
+/** Opción de los pedidos propios; se oculta a quien no tiene pedidos, como el administrador. */
+const ORDERS_MENU_ITEM: AccountMenuItem = { id: 'orders', icon: GoArchive, path: '/cuenta/pedidos' };
+
 /**
- * Opciones del menú, en el orden en que se muestran. La opción de iniciar o
- * cerrar sesión se agrega al final según el estado de la sesión.
+ * Opciones generales del menú, en el orden en que se muestran, con a quién
+ * corresponde cada una. La opción de iniciar o cerrar sesión se agrega al
+ * final según el estado de la sesión.
  */
 const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
-    { id: 'orders', icon: GoArchive, path: '/cuenta/pedidos' },
-    { id: 'settings', icon: FaCog },
-    { id: 'privacy', icon: FaUserShield },
-    { id: 'premium', icon: FaGem, tone: 'premium' },
-    { id: 'help', icon: FaQuestionCircle }
+    { id: 'settings', icon: FaCog, audience: 'registered' },
+    { id: 'privacy', icon: FaUserShield, audience: 'registered' },
+    { id: 'premium', icon: FaGem, tone: 'premium', audience: 'customers' },
+    { id: 'help', icon: FaQuestionCircle, audience: 'everyone' }
 ];
 
-/** Opción del panel administrativo; solo se muestra al rol ADMIN, al inicio del menú. */
+/** Opción del panel administrativo; solo se muestra a quien puede verlo, al inicio del menú. */
 const ADMIN_MENU_ITEM: AccountMenuItem = { id: 'admin', icon: FaChartBar, path: ADMIN_PATH };
+
+/**
+ * Indica si una opción del menú corresponde al usuario actual. El invitado
+ * no tiene cuenta que configurar, y el administrador no es un cliente.
+ *
+ * @param item Opción del menú.
+ * @param user Usuario con sesión iniciada, o null si es invitado.
+ * @return Verdadero si la opción se debe mostrar.
+ */
+function isMenuItemForUser(item: AccountMenuItem, user: User | null): boolean {
+    if (item.audience === 'registered') {
+        return user !== null;
+    }
+
+    if (item.audience === 'customers') {
+        return user !== null && hasPermission(user, 'ADD_TO_CART');
+    }
+
+    return true;
+}
 
 /**
  * Construye las clases de una opción del menú.
@@ -102,14 +134,16 @@ function MenuItemContent({ item }: { item: AccountMenuItem }) {
 
 /**
  * Muestra los datos de quien usa la tienda: con sesión iniciada, su nombre,
- * rol y empresa; como invitado, solo la cantidad de pedidos.
+ * rol, tipo de usuario y empresa; la cantidad de pedidos solo aparece si el
+ * usuario puede tener pedidos propios.
  *
  * @return El perfil.
  */
 function Profile() {
     const { t } = useTranslation(['account', 'auth']);
     const { currentUser } = useSession();
-    const { orders } = useOrders();
+    const orders = useOwnOrders();
+    const canViewOwnOrders = hasPermission(currentUser, 'VIEW_OWN_ORDERS');
 
     return (
         <div className={styles.profile}>
@@ -124,15 +158,23 @@ function Profile() {
                     <span className={styles.roleBadge}>{t(`auth:roles.${currentUser.role}`)}</span>
                 )}
 
+                {currentUser && (
+                    <p className={styles.profileDetail}>
+                        {t('auth:session.userType', { type: t(`auth:userTypes.${currentUser.role}`) })}
+                    </p>
+                )}
+
                 {currentUser?.company && (
                     <p className={styles.profileDetail}>
                         {t('auth:session.company', { name: currentUser.company.name })}
                     </p>
                 )}
 
-                <p className={styles.profileDetail}>
-                    {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
-                </p>
+                {canViewOwnOrders && (
+                    <p className={styles.profileDetail}>
+                        {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
+                    </p>
+                )}
             </div>
         </div>
     );
@@ -210,9 +252,17 @@ export default function UserSection({ activeItemId }: UserSectionProps) {
     const { t } = useTranslation('account');
     const { currentUser } = useSession();
 
-    const menuItems = isAdmin(currentUser)
-        ? [ADMIN_MENU_ITEM, ...ACCOUNT_MENU_ITEMS]
-        : ACCOUNT_MENU_ITEMS;
+    const menuItems: AccountMenuItem[] = [];
+
+    if (hasPermission(currentUser, 'VIEW_ADMIN_INFORMATION')) {
+        menuItems.push(ADMIN_MENU_ITEM);
+    }
+
+    if (hasPermission(currentUser, 'VIEW_OWN_ORDERS')) {
+        menuItems.push(ORDERS_MENU_ITEM);
+    }
+
+    menuItems.push(...ACCOUNT_MENU_ITEMS.filter((item) => isMenuItemForUser(item, currentUser)));
 
     return (
         <div className={styles.userSection}>

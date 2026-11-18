@@ -89,27 +89,26 @@ const LOW_STOCK_THRESHOLD = 5;
 export type StockStatus = 'available' | 'lowStock' | 'outOfStock';
 
 /**
- * Determina el nivel de disponibilidad de un producto.
+ * Determina el nivel de disponibilidad de una cantidad de unidades, por
+ * ejemplo el stock total o el de una sucursal.
  *
- * @param product Producto a evaluar.
+ * @param units Unidades disponibles.
  * @return "outOfStock" si no hay unidades, "lowStock" si quedan
  *     LOW_STOCK_THRESHOLD o menos, y "available" en otro caso.
  */
-export function getStockStatus(product: Product): StockStatus {
-    if (!product.in_stock || product.stock_quantity <= 0) {
+export function getStockStatusForUnits(units: number): StockStatus {
+    if (units <= 0) {
         return 'outOfStock';
     }
 
-    return product.stock_quantity <= LOW_STOCK_THRESHOLD ? 'lowStock' : 'available';
+    return units <= LOW_STOCK_THRESHOLD ? 'lowStock' : 'available';
 }
 
 /**
- * Obtiene las tiendas físicas que tienen el producto disponible.
+ * Determina el nivel de disponibilidad de un producto.
  *
- * @param product Producto a consultar.
- * @return Los nombres de las tiendas con stock.
+ * @param product Producto a evaluar.
+ * @return El nivel de disponibilidad de su stock total.
  */
-export const getAvailableStores = (product: Product): string[] =>
-    product.locations
-        .filter((location) => location.available && location.stock > 0)
-        .map((location) => location.title);
+export const getStockStatus = (product: Product): StockStatus =>
+    product.in_stock ? getStockStatusForUnits(product.stock_quantity) : 'outOfStock';

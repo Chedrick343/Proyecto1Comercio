@@ -3,6 +3,7 @@
  */
 
 import type checkoutMessages from '../../i18n/locales/es/checkout.json';
+import type { SavedAddress } from '../../session/userTypes';
 
 /** Clave de traducción de un mensaje de validación del checkout. */
 export type ValidationMessageKey = keyof typeof checkoutMessages.validation;
@@ -24,6 +25,35 @@ export interface ShippingDetails {
 export type ShippingFieldErrors = Partial<
     Record<keyof ShippingDetails, ValidationMessageKey>
 >;
+
+/** Dirección elegida en el checkout: la guardada en la cuenta o una nueva. */
+export type AddressChoice = 'SAVED_ADDRESS' | 'NEW_ADDRESS';
+
+/**
+ * Qué se compra en la orden: todo el carrito, o solo lo disponible en la
+ * sucursal elegida, dejando el resto en el carrito para otro pedido.
+ */
+export type PurchaseMode = 'WHOLE_CART' | 'AVAILABLE_ONLY';
+
+/**
+ * Convierte la dirección guardada de un usuario en datos de entrega.
+ *
+ * @param savedAddress Dirección guardada en la cuenta.
+ * @param email Correo del usuario, que la dirección guardada no repite.
+ * @return Los datos de entrega listos para la orden.
+ */
+export const savedAddressToShippingDetails = (
+    savedAddress: SavedAddress,
+    email: string
+): ShippingDetails => ({
+    fullName: savedAddress.fullName,
+    email,
+    phone: savedAddress.phone,
+    province: savedAddress.province,
+    canton: savedAddress.canton,
+    address: savedAddress.address,
+    deliveryNotes: savedAddress.deliveryNotes
+});
 
 /** Formulario de envío vacío. */
 export const INITIAL_SHIPPING_DETAILS: ShippingDetails = {

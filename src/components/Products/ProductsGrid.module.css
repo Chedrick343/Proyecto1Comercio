@@ -22,6 +22,29 @@
     gap: 12px;
 }
 
+/* Aviso único para quien no puede comprar, como el administrador */
+.adminNotice {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 12px 0 0;
+    padding: 10px var(--space-4);
+    border: 1px dashed #555558;
+    border-radius: var(--radius-md);
+    color: #aaa9ad;
+    font-size: var(--font-size-sm);
+}
+
+.adminNotice svg {
+    flex-shrink: 0;
+    color: #c9a246;
+}
+
+.adminNoticeLink {
+    color: #e4c56f;
+    font-weight: 700;
+}
+
 .productsTitle {
     margin: 0;
     font-size: 20px;
@@ -355,99 +378,6 @@
 /* =====================
    PAGINACIÓN
 ===================== */
-.pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    /* Evita que la fila entera se desborde en pantallas angostas */
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-.pageButton {
-    flex-shrink: 0;
-
-    padding: 8px 14px;
-
-    font-size: 13px;
-    color: #f1f1f1;
-
-    background-color: #4a4a4a;
-    border: none;
-    border-radius: 8px;
-
-    cursor: pointer;
-}
-
-.pageButton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.pageButton:not(:disabled):active {
-    transform: scale(0.98);
-}
-
-.pageNumbers {
-    display: flex;
-    gap: 6px;
-
-    /* En vez de romper línea o desbordar, permite scroll horizontal */
-    overflow-x: auto;
-    scrollbar-width: none;
-
-    max-width: 100%;
-}
-
-.pageNumbers::-webkit-scrollbar {
-    display: none;
-}
-
-.pageNumber {
-    flex-shrink: 0;
-
-    min-width: 34px;
-    padding: 8px 0;
-
-    font-size: 13px;
-    color: #f1f1f1;
-
-    background-color: #4a4a4a;
-    border: none;
-    border-radius: 8px;
-
-    cursor: pointer;
-}
-
-.pageNumberActive {
-    background-color: #ffffff;
-    color: #2b2b2b;
-    font-weight: 700;
-}
-
-.pageEllipsis {
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    min-width: 24px;
-    padding: 8px 0;
-
-    font-size: 13px;
-    color: #a8a8a8;
-}
-
-.pageButton:focus-visible,
-.pageNumber:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
-}
-
 /* =====================
    RESPONSIVE
 ===================== */
@@ -463,20 +393,6 @@
         width: 96px;
     }
 
-    /* En móvil mostramos menos números para dejar mas espacio */
-    .pagination {
-        gap: 6px;
-    }
-
-    .pageButton {
-        padding: 8px 10px;
-    }
-
-    .pageNumber {
-        min-width: 30px;
-        padding: 7px 0;
-        font-size: 12px;
-    }
 }
 @keyframes results-enter {
     from {

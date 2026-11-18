@@ -5,7 +5,6 @@
 import { useId, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { IconType } from 'react-icons';
 import {
     FaCartPlus,
     FaEye,
@@ -38,10 +37,12 @@ import LatestEventsTable from './LatestEventsTable';
 import PurchaseFunnel from './PurchaseFunnel';
 import PurchaseJourney from './PurchaseJourney';
 import RankedBarList, { type RankedBarItem } from './RankedBarList';
+import StatTile from './StatTile';
 import SubjectAvatar from './SubjectAvatar';
 import SubjectSelect, { type SubjectOption } from './SubjectSelect';
 import { useSubjectLabel } from './useSubjectLabel';
 
+import statStyles from './StatTile.module.css';
 import styles from './UsageDashboard.module.css';
 
 /** Valor del filtro que muestra la actividad de todos los sujetos. */
@@ -54,36 +55,6 @@ const ALL_SUBJECTS = 'all';
  * @return El número con separadores de miles.
  */
 const formatCount = (value: number): string => value.toLocaleString(getFormatLocale());
-
-/** Propiedades de StatTile. */
-interface StatTileProps {
-    icon: IconType;
-    label: string;
-    value: number;
-    /** Dato de contexto bajo el valor. */
-    detail: string;
-}
-
-/**
- * Muestra una métrica principal con su ícono y su valor destacado.
- *
- * @param props Propiedades del componente.
- * @return La tarjeta de la métrica.
- */
-function StatTile({ icon: Icon, label, value, detail }: StatTileProps) {
-    return (
-        <div className={styles.tile}>
-            <dt className={styles.tileLabel}>
-                {label}
-                <span className={styles.tileIcon}>
-                    <Icon aria-hidden="true" />
-                </span>
-            </dt>
-            <dd className={styles.tileValue}>{formatCount(value)}</dd>
-            <dd className={styles.tileDetail}>{detail}</dd>
-        </div>
-    );
-}
 
 /**
  * Muestra las cuatro métricas que pide el laboratorio.
@@ -104,29 +75,29 @@ function UsageTiles({ totals }: { totals: UsageTotals }) {
         : t('usage.tiles.noSales');
 
     return (
-        <dl className={styles.tiles} aria-label={t('usage.tiles.label')}>
+        <dl className={statStyles.tiles} aria-label={t('usage.tiles.label')}>
             <StatTile
                 icon={FaEye}
                 label={t('usage.tiles.productViews')}
-                value={totals.productViews}
+                value={formatCount(totals.productViews)}
                 detail={t('usage.tiles.viewedProducts', { count: totals.viewedProductCount })}
             />
             <StatTile
                 icon={FaSearch}
                 label={t('usage.tiles.searches')}
-                value={totals.searches}
+                value={formatCount(totals.searches)}
                 detail={t('usage.tiles.searchedTerms', { count: totals.searchedTermCount })}
             />
             <StatTile
                 icon={FaCartPlus}
                 label={t('usage.tiles.cartUnits')}
-                value={totals.cartUnits}
+                value={formatCount(totals.cartUnits)}
                 detail={t('usage.tiles.cartAdditions', { count: totals.cartAdditions })}
             />
             <StatTile
                 icon={FaShoppingBag}
                 label={t('usage.tiles.purchases')}
-                value={totals.purchases}
+                value={formatCount(totals.purchases)}
                 detail={salesDetail}
             />
         </dl>

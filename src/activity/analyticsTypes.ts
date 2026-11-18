@@ -16,8 +16,14 @@ export interface ProductSnapshot {
     /** Categoría más específica del producto, si tiene. */
     category?: string;
     imageUrl: string;
+    /** Precio B2C. */
     price: number;
     currency: string;
+    /**
+     * Precio B2B, si el producto se vende a empresas con un precio válido. Es
+     * opcional porque los eventos guardados antes de que existiera no lo tienen.
+     */
+    businessPrice?: number;
 }
 
 /** Información que guarda cada tipo de evento. */

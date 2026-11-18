@@ -15,8 +15,74 @@ import OrderStatusTimeline from './OrderStatusTimeline';
 import styles from './OrderDetails.module.css';
 
 /**
- * Muestra el estado de la orden y del pago, los datos de entrega, los
- * productos y los totales.
+ * Muestra quién hizo la compra, desde qué sucursal y en qué condiciones
+ * comerciales. Las órdenes guardadas antes del Proyecto III no tienen estos
+ * datos, así que el panel lo indica.
+ *
+ * @param props Propiedades del componente.
+ * @param props.order Orden a mostrar.
+ * @return El panel del comprador y las condiciones.
+ */
+function OrderBuyerPanel({ order }: { order: Order }) {
+    const { t } = useTranslation('orders');
+    const { buyer, branch, priceTier } = order;
+
+    return (
+        <section className={styles.panel} aria-labelledby="order-buyer-heading">
+            <h2 id="order-buyer-heading">{t('details.buyerTitle')}</h2>
+
+            {!buyer ? (
+                <p className={styles.legacyNote}>{t('details.legacyOrder')}</p>
+            ) : (
+                <dl className={styles.infoList}>
+                    <div>
+                        <dt>{t('details.buyer')}</dt>
+                        <dd>{buyer.name} · {buyer.email}</dd>
+                    </div>
+                    <div>
+                        <dt>{t('details.customerType')}</dt>
+                        <dd>{t(`buyerRoles.${buyer.role}`)}</dd>
+                    </div>
+                    {buyer.company && (
+                        <div>
+                            <dt>{t('details.company')}</dt>
+                            <dd>
+                                {t('details.companyValue', {
+                                    name: buyer.company.name,
+                                    taxId: buyer.company.taxId
+                                })}
+                            </dd>
+                        </div>
+                    )}
+                    {priceTier && (
+                        <div>
+                            <dt>{t('details.priceTier')}</dt>
+                            <dd>{t(`priceTiers.${priceTier}`)}</dd>
+                        </div>
+                    )}
+                    {branch && (
+                        <div>
+                            <dt>{t('details.branch')}</dt>
+                            <dd>{branch.name}</dd>
+                        </div>
+                    )}
+                    <div>
+                        <dt>{t('details.purchase')}</dt>
+                        <dd>
+                            {order.isPartialPurchase
+                                ? t('details.partialPurchase')
+                                : t('details.wholePurchase')}
+                        </dd>
+                    </div>
+                </dl>
+            )}
+        </section>
+    );
+}
+
+/**
+ * Muestra el estado de la orden y del pago, el comprador y las condiciones
+ * comerciales, los datos de entrega, los productos y los totales.
  *
  * @param props Propiedades del componente.
  * @param props.order Orden a mostrar.
@@ -69,7 +135,12 @@ export default function OrderDetails({ order }: { order: Order }) {
                 </dl>
             </section>
 
-            <section className={styles.panel} aria-labelledby="order-delivery-heading">
+            <OrderBuyerPanel order={order} />
+
+            <section
+                className={`${styles.panel} ${styles.deliveryPanel}`}
+                aria-labelledby="order-delivery-heading"
+            >
                 <h2 id="order-delivery-heading">{t('orders:details.deliveryTitle')}</h2>
 
                 <dl className={styles.infoList}>
@@ -128,6 +199,9 @@ export default function OrderDetails({ order }: { order: Order }) {
                                 <td data-label={t('orders:details.columns.quantity')}>{item.quantity}</td>
                                 <td data-label={t('orders:details.columns.unitPrice')}>
                                     {formatCurrency(item.unitPrice, item.currency)}
+                                    {item.priceTier === 'B2B' && (
+                                        <span className={styles.tierTag}>B2B</span>
+                                    )}
                                 </td>
                                 <td data-label={t('common:summary.subtotal')}>
                                     {formatCurrency(item.lineSubtotal, item.currency)}

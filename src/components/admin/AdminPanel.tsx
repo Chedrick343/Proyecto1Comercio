@@ -1,83 +1,93 @@
 /**
  * @fileoverview Contenido del panel administrativo dentro de la cuenta,
- * disponible solo para el rol ADMIN.
+ * disponible solo para quien puede ver información administrativa. Se
+ * organiza en secciones con pestañas; la sección abierta queda en la URL.
  */
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaLock, FaUserShield } from 'react-icons/fa';
 
-import { useSession } from '../../context/SessionContext';
-import { isAdmin } from '../../session/userTypes';
-import ErrorState from '../error/ErrorState';
-import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
+import RequirePermission from '../access/RequirePermission';
+import AdminOrdersList from './AdminOrdersList';
+import AdminProductsList from './AdminProductsList';
+import {
+    ADMIN_PATH,
+    ADMIN_SECTION_PARAM,
+    ADMIN_SECTION_SLUGS,
+    getAdminSectionFromSlug,
+    type AdminSection
+} from './adminRoutes';
 import UsageDashboard from './UsageDashboard';
 
-import errorStyles from '../error/ErrorState.module.css';
+import styles from './AdminPanel.module.css';
 
 /**
- * Explica por qué no se puede ver el panel: a un invitado lo invita a iniciar
- * sesión y a un cliente le indica que no tiene permisos.
+ * Muestra las pestañas de las secciones del panel.
  *
  * @param props Propiedades del componente.
- * @param props.isGuest Indica si quien intenta entrar no ha iniciado sesión.
- * @return El mensaje de acceso denegado.
+ * @param props.activeSection Sección abierta.
+ * @return La barra de pestañas.
  */
-function AdminAccessDenied({ isGuest }: { isGuest: boolean }) {
+function AdminSectionTabs({ activeSection }: { activeSection: AdminSection }) {
     const { t } = useTranslation('admin');
-    const location = useLocation();
-
-    const catalogLink = (
-        <Link
-            to="/"
-            className={isGuest ? errorStyles.secondaryAction : errorStyles.primaryAction}
-        >
-            {t('access.goToCatalog')}
-        </Link>
-    );
-
-    if (isGuest) {
-        return (
-            <ErrorState
-                icon={FaUserShield}
-                title={t('access.signInTitle')}
-                description={t('access.signInDescription')}
-                actions={
-                    <>
-                        <Link
-                            to={LOGIN_PATH}
-                            state={createLoginRedirectState(location)}
-                            className={errorStyles.primaryAction}
-                        >
-                            {t('access.signIn')}
-                        </Link>
-                        {catalogLink}
-                    </>
-                }
-            />
-        );
-    }
+    const sections = Object.keys(ADMIN_SECTION_SLUGS) as AdminSection[];
 
     return (
-        <ErrorState
-            icon={FaLock}
-            title={t('access.deniedTitle')}
-            description={t('access.deniedDescription')}
-            actions={catalogLink}
-        />
+        <nav className={styles.tabs} aria-label={t('sections.label')}>
+            {sections.map((section) => {
+                const isActive = section === activeSection;
+
+                return (
+                    <Link
+                        key={section}
+                        to={`${ADMIN_PATH}?${ADMIN_SECTION_PARAM}=${ADMIN_SECTION_SLUGS[section]}`}
+                        className={isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+                        aria-current={isActive ? 'page' : undefined}
+                    >
+                        {t(`sections.${section}`)}
+                    </Link>
+                );
+            })}
+        </nav>
     );
 }
 
 /**
- * Muestra las métricas de uso al administrador. A cualquier otra persona le
+ * Muestra el contenido de una sección del panel.
+ *
+ * @param props Propiedades del componente.
+ * @param props.section Sección a mostrar.
+ * @return El contenido de la sección.
+ */
+function AdminSectionContent({ section }: { section: AdminSection }) {
+    if (section === 'products') {
+        return <AdminProductsList />;
+    }
+
+    if (section === 'usage') {
+        return <UsageDashboard />;
+    }
+
+    return <AdminOrdersList />;
+}
+
+/**
+ * Muestra las secciones del panel al administrador: órdenes, productos con su
+ * inventario por sucursal y métricas de uso. A cualquier otra persona le
  * muestra un mensaje de acceso denegado.
  *
- * @return El dashboard o el mensaje de acceso denegado.
+ * @return El panel o el mensaje de acceso denegado.
  */
 export default function AdminPanel() {
-    const { currentUser } = useSession();
+    const [searchParams] = useSearchParams();
+    const activeSection = getAdminSectionFromSlug(searchParams.get(ADMIN_SECTION_PARAM));
 
-    return isAdmin(currentUser)
-        ? <UsageDashboard />
-        : <AdminAccessDenied isGuest={!currentUser} />;
+    return (
+        <RequirePermission permission="VIEW_ADMIN_INFORMATION">
+            <div className={styles.panel}>
+                <AdminSectionTabs activeSection={activeSection} />
+                <AdminSectionContent section={activeSection} />
+            </div>
+        </RequirePermission>
+    );
 }

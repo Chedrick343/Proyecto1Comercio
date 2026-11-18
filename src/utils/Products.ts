@@ -2,6 +2,8 @@
  * @fileoverview Tipos de los productos del catálogo y filtrado del lado del cliente.
  */
 
+import type { PriceTier } from '../pricing/customerPrice';
+
 /** Condiciones de venta a consumidores finales. */
 export interface B2C {
     enabled: boolean;
@@ -118,11 +120,15 @@ const normalize = (text: string) =>
  *
  * @param products Productos a filtrar.
  * @param filters Criterios de filtrado.
- * @return Los productos activos, habilitados para B2C, que cumplen los criterios.
+ * @param priceTier Tipo de precio del usuario: decide qué condiciones de
+ *     venta (b2c o b2b) se usan para la visibilidad y el rango de precios.
+ * @return Los productos activos, habilitados para ese tipo de cliente, que
+ *     cumplen los criterios.
  */
 export function filterProducts(
     products: Product[],
-    filters: ProductFilters
+    filters: ProductFilters,
+    priceTier: PriceTier
 ): Product[] {
 
     const term = normalize(filters.search);
@@ -136,8 +142,10 @@ export function filterProducts(
         }
 
 
-        // Esta es la tienda para clientes, así que se usa la información de b2c.
-        if (!product.b2c.enabled) {
+        // Se usan las condiciones de venta del tipo de cliente (b2c o b2b).
+        const saleConditions = priceTier === 'B2B' ? product.b2b : product.b2c;
+
+        if (!saleConditions.enabled) {
             return false;
         }
 
@@ -180,7 +188,7 @@ export function filterProducts(
         }
 
 
-        const price = product.b2c.price;
+        const price = saleConditions.price;
 
 
         if (price < filters.minPrice) {

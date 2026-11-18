@@ -4,6 +4,15 @@
     "name": "Ana Rodríguez Vargas",
     "email": "cliente@post.cr",
     "role": "B2C",
+    "savedAddress": {
+      "fullName": "Ana Rodríguez Vargas",
+      "phone": "8834-2210",
+      "province": "San José",
+      "canton": "Montes de Oca",
+      "address": "San Pedro, del Mall San Pedro 200 m sur, casa esquinera color beige",
+      "deliveryNotes": "Portón negro, tocar el timbre.",
+      "defaultBranchId": "CR-SJ"
+    },
     "passwordHash": "c6b4d8430caa6d749df4a92b257f5b67e1037ec50c42c2fff75d0adb1674da16"
   },
   {
@@ -14,6 +23,15 @@
     "company": {
       "name": "Joyería Aurora S.A.",
       "taxId": "3-101-458721"
+    },
+    "savedAddress": {
+      "fullName": "Carlos Méndez Solano",
+      "phone": "2440-7815",
+      "province": "Alajuela",
+      "canton": "Alajuela",
+      "address": "Centro Comercial Plaza Real, local 14, frente al Parque Central",
+      "deliveryNotes": "Recibir en horario de oficina, de 8 a. m. a 5 p. m.",
+      "defaultBranchId": "CR-ALA"
     },
     "passwordHash": "3291c877972bd724bc65928c41f3c05a6a33063ce8ee58f14292b74a82c31651"
   },

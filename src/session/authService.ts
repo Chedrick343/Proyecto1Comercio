@@ -12,6 +12,7 @@ import {
 import { hashPassword } from './passwordHash';
 import {
     isCompany,
+    isSavedAddress,
     isUserRole,
     type Company,
     type User
@@ -50,6 +51,8 @@ interface UserRecord {
     email: string;
     role: unknown;
     company?: Company;
+    /** Dirección guardada; se revisa antes de usarla porque podría estar incompleta. */
+    savedAddress?: unknown;
     /** Hash SHA-256 de la contraseña, en hexadecimal. */
     passwordHash: string;
 }
@@ -120,11 +123,19 @@ export async function authenticate({ email, password }: LoginCredentials): Promi
         throw new AuthError('invalidRole');
     }
 
+    // Una dirección incompleta no impide iniciar sesión; solo no se ofrece en el checkout.
+    const savedAddress = isSavedAddress(record.savedAddress) ? record.savedAddress : undefined;
+
+    if (record.savedAddress !== undefined && !savedAddress) {
+        console.error(`La dirección guardada de ${record.objectID} está incompleta; se ignora.`);
+    }
+
     return {
         id: record.objectID,
         name: record.name,
         email: record.email,
         role: record.role,
-        company: record.company
+        company: record.company,
+        savedAddress
     };
 }

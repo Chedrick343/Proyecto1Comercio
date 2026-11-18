@@ -9,6 +9,9 @@ import Header from '../header/Header';
 import NavBar from '../navBar/NavBar';
 import Orders from '../Orders/Orders';
 import AdminPanel from '../admin/AdminPanel';
+import RequirePermission from '../access/RequirePermission';
+import { useSession } from '../../context/SessionContext';
+import { hasPermission } from '../../session/permissions';
 import UserSection from './userSection';
 
 import styles from './AccountPage.module.css';
@@ -41,7 +44,11 @@ interface AccountPageProps {
  */
 export default function AccountPage({ view }: AccountPageProps) {
     const { t } = useTranslation('account');
-    const isAdminView = view === 'admin';
+    const { currentUser } = useSession();
+    // Al entrar a la cuenta, el administrador ve su panel en lugar de pedidos propios, que no tiene.
+    const isAdminView =
+        view === 'admin' ||
+        (view === 'menu' && hasPermission(currentUser, 'VIEW_ADMIN_INFORMATION'));
 
     return (
         <main className="app">
@@ -64,7 +71,13 @@ export default function AccountPage({ view }: AccountPageProps) {
                         <Link to="/cuenta" className={styles.backLink}>
                             ← {t('backToAccount')}
                         </Link>
-                        {isAdminView ? <AdminPanel /> : <Orders />}
+                        {isAdminView ? (
+                            <AdminPanel />
+                        ) : (
+                            <RequirePermission permission="VIEW_OWN_ORDERS">
+                                <Orders />
+                            </RequirePermission>
+                        )}
                     </div>
                 </div>
             </section>

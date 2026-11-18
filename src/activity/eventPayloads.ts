@@ -5,6 +5,7 @@
 import type { CartItem } from '../context/CartContext';
 import { getCartCurrency } from '../orders/createOrder';
 import type { Order } from '../orders/orderTypes';
+import { getCustomerPrice } from '../pricing/customerPrice';
 import type { User } from '../session/userTypes';
 import { getMainCategory, type Product } from '../utils/Products';
 import type {
@@ -21,15 +22,20 @@ import type {
  * @param product Producto completo.
  * @return El resumen con los datos necesarios para mostrarlo después.
  */
-export const toProductSnapshot = (product: Product): ProductSnapshot => ({
-    productId: product.objectID,
-    title: product.title,
-    brand: product.brand,
-    category: getMainCategory(product),
-    imageUrl: product.image_url,
-    price: product.b2c.price,
-    currency: product.b2c.currency
-});
+export const toProductSnapshot = (product: Product): ProductSnapshot => {
+    const businessPrice = getCustomerPrice(product, 'B2B');
+
+    return {
+        productId: product.objectID,
+        title: product.title,
+        brand: product.brand,
+        category: getMainCategory(product),
+        imageUrl: product.image_url,
+        price: product.b2c.price,
+        currency: product.b2c.currency,
+        businessPrice: businessPrice.problem ? undefined : businessPrice.amount
+    };
+};
 
 /**
  * Suma las unidades de una lista de productos.

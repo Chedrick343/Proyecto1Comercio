@@ -96,7 +96,7 @@ export default function LatestEventsTable({ events }: LatestEventsTableProps) {
                                             {formatShortDateTime(event.timestamp)}
                                         </time>
                                     </td>
-                                    <td>
+                                    <td className={styles.event}>
                                         <span className={styles.eventType}>
                                             <EventIcon aria-hidden="true" />
                                             {t(`admin:usage.eventTypes.${event.type}`)}
