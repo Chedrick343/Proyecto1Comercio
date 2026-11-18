@@ -74,7 +74,8 @@
   },
   "notFound": {
     "title": "No encontramos este pedido",
-    "description": "No existe un pedido con el número {{orderNumber}} asociado a tu cuenta. Revisa el número o busca tu compra en \"Mis pedidos\"."
+    "description": "No existe un pedido con el número {{orderNumber}} asociado a tu cuenta. Revisa el número o busca tu compra en \"Mis pedidos\".",
+    "adminDescription": "No existe ninguna orden con el número {{orderNumber}} en la tienda. Revisa el número o búscala en el panel administrativo."
   },
   "failureReasons": {
     "OUT_OF_STOCK": "Producto agotado",
