@@ -1,5 +1,6 @@
 /**
- * @fileoverview Perfil y menú de la cuenta del cliente.
+ * @fileoverview Perfil y menú de la cuenta. Cada opción se muestra solo a
+ * quien le corresponde según su rol.
  */
 
 import { useState } from 'react';
@@ -21,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { useSession } from '../../context/SessionContext';
 import { useOwnOrders } from '../../orders/useOwnOrders';
 import { hasPermission } from '../../session/permissions';
+import type { User } from '../../session/userTypes';
 import { ADMIN_PATH } from '../admin/adminRoutes';
 import { createLoginRedirectState, LOGIN_PATH } from '../login/loginRedirect';
 import LogoutConfirmDialog from './LogoutConfirmDialog';
@@ -39,6 +41,12 @@ export type AccountMenuItemId =
 /** Estilo especial de una opción del menú. */
 type MenuItemTone = 'premium' | 'danger';
 
+/**
+ * A quién se muestra una opción: a todos, solo a quien tiene cuenta, o solo
+ * a los clientes con cuenta (B2C y B2B).
+ */
+type MenuItemAudience = 'everyone' | 'registered' | 'customers';
+
 /** Opción del menú con su ícono y destino. */
 interface AccountMenuItem {
     id: AccountMenuItemId;
@@ -46,25 +54,46 @@ interface AccountMenuItem {
     /** Ruta destino; las opciones sin ruta aún no están disponibles. */
     path?: string;
     tone?: MenuItemTone;
+    audience?: MenuItemAudience;
 }
 
 /** Opción de los pedidos propios; se oculta a quien no tiene pedidos, como el administrador. */
 const ORDERS_MENU_ITEM: AccountMenuItem = { id: 'orders', icon: GoArchive, path: '/cuenta/pedidos' };
 
 /**
- * Opciones del menú disponibles para todos, en el orden en que se muestran.
- * La opción de iniciar o cerrar sesión se agrega al final según el estado de
- * la sesión.
+ * Opciones generales del menú, en el orden en que se muestran, con a quién
+ * corresponde cada una. La opción de iniciar o cerrar sesión se agrega al
+ * final según el estado de la sesión.
  */
 const ACCOUNT_MENU_ITEMS: AccountMenuItem[] = [
-    { id: 'settings', icon: FaCog },
-    { id: 'privacy', icon: FaUserShield },
-    { id: 'premium', icon: FaGem, tone: 'premium' },
-    { id: 'help', icon: FaQuestionCircle }
+    { id: 'settings', icon: FaCog, audience: 'registered' },
+    { id: 'privacy', icon: FaUserShield, audience: 'registered' },
+    { id: 'premium', icon: FaGem, tone: 'premium', audience: 'customers' },
+    { id: 'help', icon: FaQuestionCircle, audience: 'everyone' }
 ];
 
 /** Opción del panel administrativo; solo se muestra a quien puede verlo, al inicio del menú. */
 const ADMIN_MENU_ITEM: AccountMenuItem = { id: 'admin', icon: FaChartBar, path: ADMIN_PATH };
+
+/**
+ * Indica si una opción del menú corresponde al usuario actual. El invitado
+ * no tiene cuenta que configurar, y el administrador no es un cliente.
+ *
+ * @param item Opción del menú.
+ * @param user Usuario con sesión iniciada, o null si es invitado.
+ * @return Verdadero si la opción se debe mostrar.
+ */
+function isMenuItemForUser(item: AccountMenuItem, user: User | null): boolean {
+    if (item.audience === 'registered') {
+        return user !== null;
+    }
+
+    if (item.audience === 'customers') {
+        return user !== null && hasPermission(user, 'ADD_TO_CART');
+    }
+
+    return true;
+}
 
 /**
  * Construye las clases de una opción del menú.
@@ -233,7 +262,7 @@ export default function UserSection({ activeItemId }: UserSectionProps) {
         menuItems.push(ORDERS_MENU_ITEM);
     }
 
-    menuItems.push(...ACCOUNT_MENU_ITEMS);
+    menuItems.push(...ACCOUNT_MENU_ITEMS.filter((item) => isMenuItemForUser(item, currentUser)));
 
     return (
         <div className={styles.userSection}>
