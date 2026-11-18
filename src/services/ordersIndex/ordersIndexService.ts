@@ -76,26 +76,38 @@ function removeAlgoliaFields(hit: Record<string, unknown>): Record<string, unkno
 }
 
 /**
- * Lee las órdenes guardadas en el índice. Si el índice todavía no existe
- * (nadie ha comprado), devuelve una lista vacía.
+ * Lee las órdenes guardadas en el índice. Los clientes y los invitados solo
+ * reciben las suyas, filtradas por userId (atributo de faceta del índice);
+ * solo el administrador lee todas. Si el índice todavía no existe (nadie ha
+ * comprado), devuelve una lista vacía.
  *
+ * @param ownerId Dueño de las órdenes a leer, o null para leer todas.
  * @return Las órdenes válidas del índice.
  * @throws {Error} Si el índice está configurado pero no se pudo consultar.
  */
-export async function loadOrdersFromIndex(): Promise<Order[]> {
+export async function loadOrdersFromIndex(ownerId: string | null): Promise<Order[]> {
     if (!searchClient || !ordersIndexName) {
         return [];
     }
 
     try {
         const { results } = await searchClient.searchForHits<Record<string, unknown>>({
-            requests: [{ indexName: ordersIndexName, query: '', hitsPerPage: MAX_ORDERS_PER_QUERY }]
+            requests: [{
+                indexName: ordersIndexName,
+                query: '',
+                hitsPerPage: MAX_ORDERS_PER_QUERY,
+                ...(ownerId !== null && { filters: `userId:"${ownerId}"` })
+            }]
         });
         const orders = (results[0]?.hits ?? [])
             .map((hit): unknown => removeAlgoliaFields(hit))
             .filter(isValidOrder);
 
-        console.log(`Órdenes leídas del índice: ${orders.length}.`);
+        console.log(
+            ownerId === null
+                ? `Órdenes leídas del índice (todas): ${orders.length}.`
+                : `Órdenes de ${ownerId} leídas del índice: ${orders.length}.`
+        );
         return orders;
     } catch (error) {
         const status = (error as { status?: unknown }).status;
