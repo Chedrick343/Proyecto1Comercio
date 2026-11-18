@@ -1,43 +1,34 @@
-# Laboratorio-2-Comercio-electronico
+# POST: tienda de joyería y relojería
 
-# 1. Decisiones de Diseño (UI)
-La decisión de usar colores grises viene de que se quería una paleta de colores elegante.
-Estos colores generan un gran contraste con estos accesorios ya que en su mayoría son coloridos y los tonos que usamos realzan esos colores.
+Proyecto del curso IC8063 Comercio Electrónico (Instituto Tecnológico de Costa Rica), grupo 2. Es una tienda en línea con catálogo, carrito, checkout con pago simulado y, desde el Proyecto III, un entorno B2B con roles, precios por tipo de cliente, inventario por sucursal y panel administrativo.
 
+- **Aplicación:** https://chedrick343.github.io/Proyecto1Comercio/
+- **Repositorio:** https://github.com/Chedrick343/Proyecto1Comercio
 
-# 2. Experiencia de usuario (UX).
-Se ubicaron los filtros en un menú desplegable, para no sobrecargar la interfaz y si el usuario necesita aplicarlos entonces presiona y se despliegan los filtros.
-Como hay muchas categorías, decidimos colocar dentro de un div las categorías que el usuario puede marcar pero le pusimos un scrollbar para no hacer una lista gigantesca y el siguiente filtro que es el de los precios estuviera escondido hasta abajo.
-Para el rango de precios restringimos que la cantidad mínima no puediera ser mayor que la cantidad máxima, por ende tampoco podía pasar lo contrario. Elegimos una barra deslizante azul que eleva los precios de 10 mil en 10 mil hasta donde el usuario quiere.
+## Funcionalidades
 
-Para paginar decidimos colocar 10 productos por página, nos parece una cantidad suficiente para no tener un scroll infinito.
+- **Catálogo:** búsqueda y filtros con Algolia, detalle de producto y recomendaciones.
+- **Compra:** carrito por usuario, checkout en tres pasos y servicio de pago Sandbox con escenarios de aprobación, rechazo y error.
+- **Roles:** invitado, cliente B2C, cliente B2B y administrador, con permisos definidos en `src/session/permissions.ts`.
+- **Precios B2B:** el cliente B2B compra con precio de empresa y debe cumplir la compra mínima de cada producto.
+- **Multi-inventario:** cuatro sucursales (San José, Alajuela, Cartago y Limón); la sucursal se elige en el checkout y se valida su disponibilidad.
+- **Órdenes:** registran comprador, sucursal y condiciones comerciales, y se guardan en Algolia.
+- **Panel administrativo:** consulta de órdenes, productos e inventario, edición de precios, mínimo B2B y stock, y métricas de uso.
 
-La barra de búsqueda la hicimos como normalmente se ve en las aplicaciones, una barra blanca con bordes redondeados donde se le pregunta al usuario si busca algo en específico y justo al lado un botón de buscar lo suficientemente grande para que el usuario lo identifique.
+## Arquitectura
 
+| Componente | Responsabilidad |
+|---|---|
+| React + TypeScript (Vite) | Interfaz, publicada en GitHub Pages |
+| Algolia `grupo-02_products` | Catálogo, precios e inventario por sucursal |
+| Algolia `grupo-02_users` | Usuarios, roles y hash SHA-256 de las contraseñas |
+| Algolia `grupo-02_orders` | Órdenes de compra |
+| Cloudflare Worker (`worker/algolia-proxy.js`) | Único punto que escribe en Algolia: guarda órdenes, descuenta stock y aplica los cambios del administrador validando su token |
+| localStorage | Sesión, carritos, sucursal elegida y copia local de las órdenes |
 
-# 3. Manejo de estados.
-Cuando no se arroja ningún estado se le indica al usuario que no hay productos que coincidan con lo que buscó y se le da una sugerencia de que pruebe cambiar los filtros.
+La clave de escritura de Algolia solo existe como secreto del Worker; el navegador usa la clave pública de búsqueda.
 
-# Uso de la inteligencia artificial
-
-Para desarrollar productsGrid.tsx nos apoyamos de la IA para poder generar el componente.
-Bajo supervisión le dimos el siguiente prompt a la IA:
-
-"Eres un desarrollador web, usando react + typescript que repliques la siguiente interfaz gráfica creada con figma
-alimentadote de un archivo .json que se encuentra en la siguiente ruta ../Data/products(1).json para generar la cuadricula 
-de productos.
-"
-
-De esa forma se consiguió la cuadricula. El json fue utilizado para simular la conexión con algolia
-
-# Inicio de sesión simulado
-La autenticación es simulada: los usuarios están en el índice de usuarios de Algolia (`VITE_ALGOLIA_USERS_INDEX_NAME`) y la verificación ocurre en el navegador. El índice solo guarda el hash SHA-256 de cada contraseña, nunca la contraseña en texto plano. La sesión activa se guarda en localStorage.
-
-Para cargar o actualizar los usuarios (requiere `ALGOLIA_APP_ID` y `ALGOLIA_ADMIN_API_KEY` en `.env.local`):
-
-```bash
-npm run seed-users
-```
+## Cuentas de prueba
 
 | Rol | Correo | Contraseña |
 |---|---|---|
@@ -46,5 +37,32 @@ npm run seed-users
 | Administrador | admin@post.cr | Admin2026! |
 | Sin rol válido (prueba de error) | sinrol@post.cr | SinRol2026! |
 
-# Enlace del repositorio desplegado
-https://chedrick343.github.io/Proyecto1Comercio/
+También se puede comprar como invitado.
+
+## Ejecución local
+
+```bash
+npm install
+npm run dev
+```
+
+`.env.local` define el identificador de la aplicación de Algolia, la clave pública de búsqueda, los nombres de los tres índices (`VITE_ALGOLIA_INDEX_NAME`, `VITE_ALGOLIA_USERS_INDEX_NAME`, `VITE_ALGOLIA_ORDERS_INDEX_NAME`) y la URL del Worker (`VITE_ORDERS_WORKER_URL`).
+
+| Script | Uso |
+|---|---|
+| `npm run build` | Compila la aplicación |
+| `npm run lint` | Revisa el código con oxlint |
+| `npm run deploy` | Publica en GitHub Pages |
+| `npm run seed-algolia` / `npm run seed-users` | Cargan `data/products.json` y `data/users.json` en Algolia. Requieren `ALGOLIA_APP_ID` y `ALGOLIA_ADMIN_API_KEY` en el entorno local; esas claves no se suben al repositorio |
+
+`data/orders.json` contiene órdenes de ejemplo con la estructura del índice de órdenes.
+
+## Cloudflare Worker
+
+El código está en `worker/algolia-proxy.js` y se despliega manualmente en Cloudflare. Variables: `ALGOLIA_APPLICATION_ID`, `ALGOLIA_PRODUCTS_INDEX_NAME`, `ALGOLIA_USERS_INDEX_NAME`, `ALGOLIA_ORDERS_INDEX_NAME` y `ALLOWED_ORIGINS`; secretos: `ALGOLIA_WRITE_API_KEY` y `ADMIN_TOKEN_SECRET`.
+
+## Equipo
+
+- Roymar Castillo Carvajal
+- Sergio Montoya Badilla
+- Chedrick Uzaga López
