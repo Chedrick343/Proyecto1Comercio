@@ -15,6 +15,7 @@ import {
     type AuthErrorCode,
     type LoginCredentials
 } from '../../session/authService';
+import { requestAdminToken } from '../../services/adminSession/adminSessionService';
 import { focusFirstInvalidField } from '../checkout/focusFirstInvalidField';
 import { getLoginRedirectPath } from './loginRedirect';
 import {
@@ -27,7 +28,8 @@ const EMPTY_CREDENTIALS: LoginCredentials = { email: '', password: '' };
 
 /**
  * Maneja el formulario de inicio de sesión: valida los campos, autentica al
- * usuario, inicia su sesión y lo regresa a la página de la que venía.
+ * usuario, inicia su sesión y lo regresa a la página de la que venía. Al
+ * administrador además le pide al Worker el token para guardar cambios.
  *
  * @return Las credenciales, los errores, si se está verificando la cuenta y
  *     las funciones para editar un campo, rellenar ambos campos y enviar el
@@ -89,6 +91,11 @@ export function useLoginForm() {
 
         try {
             const user = await authenticate(credentials);
+
+            if (user.role === 'ADMIN') {
+                await requestAdminToken(credentials);
+            }
+
             startSession(user);
             // The active subject is still the guest until the session update renders.
             track('LOGIN', { role: user.role }, toUserSubject(user));

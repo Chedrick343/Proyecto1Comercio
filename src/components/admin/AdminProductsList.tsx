@@ -1,7 +1,8 @@
 /**
  * @fileoverview Consulta de productos e inventario en el panel
  * administrativo: precios, condición B2B, stock y estado de cada producto,
- * con el detalle de unidades por sucursal al expandir la fila.
+ * con el detalle de unidades por sucursal y la edición de precios e
+ * inventario al expandir la fila.
  */
 
 import { Fragment, useState } from 'react';
@@ -26,6 +27,7 @@ import { getMainCategory, type Product } from '../../utils/Products';
 import Pagination from '../pagination/Pagination';
 import DropdownSelect from '../select/DropdownSelect';
 import SearchField from '../select/SearchField';
+import AdminProductDetail from './AdminProductDetail';
 import CollapsibleFilters from './CollapsibleFilters';
 import StatTile from './StatTile';
 import { useAdminProducts } from './useAdminProducts';
@@ -152,52 +154,16 @@ function ProductStatusTag({ product }: { product: Product }) {
 }
 
 /**
- * Muestra las unidades de un producto en cada sucursal, dentro de la fila
- * expandida: el nombre de la sucursal arriba y sus unidades abajo, con el
- * total del producto en el encabezado.
- *
- * @param props Propiedades del componente.
- * @param props.product Producto a mostrar.
- * @return La lista de sucursales con sus unidades.
- */
-function BranchStockDetail({ product }: { product: Product }) {
-    const { t } = useTranslation('admin');
-
-    return (
-        <div className={styles.branchDetail}>
-            <div className={styles.branchDetailHeader}>
-                <span className={styles.branchDetailTitle}>{t('products.branchStockTitle')}</span>
-                <span className={styles.branchDetailTotal}>
-                    {t('products.totalStockLabel')}
-                    <span className={`${styles.tag} ${STOCK_TAG_CLASS[getStockStatusForUnits(product.stock_quantity)]}`}>
-                        {t('products.units', { count: product.stock_quantity })}
-                    </span>
-                </span>
-            </div>
-            <ul className={styles.branchStockList}>
-                {getStockByBranch(product).map(({ branch, stock }) => (
-                    <li key={branch.id} className={styles.branchStockItem}>
-                        <span className={styles.branchName}>{branch.name}</span>
-                        <span className={`${styles.tag} ${STOCK_TAG_CLASS[getStockStatusForUnits(stock)]}`}>
-                            {t('products.units', { count: stock })}
-                        </span>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-}
-
-/**
  * Muestra los productos del catálogo con un resumen, búsqueda, filtros por
  * categoría y disponibilidad, y paginación. Cada fila se puede expandir para
- * ver las unidades del producto en cada sucursal.
+ * ver las unidades del producto en cada sucursal y, como administrador,
+ * editar sus precios, su mínimo B2B y su inventario.
  *
  * @return La consulta de productos e inventario.
  */
 export default function AdminProductsList() {
     const { t } = useTranslation('admin');
-    const { products, isLoading, hasError } = useAdminProducts();
+    const { products, isLoading, hasError, reloadProducts } = useAdminProducts();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState(ALL_FILTER);
     const [availability, setAvailability] = useState<AvailabilityFilter>(ALL_FILTER);
@@ -402,7 +368,7 @@ export default function AdminProductsList() {
                                         {isExpanded && (
                                             <tr id={detailId} className={styles.detailRow}>
                                                 <td colSpan={8}>
-                                                    <BranchStockDetail product={product} />
+                                                    <AdminProductDetail product={product} onProductChanged={reloadProducts} />
                                                 </td>
                                             </tr>
                                         )}

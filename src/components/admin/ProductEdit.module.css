@@ -1,0 +1,270 @@
+/* =====================
+   FORMULARIO DE EDICIÓN DEL PRODUCTO
+===================== */
+
+.form {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.group {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.groupTitle {
+    padding: 0;
+    color: #8f8e93;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fields {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+}
+
+.field {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    padding: var(--space-3);
+    border: 1px solid #313134;
+    border-radius: var(--radius-md);
+    background-color: #26262a;
+}
+
+.fieldLabel {
+    color: #e8e3db;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.input {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 var(--space-3);
+    box-sizing: border-box;
+    border: 1px solid #555558;
+    border-radius: var(--radius-md);
+    background-color: #1d1e22;
+    color: #f7f2e9;
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-variant-numeric: tabular-nums;
+    transition: border-color 0.2s ease;
+}
+
+.input:hover,
+.input:focus {
+    border-color: #c9a246;
+    outline: none;
+}
+
+.input:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.4);
+    outline-offset: 2px;
+}
+
+.inputInvalid,
+.inputInvalid:hover,
+.inputInvalid:focus {
+    border-color: #d66b63;
+}
+
+/* Ahorro B2B: se calcula, no se edita */
+.savingsField {
+    border-style: dashed;
+    background-color: transparent;
+}
+
+.savingsValue {
+    display: flex;
+    min-height: 38px;
+    align-items: center;
+    color: #e4c56f;
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.fieldHint,
+.fieldChanged,
+.fieldProblem {
+    font-size: var(--font-size-xs);
+}
+
+.fieldHint {
+    color: #8f8e93;
+}
+
+.fieldChanged {
+    color: #e4c56f;
+    font-weight: 600;
+}
+
+.fieldProblem {
+    color: #f3aaa5;
+}
+
+.formFooter,
+.detailActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid #313134;
+}
+
+.pendingCount {
+    color: #aaa9ad;
+    font-size: var(--font-size-xs);
+}
+
+.detailActions {
+    justify-content: flex-end;
+}
+
+.formActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-left: auto;
+}
+
+.primaryButton,
+.secondaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 38px;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-pill);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primaryButton {
+    border: 0;
+    background-color: #c9a246;
+    color: #252525;
+}
+
+.primaryButton:hover:not(:disabled) {
+    background-color: #dfbd5d;
+}
+
+.primaryButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.secondaryButton {
+    border: 1px solid #555558;
+    background-color: transparent;
+    color: #e8e3db;
+}
+
+.secondaryButton:hover {
+    background-color: #333336;
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible {
+    outline: 2px solid rgba(201, 162, 70, 0.6);
+    outline-offset: 2px;
+}
+
+/* Modal del guardado: ícono de carga y resumen de los cambios */
+.spinner {
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.changeList {
+    display: grid;
+    width: 100%;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.changeItem {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid #3a3a3d;
+    border-radius: var(--radius-md);
+    background-color: #212124;
+    font-size: var(--font-size-sm);
+}
+
+.changeField {
+    color: #e8e3db;
+    font-weight: 600;
+}
+
+.changeValues {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    color: #8f8e93;
+    font-variant-numeric: tabular-nums;
+}
+
+.changePrevious {
+    text-decoration: line-through;
+}
+
+.changeNext {
+    color: #e4c56f;
+    font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation-duration: 2.5s;
+    }
+}
+
+@media (max-width: 1000px) {
+    .fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .field {
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .formActions {
+        width: 100%;
+    }
+
+    .formActions > * {
+        flex: 1;
+    }
+}

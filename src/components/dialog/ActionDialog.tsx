@@ -26,6 +26,11 @@ interface ActionDialogProps {
     /** Contenido adicional entre el encabezado y las acciones. */
     children?: ReactNode;
     /**
+     * Indica si se puede cerrar con Escape o con un clic fuera del contenido.
+     * Se desactiva mientras se espera una operación que no se puede cancelar.
+     */
+    isDismissible?: boolean;
+    /**
      * Botones de acción. Para cerrar el diálogo, deben llamar a onClose. Para
      * los estilos, usar las clases primaryAction, secondaryAction y
      * dangerAction de ActionDialog.module.css.
@@ -37,7 +42,8 @@ interface ActionDialogProps {
  * Muestra un diálogo modal con el elemento <dialog> nativo, que atrapa el
  * foco y se cierra con Escape; React solo refleja su estado de apertura, así
  * que cerrarlo consiste en que el consumidor cambie isOpen a falso. Un clic
- * fuera del contenido también llama a onClose.
+ * fuera del contenido también llama a onClose, salvo que isDismissible sea
+ * falso.
  *
  * @param props Propiedades del componente.
  * @return El diálogo.
@@ -51,6 +57,7 @@ export default function ActionDialog({
     title,
     description,
     children,
+    isDismissible = true,
     actions
 }: ActionDialogProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
@@ -72,8 +79,13 @@ export default function ActionDialog({
             className={styles.dialog}
             aria-labelledby={titleId}
             onClose={onClose}
+            onCancel={(event) => {
+                if (!isDismissible) {
+                    event.preventDefault();
+                }
+            }}
             onClick={(event) => {
-                if (event.target === event.currentTarget) {
+                if (isDismissible && event.target === event.currentTarget) {
                     onClose();
                 }
             }}
