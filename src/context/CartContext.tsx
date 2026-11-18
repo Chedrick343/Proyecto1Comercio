@@ -16,11 +16,21 @@ import { getBusinessMinimum } from '../pricing/businessMinimum';
 import { getCustomerPrice, type PriceTier } from '../pricing/customerPrice';
 import { usePriceTier } from '../pricing/usePriceTier';
 import { getProductById } from '../utils/algolia';
+import { getOrderOwnerId } from '../orders/orderOwner';
+import { getGuestSessionId } from '../session/guestSession';
+import { hasPermission } from '../session/permissions';
+import type { User } from '../session/userTypes';
 import { useSession } from './SessionContext';
 import type { Product } from '../utils/Products';
 
-/** Clave de localStorage donde se guarda el carrito. */
-const CART_STORAGE_KEY = 'shopping-cart-v2';
+/** Clave de localStorage donde se guardan los carritos, uno por dueño. */
+const CART_STORAGE_KEY = 'shopping-carts-v3';
+
+/**
+ * Clave del carrito único de versiones anteriores. Si existe, se le asigna al
+ * invitado de este navegador y se borra.
+ */
+const LEGACY_CART_STORAGE_KEY = 'shopping-cart-v2';
 
 /** Tasa de envío aplicada sobre el subtotal. */
 export const SHIPPING_RATE = 0.05;
@@ -124,6 +134,17 @@ type CartAction =
               conditionsById: Record<string, ItemConditions>;
           };
       };
+
+/**
+ * Carritos de este navegador por dueño: el identificador del usuario, o el
+ * del invitado (guest-...).
+ */
+type CartsByOwner = Record<string, CartState>;
+
+/** Acciones sobre los carritos: un cambio en el carrito de un dueño, o pasar uno a otro. */
+type CartsAction =
+    | { type: 'OWNER_ACTION'; ownerId: string; action: CartAction }
+    | { type: 'MOVE_CART'; fromOwnerId: string; toOwnerId: string };
 
 
 /**
@@ -303,36 +324,90 @@ function readStoredCartItem(item: unknown): StoredCartItem | null {
 }
 
 /**
- * Recupera el carrito guardado en localStorage.
+ * Convierte un carrito recuperado de localStorage al formato actual.
  *
- * @return Los productos válidos guardados, o un carrito vacío si no hay
- *     datos o están dañados.
+ * @param value Valor recuperado.
+ * @return Los productos válidos, o un carrito vacío si no es una lista.
  */
-function getInitialCart(): CartState {
+function readStoredCart(value: unknown): CartState {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+
+    return value
+        .map(readStoredCartItem)
+        .filter((item): item is StoredCartItem => item !== null);
+}
+
+/**
+ * Recupera los carritos guardados en localStorage. Si solo existe el carrito
+ * único de versiones anteriores, se le asigna al invitado de este navegador.
+ *
+ * @return Los carritos por dueño, o ninguno si no hay datos o están dañados.
+ */
+function getInitialCarts(): CartsByOwner {
     try {
-        const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+        const storedCarts = localStorage.getItem(CART_STORAGE_KEY);
 
-        if (!storedCart) {
-            return [];
+        if (storedCarts) {
+            const parsedCarts: unknown = JSON.parse(storedCarts);
+
+            if (typeof parsedCarts !== 'object' || parsedCarts === null || Array.isArray(parsedCarts)) {
+                return {};
+            }
+
+            return Object.fromEntries(
+                Object.entries(parsedCarts).map(([ownerId, cart]) => [ownerId, readStoredCart(cart)])
+            );
         }
 
-        const parsedCart: unknown = JSON.parse(storedCart);
+        const legacyCart = localStorage.getItem(LEGACY_CART_STORAGE_KEY);
 
-        if (!Array.isArray(parsedCart)) {
-            return [];
+        if (legacyCart) {
+            console.log('Se pasa el carrito de la versión anterior al invitado de este navegador.');
+            return { [getGuestSessionId()]: readStoredCart(JSON.parse(legacyCart)) };
         }
 
-        return parsedCart
-            .map(readStoredCartItem)
-            .filter((item): item is StoredCartItem => item !== null);
+        return {};
     } catch (error) {
         console.error(
-            'No se pudo recuperar el carrito:',
+            'No se pudieron recuperar los carritos:',
             error
         );
 
-        return [];
+        return {};
     }
+}
+
+/**
+ * Calcula los carritos después de una acción. Los cambios de productos se
+ * aplican solo al carrito del dueño indicado. Al pasar un carrito a otro
+ * dueño, los productos repetidos suman sus cantidades y el carrito de origen
+ * queda vacío.
+ *
+ * @param state Carritos actuales.
+ * @param action Acción a aplicar.
+ * @return Los carritos actualizados.
+ */
+function cartsReducer(state: CartsByOwner, action: CartsAction): CartsByOwner {
+    if (action.type === 'OWNER_ACTION') {
+        return { ...state, [action.ownerId]: cartReducer(state[action.ownerId] ?? [], action.action) };
+    }
+
+    const movedItems = state[action.fromOwnerId] ?? [];
+    const targetCart = [...(state[action.toOwnerId] ?? [])];
+
+    movedItems.forEach((movedItem) => {
+        const index = targetCart.findIndex((item) => item.id === movedItem.id);
+
+        if (index === -1) {
+            targetCart.push(movedItem);
+        } else {
+            targetCart[index] = { ...targetCart[index], quantity: targetCart[index].quantity + movedItem.quantity };
+        }
+    });
+
+    return { ...state, [action.fromOwnerId]: [], [action.toOwnerId]: targetCart };
 }
 
 /**
@@ -439,6 +514,12 @@ interface CartContextType {
     /** Resta del carrito las unidades compradas y deja el resto. */
     removePurchasedItems: (purchasedItems: PurchasedUnits[]) => void;
 
+    /**
+     * Pasa los productos que agregó el invitado de este navegador al carrito
+     * de un cliente que acaba de iniciar sesión.
+     */
+    adoptGuestCart: (user: User) => void;
+
     /** Suma de las cantidades de todos los productos. */
     totalItems: number;
 
@@ -464,9 +545,10 @@ interface CartProviderProps {
 }
 
 /**
- * Proveedor que mantiene el estado del carrito y lo persiste en localStorage.
- * Debe estar dentro de SessionProvider, porque el precio aplicado depende del
- * usuario.
+ * Proveedor que mantiene un carrito por dueño (cada usuario y el invitado de
+ * este navegador) y los persiste en localStorage; expone el del usuario
+ * actual. Debe estar dentro de SessionProvider, porque el carrito y el precio
+ * aplicado dependen del usuario.
  *
  * @param props Propiedades del componente.
  * @param props.children Componentes que tendrán acceso al contexto.
@@ -475,20 +557,34 @@ interface CartProviderProps {
 export function CartProvider({
     children
 }: CartProviderProps) {
-    const [storedCart, dispatch] = useReducer(
-        cartReducer,
-        [],
-        getInitialCart
+    const [carts, dispatchCarts] = useReducer(
+        cartsReducer,
+        {},
+        getInitialCarts
     );
     const priceTier = usePriceTier();
     const { currentUser } = useSession();
+    const ownerId = getOrderOwnerId(currentUser);
+    const storedCart = carts[ownerId] ?? [];
+
+    /**
+     * Aplica una acción al carrito del usuario actual.
+     *
+     * @param action Acción a aplicar.
+     */
+    const dispatch = (action: CartAction) => dispatchCarts({ type: 'OWNER_ACTION', ownerId, action });
 
     useEffect(() => {
         localStorage.setItem(
             CART_STORAGE_KEY,
-            JSON.stringify(storedCart)
+            JSON.stringify(carts)
         );
-    }, [storedCart]);
+        localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
+    }, [carts]);
+
+    useEffect(() => {
+        console.log(`Carrito activo: el de ${ownerId}.`);
+    }, [ownerId]);
 
     useEffect(() => {
         console.log(`Precios del carrito calculados con el tipo de precio ${priceTier}.`);
@@ -497,7 +593,6 @@ export function CartProvider({
     // El administrador puede cambiar precios y mínimos en Algolia: se consultan
     // los vigentes al abrir la tienda, al cambiar de usuario y al cambiar los productos.
     const cartProductIds = storedCart.map((item) => item.id).join(',');
-    const currentUserId = currentUser?.id ?? '';
 
     useEffect(() => {
         if (cartProductIds === '') {
@@ -508,14 +603,18 @@ export function CartProvider({
 
         loadCurrentConditions(cartProductIds.split(',')).then((conditionsById) => {
             if (isCurrentRequest && Object.keys(conditionsById).length > 0) {
-                dispatch({ type: 'REFRESH_CONDITIONS', payload: { conditionsById } });
+                dispatchCarts({
+                    type: 'OWNER_ACTION',
+                    ownerId,
+                    action: { type: 'REFRESH_CONDITIONS', payload: { conditionsById } }
+                });
             }
         });
 
         return () => {
             isCurrentRequest = false;
         };
-    }, [cartProductIds, currentUserId]);
+    }, [cartProductIds, ownerId]);
 
     const fallbackPriceIds = priceTier === 'B2B'
         ? storedCart.filter((item) => item.businessPrice === null).map((item) => item.id).join(', ')
@@ -579,6 +678,17 @@ export function CartProvider({
         });
     };
 
+    const adoptGuestCart = (user: User) => {
+        const guestId = getGuestSessionId();
+
+        if (!hasPermission(user, 'ADD_TO_CART') || (carts[guestId] ?? []).length === 0) {
+            return;
+        }
+
+        console.log(`Los productos del invitado pasan al carrito de ${user.id}.`);
+        dispatchCarts({ type: 'MOVE_CART', fromOwnerId: guestId, toOwnerId: user.id });
+    };
+
     const totalItems = cart.reduce(
         (total, item) => total + item.quantity,
         0
@@ -597,6 +707,7 @@ export function CartProvider({
                 removeProduct,
                 setItemQuantity,
                 removePurchasedItems,
+                adoptGuestCart,
                 totalItems,
                 subtotal,
                 iva,
